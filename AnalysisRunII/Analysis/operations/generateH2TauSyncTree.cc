@@ -3,7 +3,7 @@
 #include <fstream>
 #include <string>
 
-bool useMuonCentral = 0;
+bool useMuonCentral = 1;
 
 generateH2TauSyncTree::generateH2TauSyncTree(FlatTreeReader R_, bool run_, std::string fileOutName_)
 {
@@ -68,15 +68,15 @@ generateH2TauSyncTree::generateH2TauSyncTree(FlatTreeReader R_, bool run_, std::
 	sfTool_Muon_IdIso0p15_eff->init_ScaleFactor("Muon_IdIso_IsoLt0p15_2016BtoH_eff.root"); // 2016
 	sfTool_Muon_IdIso0p20_eff->init_ScaleFactor("Muon_IdIso_IsoLt0p2_2016BtoH_eff.root"); // 2016
 	
-	sfTool_Electron_IdIso0p10_eff->init_ScaleFactor("Electron_IdIso_IsoLt0p1_eff.root"); // 2016
-	sfTool_Electron_IdIso0p15_eff->init_ScaleFactor("Electron_IdIso_IsoLt0p15_eff.root"); // 2016
+	sfTool_Electron_IdIso0p10_eff->init_ScaleFactor("Electron_IdIso_IsoLt0p1_2016BtoH_eff.root"); // 2016
+	sfTool_Electron_IdIso0p15_eff->init_ScaleFactor("Electron_IdIso_IsoLt0p15_2016BtoH_eff.root"); // 2016
 
 	sfTool_Muon_SingleMu_eff->init_ScaleFactor("Muon_IsoMu24_OR_TkIsoMu24_2016BtoH_eff.root"); // 2016
-	sfTool_Electron_SingleEle_eff->init_ScaleFactor("Electron_Ele25_eta2p1_WPTight_eff.root"); // 2016
+	sfTool_Electron_SingleEle_eff->init_ScaleFactor("Electron_Ele25_eta2p1_WPTight_2016BtoH_eff.root"); // 2016
 	sfTool_Muon_Mu8_eff->init_ScaleFactor("Muon_Mu8leg_2016BtoH_eff.root"); //2016
 	sfTool_Muon_Mu17_eff->init_ScaleFactor("Muon_Mu17_eff.root");
 	sfTool_Electron_Ele17_eff->init_ScaleFactor("Electron_Ele17_eff.root");
-	sfTool_Electron_Ele12_eff->init_ScaleFactor("Electron_Ele12leg_eff.root"); // 2016
+	sfTool_Electron_Ele12_eff->init_ScaleFactor("Electron_Ele12_eff.root"); // 2016
     
     /* k factor initialization */
     
@@ -325,7 +325,7 @@ void generateH2TauSyncTree::handleEvent()
 	againstElectronTightMVA6_1 = R.getF("leg1_againstElectronTightMVA6");
 	againstMuonLoose3_1 = R.getF("leg1_againstMuonLoose3");
 	decayModeFinding_1 = R.getF("leg1_decayModeFinding");
-	byIsolationMVA3oldDMwLTraw_1 = R.getF("leg1_byIsolationMVA3oldDMwLTraw");
+	//byIsolationMVA3oldDMwLTraw_1 = R.getF("leg1_byIsolationMVA3oldDMwLTraw");
 	byCombinedIsolationDeltaBetaCorrRaw3Hits_1 = R.getF("leg1_byCombinedIsolationDeltaBetaCorrRaw3Hits");
 	byIsolationMVArun2v1DBnewDMwLTraw_1 = R.getF("leg1_byIsolationMVArun2v1DBnewDMwLTraw");
 	decayModeFindingNewDMs_1 = R.getF("leg1_decayModeFindingNewDMs");
@@ -379,7 +379,7 @@ void generateH2TauSyncTree::handleEvent()
 	againstElectronTightMVA6_2 = R.getF("leg2_againstElectronTightMVA6");
 	againstMuonLoose3_2 = R.getF("leg2_againstMuonLoose3");
 	decayModeFinding_2 = R.getF("leg2_decayModeFinding");
-	byIsolationMVA3oldDMwLTraw_2 = R.getF("leg2_byIsolationMVA3oldDMwLTraw");
+	//byIsolationMVA3oldDMwLTraw_2 = R.getF("leg2_byIsolationMVA3oldDMwLTraw");
 	byCombinedIsolationDeltaBetaCorrRaw3Hits_2 = R.getF("leg2_byCombinedIsolationDeltaBetaCorrRaw3Hits");
 	byIsolationMVArun2v1DBnewDMwLTraw_2 = R.getF("leg2_byIsolationMVArun2v1DBnewDMwLTraw");
 	decayModeFindingNewDMs_2 = R.getF("leg2_decayModeFindingNewDMs");
@@ -395,7 +395,8 @@ void generateH2TauSyncTree::handleEvent()
 
 	/* sv fit -- only keeping variants which use mvaMET, study by H2Tau group showed met variants have minimal impact on SVMass shape
 	and so those are omitted */
-
+    
+    /*
 	m_sv 						= R.getD("SVMass");
 	mt_sv 						= R.getD("SVTransverseMass");
 	SVFit_mvaMET_diTau_pt		= R.getD("SVFit_mvaMET_diTau_pt");
@@ -403,7 +404,7 @@ void generateH2TauSyncTree::handleEvent()
 	SVFit_mvaMET_diTau_phi		= R.getD("SVFit_mvaMET_diTau_phi");
 	SVFit_mvaMET_FittedMET		= R.getD("SVFit_mvaMET_FittedMET");
 	SVFit_mvaMET_FittedMETphi	= R.getD("SVFit_mvaMET_FittedMETphi");
-
+    */
 
 	/* met-related branches */
 
@@ -983,23 +984,48 @@ void generateH2TauSyncTree::handleEvent()
 	TauEsNumberSigmasShifted = R.getF("TauEsNumberSigmasShifted");
 	ElectronEsNumberSigmasShifted = R.getF("ElectronEsNumberSigmasShifted");
 
-
 	// 2016 triggers -- will cause crash if applied different samples
 	
-	leg1_HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg = R.getD("leg1_HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg");
-	leg1_HLT_Ele25_eta2p1_WPTight_Gsf = R.getD("leg1_HLT_Ele25_eta2p1_WPTight_Gsf");
-	leg1_HLT_IsoMu22 = R.getD("leg1_HLT_IsoMu22");
-	leg1_HLT_IsoTkMu22 = R.getD("leg1_HLT_IsoTkMu22");
-	leg1_HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL = R.getD("leg1_HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL");
-	leg1_HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL = R.getD("leg1_HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL");
-	
-	leg2_HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg = R.getD("leg2_HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg");
-	leg2_HLT_Ele25_eta2p1_WPTight_Gsf = R.getD("leg2_HLT_Ele25_eta2p1_WPTight_Gsf");
-	leg2_HLT_IsoMu22 = R.getD("leg2_HLT_IsoMu22");
-	leg2_HLT_IsoTkMu22 = R.getD("leg2_HLT_IsoTkMu22");
-	leg2_HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL = R.getD("leg2_HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL");
-	leg2_HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL = R.getD("leg2_HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL");
+	leg1_HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg = R.getF("leg1_HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg");
+    leg1_HLT_DoubleMediumCombinedIsoPFTau35_Trk1_eta2p1_Reg = R.getF("leg1_HLT_DoubleMediumCombinedIsoPFTau35_Trk1_eta2p1_Reg");
+	leg1_HLT_Ele25_eta2p1_WPTight_Gsf = R.getF("leg1_HLT_Ele25_eta2p1_WPTight_Gsf");
+    leg1_HLT_Ele45_WPLoose_Gsf_L1JetTauSeeded = R.getF("leg1_HLT_Ele45_WPLoose_Gsf_L1JetTauSeeded");
+	leg1_HLT_IsoMu22 = R.getF("leg1_HLT_IsoMu22");
+	leg1_HLT_IsoTkMu22 = R.getF("leg1_HLT_IsoTkMu22");
+    leg1_HLT_IsoMu22_eta2p1 = R.getF("leg1_HLT_IsoMu22_eta2p1");
+    leg1_HLT_IsoTkMu22_eta2p1 = R.getF("leg1_HLT_IsoTkMu22_eta2p1");
+    leg1_HLT_IsoMu24 = R.getF("leg1_HLT_IsoMu24");
+    leg1_HLT_IsoTkMu24 = R.getF("leg1_HLT_IsoTkMu24");
+    
+	leg2_HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg = R.getF("leg2_HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg");
+    leg2_HLT_DoubleMediumCombinedIsoPFTau35_Trk1_eta2p1_Reg = R.getF("leg2_HLT_DoubleMediumCombinedIsoPFTau35_Trk1_eta2p1_Reg");
+	leg2_HLT_Ele25_eta2p1_WPTight_Gsf = R.getF("leg2_HLT_Ele25_eta2p1_WPTight_Gsf");
+    leg2_HLT_Ele45_WPLoose_Gsf_L1JetTauSeeded = R.getF("leg2_HLT_Ele45_WPLoose_Gsf_L1JetTauSeeded");
+	leg2_HLT_IsoMu22 = R.getF("leg2_HLT_IsoMu22");
+	leg2_HLT_IsoTkMu22 = R.getF("leg2_HLT_IsoTkMu22");
+    leg2_HLT_IsoMu22_eta2p1 = R.getF("leg2_HLT_IsoMu22_eta2p1");
+    leg2_HLT_IsoTkMu22_eta2p1 = R.getF("leg2_HLT_IsoTkMu22_eta2p1");
+    leg2_HLT_IsoMu24 = R.getF("leg2_HLT_IsoMu24");
+    leg2_HLT_IsoTkMu24 = R.getF("leg2_HLT_IsoTkMu24");
 
+    if (R.getB("isRealData") == 1)
+    {
+        if(R.getI("CandidateEventType")==3 && (leg1_HLT_Ele25_eta2p1_WPTight_Gsf>0.5 || leg1_HLT_Ele45_WPLoose_Gsf_L1JetTauSeeded>0.5))
+        {
+            pairGoodForTrigger = 1;
+        }
+        else if(R.getI("CandidateEventType")==5 && (leg1_HLT_IsoMu22>0.5 || leg1_HLT_IsoTkMu22>0.5 || leg1_HLT_IsoMu22_eta2p1>0.5 || leg1_HLT_IsoTkMu22_eta2p1>0.5 || leg1_HLT_IsoMu24>0.5 || leg1_HLT_IsoTkMu24>0.5))
+        {
+            pairGoodForTrigger = 1;
+        }
+        else if(R.getI("CandidateEventType")==6 && ((leg1_HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg>0.5 && leg2_HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg>0.5) || (leg1_HLT_DoubleMediumCombinedIsoPFTau35_Trk1_eta2p1_Reg>0.5 && leg2_HLT_DoubleMediumCombinedIsoPFTau35_Trk1_eta2p1_Reg>0.5)))
+        {
+            pairGoodForTrigger = 1;
+        }
+        else pairGoodForTrigger = 0;
+    
+    }
+    else pairGoodForTrigger = 1;
 
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -1424,7 +1450,7 @@ void generateH2TauSyncTree::setupBranches(TTree * T)
 	T->Branch("againstElectronTightMVA6_1", &againstElectronTightMVA6_1);
 	T->Branch("againstMuonLoose3_1", &againstMuonLoose3_1);
 	T->Branch("decayModeFinding_1", &decayModeFinding_1);
-	T->Branch("byIsolationMVA3oldDMwLTraw_1", &byIsolationMVA3oldDMwLTraw_1);
+	//T->Branch("byIsolationMVA3oldDMwLTraw_1", &byIsolationMVA3oldDMwLTraw_1);
 	T->Branch("byCombinedIsolationDeltaBetaCorrRaw3Hits_1", &byCombinedIsolationDeltaBetaCorrRaw3Hits_1);
 	T->Branch("byIsolationMVArun2v1DBnewDMwLTraw_1", &byIsolationMVArun2v1DBnewDMwLTraw_1);
 	T->Branch("decayModeFindingNewDMs_1", &decayModeFindingNewDMs_1);
@@ -1466,7 +1492,7 @@ void generateH2TauSyncTree::setupBranches(TTree * T)
 	T->Branch("againstElectronTightMVA6_2", &againstElectronTightMVA6_2);
 	T->Branch("againstMuonLoose3_2", &againstMuonLoose3_2);
 	T->Branch("decayModeFinding_2", &decayModeFinding_2);
-	T->Branch("byIsolationMVA3oldDMwLTraw_2", &byIsolationMVA3oldDMwLTraw_2);
+	//T->Branch("byIsolationMVA3oldDMwLTraw_2", &byIsolationMVA3oldDMwLTraw_2);
 	T->Branch("byCombinedIsolationDeltaBetaCorrRaw3Hits_2", &byCombinedIsolationDeltaBetaCorrRaw3Hits_2);
 	T->Branch("byIsolationMVArun2v1DBnewDMwLTraw_2", &byIsolationMVArun2v1DBnewDMwLTraw_2);
 	T->Branch("decayModeFindingNewDMs_2", &decayModeFindingNewDMs_2);
@@ -1935,21 +1961,28 @@ void generateH2TauSyncTree::setupBranches(TTree * T)
 	T->Branch("ElectronEsNumberSigmasShifted", &ElectronEsNumberSigmasShifted);
 
 	T->Branch("leg1_HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg", &leg1_HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg);
+    T->Branch("leg1_HLT_DoubleMediumCombinedIsoPFTau35_Trk1_eta2p1_Reg", &leg1_HLT_DoubleMediumCombinedIsoPFTau35_Trk1_eta2p1_Reg);
 	T->Branch("leg1_HLT_Ele25_eta2p1_WPTight_Gsf", &leg1_HLT_Ele25_eta2p1_WPTight_Gsf);
+    T->Branch("leg1_HLT_Ele45_WPLoose_Gsf_L1JetTauSeeded", &leg1_HLT_Ele45_WPLoose_Gsf_L1JetTauSeeded);
 	T->Branch("leg1_HLT_IsoMu22", &leg1_HLT_IsoMu22);
 	T->Branch("leg1_HLT_IsoTkMu22", &leg1_HLT_IsoTkMu22);
-	T->Branch("leg1_HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL", &leg1_HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL);
-	T->Branch("leg1_HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL", &leg1_HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL);
-
+    T->Branch("leg1_HLT_IsoMu22_eta2p1", &leg1_HLT_IsoMu22_eta2p1);
+    T->Branch("leg1_HLT_IsoTkMu22_eta2p1", &leg1_HLT_IsoTkMu22_eta2p1);
+    T->Branch("leg1_HLT_IsoMu24", &leg1_HLT_IsoMu24);
+    T->Branch("leg1_HLT_IsoTkMu24", &leg1_HLT_IsoTkMu24);
+    
 	T->Branch("leg2_HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg", &leg2_HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg);
+    T->Branch("leg2_HLT_DoubleMediumCombinedIsoPFTau35_Trk1_eta2p1_Reg", &leg2_HLT_DoubleMediumCombinedIsoPFTau35_Trk1_eta2p1_Reg);
 	T->Branch("leg2_HLT_Ele25_eta2p1_WPTight_Gsf", &leg2_HLT_Ele25_eta2p1_WPTight_Gsf);
+    T->Branch("leg2_HLT_Ele45_WPLoose_Gsf_L1JetTauSeeded", &leg2_HLT_Ele45_WPLoose_Gsf_L1JetTauSeeded);
 	T->Branch("leg2_HLT_IsoMu22", &leg2_HLT_IsoMu22);
 	T->Branch("leg2_HLT_IsoTkMu22", &leg2_HLT_IsoTkMu22);
-	T->Branch("leg2_HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL", &leg2_HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL);
-	T->Branch("leg2_HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL", &leg2_HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL);
+    T->Branch("leg2_HLT_IsoMu22_eta2p1", &leg2_HLT_IsoMu22_eta2p1);
+    T->Branch("leg2_HLT_IsoTkMu22_eta2p1", &leg2_HLT_IsoTkMu22_eta2p1);
+    T->Branch("leg2_HLT_IsoMu24", &leg2_HLT_IsoMu24);
+    T->Branch("leg2_HLT_IsoTkMu24", &leg2_HLT_IsoTkMu24);
 
-
-
+    T->Branch("pairGoodForTrigger", &pairGoodForTrigger);
 
 	T->Branch("veto_leptonType", &veto_leptonType);
 	T->Branch("veto_pt", &veto_pt);
@@ -2149,7 +2182,7 @@ void generateH2TauSyncTree::reset()
 	againstElectronTightMVA6_1 = -999.0;
 	againstMuonLoose3_1 = -999.0;
 	decayModeFinding_1 = -999.0;
-	byIsolationMVA3oldDMwLTraw_1 = -999.0;
+	//byIsolationMVA3oldDMwLTraw_1 = -999.0;
 	byCombinedIsolationDeltaBetaCorrRaw3Hits_1 = -999.0;
 	byIsolationMVArun2v1DBnewDMwLTraw_1 = -999.0;
 	decayModeFindingNewDMs_1 = -999.0;
@@ -2192,7 +2225,7 @@ void generateH2TauSyncTree::reset()
 	againstElectronTightMVA6_2 = -999.0;
 	againstMuonLoose3_2 = -999.0;
 	decayModeFinding_2 = -999.0;
-	byIsolationMVA3oldDMwLTraw_2 = -999.0;
+	//byIsolationMVA3oldDMwLTraw_2 = -999.0;
 	byCombinedIsolationDeltaBetaCorrRaw3Hits_2 = -999.0;
 	byIsolationMVArun2v1DBnewDMwLTraw_2 = -999.0;
 	decayModeFindingNewDMs_2 = -999.0;
@@ -2673,19 +2706,29 @@ void generateH2TauSyncTree::reset()
 	TauEsNumberSigmasShifted = -999.0;
 	ElectronEsNumberSigmasShifted = -999.0;
 
-	leg1_HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg = 0.0;
-	leg1_HLT_Ele25_eta2p1_WPTight_Gsf = 0.0;
-	leg1_HLT_IsoMu22 = 0.0;
-	leg1_HLT_IsoTkMu22 = 0.0;
-	leg1_HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL = 0.0;
-	leg1_HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL = 0.0;
-
-	leg2_HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg = 0.0;
-	leg2_HLT_Ele25_eta2p1_WPTight_Gsf = 0.0;
-	leg2_HLT_IsoMu22 = 0.0;
-	leg2_HLT_IsoTkMu22 = 0.0;
-	leg2_HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL = 0.0;
-	leg2_HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL = 0.0;
+	leg1_HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg = 0.;
+    leg1_HLT_DoubleMediumCombinedIsoPFTau35_Trk1_eta2p1_Reg = 0.;
+	leg1_HLT_Ele25_eta2p1_WPTight_Gsf = 0.;
+    leg1_HLT_Ele45_WPLoose_Gsf_L1JetTauSeeded = 0.;
+	leg1_HLT_IsoMu22 = 0.;
+	leg1_HLT_IsoTkMu22 = 0.;
+    leg1_HLT_IsoMu22_eta2p1 = 0.;
+    leg1_HLT_IsoTkMu22_eta2p1 = 0.;
+    leg1_HLT_IsoMu24 = 0.;
+    leg1_HLT_IsoTkMu24 = 0.;
+    
+	leg2_HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg = 0.;
+    leg2_HLT_DoubleMediumCombinedIsoPFTau35_Trk1_eta2p1_Reg = 0.;
+	leg2_HLT_Ele25_eta2p1_WPTight_Gsf = 0.;
+    leg2_HLT_Ele45_WPLoose_Gsf_L1JetTauSeeded = 0.;
+	leg2_HLT_IsoMu22 = 0.;
+	leg2_HLT_IsoTkMu22 = 0.;
+    leg2_HLT_IsoMu22_eta2p1 = 0.;
+    leg2_HLT_IsoTkMu22_eta2p1 = 0.;
+    leg2_HLT_IsoMu24 = 0.;
+    leg2_HLT_IsoTkMu24 = 0.;
+    
+    pairGoodForTrigger = 0;
 
 	veto_leptonType.clear();
 	veto_pt.clear();
@@ -2737,9 +2780,6 @@ void generateH2TauSyncTree::reset()
 	M_min_resolutionUP = -999.0;
 	P_chi_resolutionDOWN = -999.0;
 	M_min_resolutionDOWN = -999.0;
-
-
-
 
 }
 
@@ -3179,7 +3219,6 @@ double generateH2TauSyncTree::getFinalWeight(bool verbose_)
 
 	double returnWeight_ = 1.0;
 
-
 	/* include the nominal cross section / events weight */
 
 	returnWeight_ *= getNominalWeight(verbose_);
@@ -3232,96 +3271,53 @@ double generateH2TauSyncTree::getNominalWeight(bool verbose_)
 		if(verbose_) std::cout<<" real data, nominal weight returned as 1.0 \n";
 		return 1.0;
 	}
-	
-	if(R.getS("KeyName") == "Fall15_DY1Jet_MG5_DY" ||\
-	   R.getS("KeyName") == "Fall15_DY2Jet_MG5_DY" ||\
-	   R.getS("KeyName") == "Fall15_DY3Jet_MG5_DY" ||\
-	   R.getS("KeyName") == "Fall15_DY4Jet_MG5_DY" ||\
-	   R.getS("KeyName") == "Fall15_DYInc_MG5_DY"  ||\
-	   R.getS("KeyName") == "Fall15_DYInc_MG5_DY"  ||\
-	   R.getS("KeyName") == "Fall15_DYhighMass_MG5_DY")	
-	{
-		if(verbose_) std::cout<<R.getS("KeyName")<<" is DY + jets MG5, nominal weight returned as stitching weight \n"; 
+    /*
+    if (R.getS("KeyName") == "DYJetsToLL_M-50")
+    if (R.getS("KeyName") == "DYJetsToLL_M-50ext1-v2")
+    if (R.getS("KeyName") == "DY1JetsToLL_M-50")
+    if (R.getS("KeyName") == "DY2JetsToLL_M-50")
+    if (R.getS("KeyName") == "DY3JetsToLL_M-50")
+    if (R.getS("KeyName") == "DY4JetsToLL_M-50")
 
-		int outgoingJets_ = R.getI("lheOutGoingPartons");
-		double genBosonMass_ = R.getD("genBosonTotal_M");
-
-		/* for correct treatment divided by Z->tt, Z->ee, and Z->mumu */
-
-
-    	if(R.getB("isZTTatGenLevel") == 1)
-    	{
-
-			if(outgoingJets_==0 && genBosonMass_ <= 150.0) return 0.024618874;
-			if(outgoingJets_==0 && genBosonMass_ >  150.0) return 0.001276291;
-			if(outgoingJets_==1 && genBosonMass_ <= 150.0) return 0.010713441;
-			if(outgoingJets_==1 && genBosonMass_ >  150.0) return 0.001195827;
-			if(outgoingJets_==2 && genBosonMass_ <= 150.0) return 0.011198121;
-			if(outgoingJets_==2 && genBosonMass_ >  150.0) return 0.001201632;
-			if(outgoingJets_==3 && genBosonMass_ <= 150.0) return 0.011565680;
-			if(outgoingJets_==3 && genBosonMass_ >  150.0) return 0.001205744;
-			if(outgoingJets_>=4 && genBosonMass_ <= 150.0) return 0.009662968;
-			if(outgoingJets_>=4 && genBosonMass_ >  150.0) return 0.001181490;
-
-    	}	
-
-	    if(R.getB("isZEEatGenLevel") == 1 || R.getB("isZMMatGenLevel") == 1)
-	    {
-
-			if(outgoingJets_==0 && genBosonMass_ <= 150.0)  return 		0.024618874;
-			if(outgoingJets_==0 && genBosonMass_ >  150.0)  return 		0.024618874;
-			if(outgoingJets_==1 && genBosonMass_ <= 150.0)  return 		0.010713441;
-			if(outgoingJets_==1 && genBosonMass_ >  150.0)  return 		0.010713441;
-			if(outgoingJets_==2 && genBosonMass_ <= 150.0)  return 		0.011198121;
-			if(outgoingJets_==2 && genBosonMass_ >  150.0)  return 		0.011198121;
-			if(outgoingJets_==3 && genBosonMass_ <= 150.0)  return 		0.011565680;
-			if(outgoingJets_==3 && genBosonMass_ >  150.0)  return 		0.011565680;
-			if(outgoingJets_>=4 && genBosonMass_ <= 150.0)  return 		0.009662968;
-			if(outgoingJets_>=4 && genBosonMass_ >  150.0)  return 		0.009662968;
-
-	    }
-
-	}
-
-
-	if(R.getS("KeyName") == "Fall15_WJetsToLNu" ||\
-	   R.getS("KeyName") == "Fall15_W1JetsToLNu" ||\
-	   R.getS("KeyName") == "Fall15_W2JetsToLNu" ||\
-	   R.getS("KeyName") == "Fall15_W3JetsToLNu" ||\
-	   R.getS("KeyName") == "Fall15_W4JetsToLNu")
-	{
-		if(verbose_) std::cout<<R.getS("KeyName")<<" is W + jets, nominal weight returned as stitching weight \n"; 
-
-		int outgoingJets_ = R.getI("lheOutGoingPartons");
-
-		if(outgoingJets_==0) return 1.30460066773353;
-		if(outgoingJets_==1) return 0.21623381588984;
-		if(outgoingJets_==2) return 0.11590066273500;
-		if(outgoingJets_==3) return 0.05859814170525;
-		if(outgoingJets_>=4) return 0.06288760531249;
-	}
-
-
-
+    if (R.getS("KeyName") == "WJetsToLNu")
+    if (R.getS("KeyName") == "WJetsToLNuext2-v1")
+    if (R.getS("KeyName") == "WJetsToLNu_HT-70To100")
+    if (R.getS("KeyName") == "WJetsToLNu_HT-100To200orig")
+    if (R.getS("KeyName") == "WJetsToLNu_HT-100To200")
+    if (R.getS("KeyName") == "WJetsToLNu_HT-100To200ext2-v1")
+    if (R.getS("KeyName") == "WJetsToLNu_HT-200To400orig")
+    if (R.getS("KeyName") == "WJetsToLNu_HT-200To400ext1-v1")
+    if (R.getS("KeyName") == "WJetsToLNu_HT-200To400")
+    if (R.getS("KeyName") == "WJetsToLNu_HT-400To600orig")
+    if (R.getS("KeyName") == "WJetsToLNu_HT-400To600")
+    if (R.getS("KeyName") == "WJetsToLNu_HT-600To800orig")
+    if (R.getS("KeyName") == "WJetsToLNu_HT-600To800")
+    if (R.getS("KeyName") == "WJetsToLNu_HT-800To1200orig")
+    if (R.getS("KeyName") == "WJetsToLNu_HT-800To1200")
+    if (R.getS("KeyName") == "WJetsToLNu_HT-1200To2500orig")
+    if (R.getS("KeyName") == "WJetsToLNu_HT-1200To2500")
+    if (R.getS("KeyName") == "WJetsToLNu_HT-2500ToInforig")
+    if (R.getS("KeyName") == "WJetsToLNu_HT-2500ToInf")
+    */
+    
 	/* for other samples return the nominal weight */
 
 	double nominal_weight = ( 1000.0 * R.getD("CrossSection") ) / ( R.getI("EventTotal") * R.getD("FilterEff"));
 
 	/* for a few samples crab job running was not 100% so we need to compensate for the missing fraction */
-
-
+    
+    /*
 	if(R.getS("KeyName") == "Fall15_ZZTo2L2Q")
 	{
 		nominal_weight *= 1.0/0.999347654;
-
 	}
 
 	if(R.getS("KeyName") == "Fall15_SUSYggBBHTauTau_M2600")
 	{
 		nominal_weight *= 1.0/0.98685;
-
 	}
-
+    */
+    
 	return nominal_weight;
 
 }
@@ -3340,13 +3336,13 @@ double generateH2TauSyncTree::getTopQuarkPtWeight(bool verbose_)
 
 	double returnWeight_ = 1.0;
 
-	if(R.getS("KeyName") == "Fall15_TT_Powheg")
+	if(R.getS("KeyName") == "TT_TuneCUETP8M2T4")
 	{
 
 		double top_1_pt = std::min(R.getD("genTopPt1"), 400.0);
 		double top_2_pt = std::min(R.getD("genTopPt2"), 400.0);
 
-		returnWeight_ = sqrt(exp(0.0615-0.0005*top_1_pt)*exp(0.0615-0.0005*top_1_pt));
+		returnWeight_ = sqrt(exp(0.0615-0.0005*top_1_pt)*exp(0.0615-0.0005*top_2_pt));
 
 		if(verbose_) std::cout<<" in top sample with pt1, pt2 = "<<top_1_pt<<" , "<<top_2_pt<<" get top pt weight = "<<returnWeight_<<"\n";
 
@@ -3362,12 +3358,12 @@ double generateH2TauSyncTree::getZReWeight(bool verbose_)
 
 	bool calc = 0;
 
-	if(R.getS("KeyName") == "Fall15_DY1Jet_MG5_DY") 			calc = 1;
-	else if(R.getS("KeyName") == "Fall15_DY2Jet_MG5_DY")		calc = 1;
-	else if(R.getS("KeyName") == "Fall15_DY3Jet_MG5_DY")		calc = 1;
-	else if(R.getS("KeyName") == "Fall15_DY4Jet_MG5_DY")		calc = 1;
-	else if(R.getS("KeyName") == "Fall15_DYInc_MG5_DY")			calc = 1;
-	else if(R.getS("KeyName") == "Fall15_DYhighMass_MG5_DY")	calc = 1;
+    if(R.getS("KeyName") == "DYJetsToLL_M-50" ||\
+    R.getS("KeyName") == "DYJetsToLL_M-50ext1-v2" ||\
+    R.getS("KeyName") == "DY1JetsToLL_M-50" ||\
+    R.getS("KeyName") == "DY2JetsToLL_M-50" ||\
+    R.getS("KeyName") == "DY3JetsToLL_M-50"  ||\
+    R.getS("KeyName") == "DY4JetsToLL_M-50")	calc = 1;
 
 	if(calc == 0)
 	{
@@ -3451,7 +3447,6 @@ double generateH2TauSyncTree::getNLOReWeight(bool verbose_, int tanBeta_)
 {
 	bool eval_ = 0;
 	int mass_ = 0;
-
 
 		if( R.getS("KeyName") == "Fall15_SUSYggHTauTau_M80") {eval_ = 1; mass_ = 80;}
 	else if( R.getS("KeyName") == "Fall15_SUSYggHTauTau_M90") {eval_ = 1; mass_ = 90;}
@@ -3555,7 +3550,8 @@ float generateH2TauSyncTree::NLO_returnNLOweight(Int_t mass, Int_t tanb, Double_
 
 }
 
-/* function: getQCDWeightForEleMuChannel(bool)
+/* 
+    function: getQCDWeightForEleMuChannel(bool)
 	-- returns a size 6 double vector with elements :
 
 	double qcdweight @ element 0
@@ -3566,7 +3562,6 @@ float generateH2TauSyncTree::NLO_returnNLOweight(Int_t mass, Int_t tanb, Double_
 	double qcdweightdownNoDZeta @ element 5 
 
 	all set to 1.0 in case not e+mu channel
-
 */
 
 std::vector<double> generateH2TauSyncTree::getQCDWeightForEleMuChannel(bool verbose)
@@ -3613,8 +3608,6 @@ std::vector<double> generateH2TauSyncTree::getQCDWeightForEleMuChannel(bool verb
 	double qcdweightdown = 1; 
 	if(qcdweightup != 0) qcdweightdown = qcdweight * qcdweight / qcdweightup;
 
-
-
 	double qcdweightNoDZeta = qcdWeightsNoDZeta->getWeight(pt_e,pt_m,dR);
 
 	// accessing OS/SS extrapolation factor corresponding
@@ -3628,7 +3621,6 @@ std::vector<double> generateH2TauSyncTree::getQCDWeightForEleMuChannel(bool verb
 
 	double qcdweightdownNoDZeta = 1; 
 	if(qcdweightupNoDZeta != 0) qcdweightdownNoDZeta = qcdweightNoDZeta * qcdweightNoDZeta / qcdweightupNoDZeta;
-
 
 	returnVec.push_back(qcdweight);
 	returnVec.push_back(qcdweightup);
@@ -3682,26 +3674,43 @@ double generateH2TauSyncTree::getKFactor(bool verbose)
     double genBosonMass_ = R.getD("genBosonTotal_M");
     double genBosonTotal_pt = R.getD("genBosonTotal_pt");
     // Add W jets key names only
-    if(R.getS("KeyName") == "Fall15_DY1Jet_MG5_DY" ||\
-	   R.getS("KeyName") == "Fall15_DY2Jet_MG5_DY" ||\
-	   R.getS("KeyName") == "Fall15_DY3Jet_MG5_DY" ||\
-	   R.getS("KeyName") == "Fall15_DY4Jet_MG5_DY" ||\
-	   R.getS("KeyName") == "Fall15_DYInc_MG5_DY"  ||\
-	   R.getS("KeyName") == "Fall15_DYInc_MG5_DY"  ||\
-	   R.getS("KeyName") == "Fall15_DYhighMass_MG5_DY")	
-	{
-        if(genBosonMass_ > 5.0) returnWeight_ *= EWK_Zcorr->GetBinContent(EWK_Zcorr->FindBin(genBosonTotal_pt));
-        else returnWeight_ *= EWK_Gcorr->GetBinContent(EWK_Gcorr->FindBin(genBosonTotal_pt));
-        if (verbose)std::cout<<" Z/G k-factor: " << returnWeight_ << " \n";
-    }
-    else if(R.getS("KeyName") == "Fall15_WJetsToLNu" ||\
-	   R.getS("KeyName") == "Fall15_W1JetsToLNu" ||\
-	   R.getS("KeyName") == "Fall15_W2JetsToLNu" ||\
-	   R.getS("KeyName") == "Fall15_W3JetsToLNu" ||\
-	   R.getS("KeyName") == "Fall15_W4JetsToLNu")
+
+    if(R.getS("KeyName") == "WJetsToLNu" ||\
+	   R.getS("KeyName") == "WJetsToLNuext2-v1" ||\
+	   R.getS("KeyName") == "WJetsToLNu_HT-70To100" ||\
+	   R.getS("KeyName") == "WJetsToLNu_HT-100To200orig" ||\
+	   R.getS("KeyName") == "WJetsToLNu_HT-100To200" ||\
+       R.getS("KeyName") == "WJetsToLNu_HT-100To200ext2-v1" ||\
+       R.getS("KeyName") == "WJetsToLNu_HT-200To400orig" ||\
+       R.getS("KeyName") == "WJetsToLNu_HT-200To400ext1-v1" ||\
+       R.getS("KeyName") == "WJetsToLNu_HT-200To400" ||\
+       R.getS("KeyName") == "WJetsToLNu_HT-400To600orig" ||\
+       R.getS("KeyName") == "WJetsToLNu_HT-400To600" ||\
+       R.getS("KeyName") == "WJetsToLNu_HT-600To800orig" ||\
+       R.getS("KeyName") == "WJetsToLNu_HT-600To800" ||\
+       R.getS("KeyName") == "WJetsToLNu_HT-800To1200orig" ||\
+       R.getS("KeyName") == "WJetsToLNu_HT-800To1200" ||\
+       R.getS("KeyName") == "WJetsToLNu_HT-1200To2500orig" ||\
+       R.getS("KeyName") == "WJetsToLNu_HT-1200To2500" ||\
+       R.getS("KeyName") == "WJetsToLNu_HT-2500ToInforig" ||\
+       R.getS("KeyName") == "WJetsToLNu_HT-2500ToInf")
+       
     {
         returnWeight_ *= EWK_Wcorr->GetBinContent(EWK_Wcorr->FindBin(genBosonTotal_pt));
         if (verbose)std::cout<<" W k-factor: " << returnWeight_ << " \n";
+    }
+    else if(R.getS("KeyName") == "DYJetsToLL_M-50" ||\
+	   R.getS("KeyName") == "DYJetsToLL_M-50ext1-v2" ||\
+	   R.getS("KeyName") == "DY1JetsToLL_M-50" ||\
+	   R.getS("KeyName") == "DY2JetsToLL_M-50" ||\
+	   R.getS("KeyName") == "DY3JetsToLL_M-50"  ||\
+	   R.getS("KeyName") == "DY4JetsToLL_M-50")
+	{
+        // turn off k factor for DY now, using Z reweight
+        returnWeight_ = 1.;
+        //if(genBosonMass_ > 5.0) {returnWeight_ *= EWK_Zcorr->GetBinContent(EWK_Zcorr->FindBin(genBosonTotal_pt));}
+        //else {returnWeight_ *= EWK_Gcorr->GetBinContent(EWK_Gcorr->FindBin(genBosonTotal_pt));}
+        if (verbose) {std::cout<<" Z/G k-factor: " << returnWeight_ << " \n";}
     }
 
     return returnWeight_;
@@ -3714,8 +3723,8 @@ double generateH2TauSyncTree::getJetTauFakeFactor(bool verbose, int variant)
     double returnWeight_ = 1.0;
     double pt1 = R.getD("leg1_pt");
     double pt2 = R.getD("leg2_pt");
-    if (pt1 > 200.0){pt1 = 200.0}
-    if (pt2 > 200.0){pt2 = 200.0}
+    if (pt1 > 200.0){pt1 = 200.0;}
+    if (pt2 > 200.0){pt2 = 200.0;}
 
     if (R.getI("CandidateEventType")==5 || R.getI("CandidateEventType")==3)
     {
@@ -3764,10 +3773,41 @@ double generateH2TauSyncTree::getJetTauFakeFactor(bool verbose, int variant)
     return returnWeight_;
 }
 
+/*
+double getALDScaleFactors(bool verbose)
+{
+
+	R.getF("leg2_againstElectronVLooseMVA6");
+	R.getF("leg2_againstMuonTight3");
+	R.getF("leg2_againstElectronTightMVA6");
+	R.getF("leg2_againstMuonLoose3");
+
+    double returnSF_ = 1.;
+    
+    if (R.getI("CandidateEventType")==5 && (abs(R.getI("MCMatchPdgId_2"))==11 || abs(R.getI("MCMatchPdgId_2"))==13 || abs(R.getI("MCMatchPdgId_2"))==15))
+    {
+        
+        returnSF_ =
+    }
+    else if (R.getI("CandidateEventType")==3 && (abs(R.getI("MCMatchPdgId_2"))==11 || abs(R.getI("MCMatchPdgId_2"))==13 || abs(R.getI("MCMatchPdgId_2"))==15))
+    {
+    
+    }
+    else if (R.getI("CandidateEventType")==6 && (abs(R.getI("MCMatchPdgId_2"))==11 || abs(R.getI("MCMatchPdgId_2"))==13 || abs(R.getI("MCMatchPdgId_2"))==15))
+    {
+    
+    }
+
+}
+*/
+
 double generateH2TauSyncTree::getFinalScaleFactorsForPair(bool verbose, int sysShift, bool useMuonCentral)
 {
-	double returnSF = 1.0;
 
+    double tauID = .99;  //current tau ID scale factor (just DMF)
+
+	double returnSF = 1.0;
+    
 	/* muon + tau */
 	if(R.getI("CandidateEventType") == 5)
 	{
@@ -3804,13 +3844,11 @@ double generateH2TauSyncTree::getFinalScaleFactorsForPair(bool verbose, int sysS
             muonTrigger = sfTool_Muon_SingleMu_eff->get_ScaleFactor(pt1,eta1);
         }
         
-		returnSF = muonID * muonTrigger;
+		returnSF = muonID * muonTrigger * tauID;
 
 	/////////////////////////////////////
 		return returnSF;
 	}
-
-
 
 	/* electron + tau */
 	if(R.getI("CandidateEventType") == 3)
@@ -3843,14 +3881,11 @@ double generateH2TauSyncTree::getFinalScaleFactorsForPair(bool verbose, int sysS
 		electronID = sfTool_Electron_IdIso0p10_eff->get_ScaleFactor(pt1,eta1);
 		electronTrigger = sfTool_Electron_SingleEle_eff->get_ScaleFactor(pt1,eta1);
 
-		returnSF = electronID * electronTrigger;
+		returnSF = electronID * electronTrigger * tauID;
 
         /////////////////////////////////
 		return returnSF;
 	}
-
-
-
 
 	/* electron + muon */
 	if(R.getI("CandidateEventType") == 2)
@@ -3858,13 +3893,11 @@ double generateH2TauSyncTree::getFinalScaleFactorsForPair(bool verbose, int sysS
 
 		if(verbose) std::cout<<" id x iso x trigger sf for Electron + Muon \n";
 
-
 		double effData = 1.0;
 		double effMC = 1.0;
 		double electronID = 1.0;
 		double muonID = 1.0;
 		double SF = 1.0;
-
 
 		/* electron */
 		double pt1 = 0.0;
@@ -3873,7 +3906,6 @@ double generateH2TauSyncTree::getFinalScaleFactorsForPair(bool verbose, int sysS
 		/* muon */
 		double pt2 = 0.0;
 		double eta2 = 0.0;
-
 
 		/* should always have leg1 = electron and leg2 = muon, but just in case order changes in the future */
 		if(R.getI("leg1_leptonType")==1 && R.getI("leg2_leptonType") == 2)  
@@ -3894,10 +3926,8 @@ double generateH2TauSyncTree::getFinalScaleFactorsForPair(bool verbose, int sysS
 			eta2 = R.getD("leg1_eta");
 		}
 
-
 		electronID = sfTool_Electron_IdIso0p15_eff->get_ScaleFactor(pt1,eta1);
 		muonID = sfTool_Muon_IdIso0p20_eff->get_ScaleFactor(pt2,eta2);
-
 
  		/* effData = eff_data(Mu17)*eff_data(Ele12)
  		+eff_data(Mu8)*eff_data(Ele17)-eff_data(Mu17)*eff_data(Ele17) */
@@ -3906,35 +3936,27 @@ double generateH2TauSyncTree::getFinalScaleFactorsForPair(bool verbose, int sysS
 		effData += sfTool_Muon_Mu8_eff->get_EfficiencyData(pt2, eta2)*sfTool_Electron_Ele17_eff->get_EfficiencyData(pt1, eta1);
 		effData -= sfTool_Muon_Mu17_eff->get_EfficiencyData(pt2, eta2) * sfTool_Electron_Ele17_eff->get_EfficiencyData(pt1, eta1);  		
 
-
  		/* effMC = eff_MC(Mu17)*eff_MC(Ele12)
  		+eff_MC(Mu8)*eff_MC(Ele17)-eff_MC(Mu17)*eff_MC(Ele17)  */
-
 
 		effMC =  sfTool_Muon_Mu17_eff->get_EfficiencyMC(pt2, eta2)*sfTool_Electron_Ele12_eff->get_EfficiencyMC(pt1, eta1);
 		effMC += sfTool_Muon_Mu8_eff->get_EfficiencyMC(pt2, eta2)*sfTool_Electron_Ele17_eff->get_EfficiencyMC(pt1, eta1);
 		effMC -= sfTool_Muon_Mu17_eff->get_EfficiencyMC(pt2, eta2) * sfTool_Electron_Ele17_eff->get_EfficiencyMC(pt1, eta1);  		
 
-
 		if(effMC!=0.) SF = effData/effMC;
-
 
 		returnSF = electronID * muonID * SF;
 
-	/////////////////////////////////////
+        /////////////////////////////////////
 		return returnSF;
 	}
-
 
 	/* tau + tau */
 	if(R.getI("CandidateEventType") == 6)
 	{
 
-		if(verbose) 
-		{
-			std::cout<<"  trigger sf for Tau + Tau with systematic shifted "<<sysShift<<" sigmas \n";
-		}
-
+		if(verbose) std::cout<<"  trigger sf for Tau + Tau with systematic shifted "<<sysShift<<" sigmas \n";
+        
 		double effData1 = 1.0;
 		double effMC1 = 1.0;
 		double SF1 = 1.0;
@@ -3953,7 +3975,6 @@ double generateH2TauSyncTree::getFinalScaleFactorsForPair(bool verbose, int sysS
         
 		/* make sure sysShift is valid */
 		assert (sysShift==0 || sysShift==1 || sysShift == -1);
-
 
 		if(sysShift == 0)
 		{
@@ -3981,11 +4002,15 @@ double generateH2TauSyncTree::getFinalScaleFactorsForPair(bool verbose, int sysS
 			//if(effMC1!=0) SF1 = effData1/effMC1;
 			//if(effMC2!=0)  SF2 = effData2/effMC2;
             
+            
+            
             SF1 = effData1;
 			SF2 = effData2;
 
-			returnSF = SF1 * SF2;
+			returnSF = SF1 * SF2 * tauID * tauID;
 		}
+
+        //No Shifts defined in 2016, keeping in case needed later
 
 		else if( sysShift == 1) /* defined as up data over down mc */
 		{

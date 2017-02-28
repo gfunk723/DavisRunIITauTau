@@ -247,32 +247,32 @@ private:
     /* for Trigger runs bcdef */
     
     TFile * sfFile_Muon_Trigger_BCDEF = new TFile("EfficienciesAndSF_TRIG_BCDEF.root","READ");
-    TH2F * sfHisto_Muon_Trigger_BCDEF = (TH2F*)sfFile_Muon_Trigger_BCDEF->Get("/IsoMu24_OR_IsoTkMu24_PtEtaBins/abseta_pt_ratio");
+    TH2F * sfHisto_Muon_Trigger_BCDEF = (TH2F*)sfFile_Muon_Trigger_BCDEF->Get("/IsoMu24_OR_IsoTkMu24_PtEtaBins/efficienciesDATA/abseta_pt_DATA");
     
     /* for Trigger runs gh */
     
     TFile * sfFile_Muon_Trigger_GH = new TFile("EfficienciesAndSF_TRIG_GH.root","READ");
-    TH2F * sfHisto_Muon_Trigger_GH = (TH2F*)sfFile_Muon_Trigger_GH->Get("/IsoMu24_OR_IsoTkMu24_PtEtaBins/abseta_pt_ratio");
+    TH2F * sfHisto_Muon_Trigger_GH = (TH2F*)sfFile_Muon_Trigger_GH->Get("/IsoMu24_OR_IsoTkMu24_PtEtaBins/efficienciesDATA/abseta_pt_DATA");
     
     /* for mediumID2016 runs bcdef */
     
     TFile * sfFile_Muon_MediumID2016_BCDEF = new TFile("EfficienciesAndSF_ID_BCDEF.root","READ");
-    TH2F * sfHisto_Muon_MediumID2016_BCDEF = (TH2F*)sfFile_Muon_MediumID2016_BCDEF->Get("/MC_NUM_MediumID2016_DEN_genTracks_PAR_pt_eta/abseta_pt_ratio");
+    TH2F * sfHisto_Muon_MediumID2016_BCDEF = (TH2F*)sfFile_Muon_MediumID2016_BCDEF->Get("/MC_NUM_MediumID2016_DEN_genTracks_PAR_pt_eta/efficienciesDATA/abseta_pt_DATA");
     
     /* for Iso runs bcdef */
     
     TFile * sfFile_Muon_TightIso_BCDEF = new TFile("EfficienciesAndSF_ISO_BCDEF.root","READ");
-    TH2F * sfHisto_Muon_TightIso_BCDEF = (TH2F*)sfFile_Muon_TightIso_BCDEF->Get("/TightISO_MediumID_pt_eta/abseta_pt_ratio");
+    TH2F * sfHisto_Muon_TightIso_BCDEF = (TH2F*)sfFile_Muon_TightIso_BCDEF->Get("/TightISO_MediumID_pt_eta/efficienciesDATA/abseta_pt_DATA");
     
     /* for mediumID2016 runs gh */
     
     TFile * sfFile_Muon_MediumID2016_GH = new TFile("EfficienciesAndSF_ID_GH.root","READ");
-    TH2F * sfHisto_Muon_MediumID2016_GH = (TH2F*)sfFile_Muon_MediumID2016_GH->Get("/MC_NUM_MediumID2016_DEN_genTracks_PAR_pt_eta/abseta_pt_ratio");
+    TH2F * sfHisto_Muon_MediumID2016_GH = (TH2F*)sfFile_Muon_MediumID2016_GH->Get("/MC_NUM_MediumID2016_DEN_genTracks_PAR_pt_eta/efficienciesDATA/abseta_pt_DATA");
     
     /* for Iso runs gh */
     
     TFile * sfFile_Muon_TightIso_GH = new TFile("EfficienciesAndSF_ISO_GH.root","READ");
-    TH2F * sfHisto_Muon_TightIso_GH = (TH2F*)sfFile_Muon_TightIso_GH->Get("/TightISO_MediumID_pt_eta/abseta_pt_ratio");
+    TH2F * sfHisto_Muon_TightIso_GH = (TH2F*)sfFile_Muon_TightIso_GH->Get("/TightISO_MediumID_pt_eta/efficienciesDATA/abseta_pt_DATA");
 
 	// for HTT derived lepton ID and trigger scale factors and efficiencies
 
@@ -306,7 +306,7 @@ private:
 	// needed for V reweight
 
     //new 2016
-	TFile* zReweightFile = new TFile("zpt_weights_2016.root","READ");
+	TFile* zReweightFile = new TFile("zpt_weights_2016_BtoH.root","READ");
 	TH2D *zweightHist = (TH2D*) zReweightFile->Get("zptmass_histo");
     
     // k factors from monojet group
@@ -1344,19 +1344,29 @@ private:
     // 2016 Triggers -- these need to be kept
     // current with triggerSummaryChecks_ in FlatTupleConfig_cfi.py
 
-    double leg1_HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg;
+	double leg1_HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg;
+    double leg1_HLT_DoubleMediumCombinedIsoPFTau35_Trk1_eta2p1_Reg;
 	double leg1_HLT_Ele25_eta2p1_WPTight_Gsf;
+    double leg1_HLT_Ele45_WPLoose_Gsf_L1JetTauSeeded;
 	double leg1_HLT_IsoMu22;
 	double leg1_HLT_IsoTkMu22;
-	double leg1_HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL;
-	double leg1_HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL;
+    double leg1_HLT_IsoMu22_eta2p1;
+    double leg1_HLT_IsoTkMu22_eta2p1;
+    double leg1_HLT_IsoMu24;
+    double leg1_HLT_IsoTkMu24;
+    
 	double leg2_HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg;
+    double leg2_HLT_DoubleMediumCombinedIsoPFTau35_Trk1_eta2p1_Reg;
 	double leg2_HLT_Ele25_eta2p1_WPTight_Gsf;
+    double leg2_HLT_Ele45_WPLoose_Gsf_L1JetTauSeeded;
 	double leg2_HLT_IsoMu22;
 	double leg2_HLT_IsoTkMu22;
-	double leg2_HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL;
-	double leg2_HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL;
+    double leg2_HLT_IsoMu22_eta2p1;
+    double leg2_HLT_IsoTkMu22_eta2p1;
+    double leg2_HLT_IsoMu24;
+    double leg2_HLT_IsoTkMu24;
 
+    bool pairGoodForTrigger;
 
   	////////////////////////////////////////////////////
   	// END LIST OF Ntuple BRANCH-ASSOCIATED VARIABLES //
@@ -1469,6 +1479,13 @@ private:
 	*/
 	double getJetTauFakeFactor(bool, int);
     
+    /* function getALDScaleFactors:
+        return a scale factor for anti-lepton scale factors:
+        bool = verbose option
+    */
+    
+    double getALDScaleFactors(bool);
+    
 	/* function getFinalScaleFactorsForPair : 
 		return a combinded final SF for trigger, ID, and ISO for both legs of a piar
 		args are : 
@@ -1476,7 +1493,6 @@ private:
 				int   = shift :  only used in tau+tau case, 0 returns nominal, +1 returns 1 sigma up shift, -1 returns down shifted sf 
 
 	*/
-
 	double getFinalScaleFactorsForPair(bool, int, bool);
 
 	/* function: getQCDWeightForEleMuChannel(bool)
