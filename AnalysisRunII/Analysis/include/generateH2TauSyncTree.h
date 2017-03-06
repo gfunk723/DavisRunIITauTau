@@ -257,22 +257,22 @@ private:
     /* for mediumID2016 runs bcdef */
     
     TFile * sfFile_Muon_MediumID2016_BCDEF = new TFile("EfficienciesAndSF_ID_BCDEF.root","READ");
-    TH2F * sfHisto_Muon_MediumID2016_BCDEF = (TH2F*)sfFile_Muon_MediumID2016_BCDEF->Get("/MC_NUM_MediumID2016_DEN_genTracks_PAR_pt_eta/efficienciesDATA/abseta_pt_DATA");
+    TH2F * sfHisto_Muon_MediumID2016_BCDEF = (TH2F*)sfFile_Muon_MediumID2016_BCDEF->Get("/MC_NUM_TightID_DEN_genTracks_PAR_pt_eta/efficienciesDATA/abseta_pt_DATA");
     
     /* for Iso runs bcdef */
     
     TFile * sfFile_Muon_TightIso_BCDEF = new TFile("EfficienciesAndSF_ISO_BCDEF.root","READ");
-    TH2F * sfHisto_Muon_TightIso_BCDEF = (TH2F*)sfFile_Muon_TightIso_BCDEF->Get("/TightISO_MediumID_pt_eta/efficienciesDATA/abseta_pt_DATA");
+    TH2F * sfHisto_Muon_TightIso_BCDEF = (TH2F*)sfFile_Muon_TightIso_BCDEF->Get("/TightISO_TightID_pt_eta/efficienciesDATA/abseta_pt_DATA");
     
     /* for mediumID2016 runs gh */
     
     TFile * sfFile_Muon_MediumID2016_GH = new TFile("EfficienciesAndSF_ID_GH.root","READ");
-    TH2F * sfHisto_Muon_MediumID2016_GH = (TH2F*)sfFile_Muon_MediumID2016_GH->Get("/MC_NUM_MediumID2016_DEN_genTracks_PAR_pt_eta/efficienciesDATA/abseta_pt_DATA");
+    TH2F * sfHisto_Muon_MediumID2016_GH = (TH2F*)sfFile_Muon_MediumID2016_GH->Get("/MC_NUM_TightID_DEN_genTracks_PAR_pt_eta/efficienciesDATA/abseta_pt_DATA");
     
     /* for Iso runs gh */
     
     TFile * sfFile_Muon_TightIso_GH = new TFile("EfficienciesAndSF_ISO_GH.root","READ");
-    TH2F * sfHisto_Muon_TightIso_GH = (TH2F*)sfFile_Muon_TightIso_GH->Get("/TightISO_MediumID_pt_eta/efficienciesDATA/abseta_pt_DATA");
+    TH2F * sfHisto_Muon_TightIso_GH = (TH2F*)sfFile_Muon_TightIso_GH->Get("/TightISO_TightID_pt_eta/efficienciesDATA/abseta_pt_DATA");
 
 	// for HTT derived lepton ID and trigger scale factors and efficiencies
 
@@ -415,13 +415,13 @@ private:
 
 	/* tau IDs */
 
-	float byIsolationMVArun2v1DBoldDMwLTraw_1;
-	float byTightIsolationMVArun2v1DBoldDMwLT_1;
-	float byVTightIsolationMVArun2v1DBoldDMwLT_1;
-	float byLooseIsolationMVArun2v1DBoldDMwLT_1;
-	float byMediumIsolationMVArun2v1DBoldDMwLT_1;
-	float byVLooseIsolationMVArun2v1DBoldDMwLT_1;
-	float byVVTightIsolationMVArun2v1DBoldDMwLT_1;
+	float byIsolationMVArun2v1DBdR03oldDMwLTraw_1;
+	float byTightIsolationMVArun2v1DBdR03oldDMwLT_1;
+	float byVTightIsolationMVArun2v1DBdR03oldDMwLT_1;
+	float byLooseIsolationMVArun2v1DBdR03oldDMwLT_1;
+	float byMediumIsolationMVArun2v1DBdR03oldDMwLT_1;
+	float byVLooseIsolationMVArun2v1DBdR03oldDMwLT_1;
+	float byVVTightIsolationMVArun2v1DBdR03oldDMwLT_1;
 	float againstElectronVLooseMVA6_1;
 	float againstMuonTight3_1;
 	float againstElectronTightMVA6_1;
@@ -475,13 +475,13 @@ private:
 
 	/* tau IDs */
 
-	float byIsolationMVArun2v1DBoldDMwLTraw_2;
-	float byTightIsolationMVArun2v1DBoldDMwLT_2;
-	float byVTightIsolationMVArun2v1DBoldDMwLT_2;
-	float byLooseIsolationMVArun2v1DBoldDMwLT_2;
-	float byMediumIsolationMVArun2v1DBoldDMwLT_2;
-	float byVLooseIsolationMVArun2v1DBoldDMwLT_2;
-	float byVVTightIsolationMVArun2v1DBoldDMwLT_2;
+	float byIsolationMVArun2v1DBdR03oldDMwLTraw_2;
+	float byTightIsolationMVArun2v1DBdR03oldDMwLT_2;
+	float byVTightIsolationMVArun2v1DBdR03oldDMwLT_2;
+	float byLooseIsolationMVArun2v1DBdR03oldDMwLT_2;
+	float byMediumIsolationMVArun2v1DBdR03oldDMwLT_2;
+	float byVLooseIsolationMVArun2v1DBdR03oldDMwLT_2;
+	float byVVTightIsolationMVArun2v1DBdR03oldDMwLT_2;
 	float againstElectronVLooseMVA6_2;
 	float againstMuonTight3_2;
 	float againstElectronTightMVA6_2;

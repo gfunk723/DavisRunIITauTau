@@ -72,6 +72,7 @@ generateH2TauSyncTree::generateH2TauSyncTree(FlatTreeReader R_, bool run_, std::
 	sfTool_Electron_IdIso0p15_eff->init_ScaleFactor("Electron_IdIso_IsoLt0p15_2016BtoH_eff.root"); // 2016
 
 	sfTool_Muon_SingleMu_eff->init_ScaleFactor("Muon_IsoMu24_OR_TkIsoMu24_2016BtoH_eff.root"); // 2016
+    
 	sfTool_Electron_SingleEle_eff->init_ScaleFactor("Electron_Ele25_eta2p1_WPTight_2016BtoH_eff.root"); // 2016
 	sfTool_Muon_Mu8_eff->init_ScaleFactor("Muon_Mu8leg_2016BtoH_eff.root"); //2016
 	sfTool_Muon_Mu17_eff->init_ScaleFactor("Muon_Mu17_eff.root");
@@ -313,13 +314,13 @@ void generateH2TauSyncTree::handleEvent()
 	MCMatchPdgId_1		= R.getI("leg1_MCMatchPdgId");
 
 
-	byIsolationMVArun2v1DBoldDMwLTraw_1 = R.getF("leg1_byIsolationMVArun2v1DBoldDMwLTraw");
-	byTightIsolationMVArun2v1DBoldDMwLT_1 = R.getF("leg1_byTightIsolationMVArun2v1DBoldDMwLT");
-	byVTightIsolationMVArun2v1DBoldDMwLT_1 = R.getF("leg1_byVTightIsolationMVArun2v1DBoldDMwLT");
-	byLooseIsolationMVArun2v1DBoldDMwLT_1 = R.getF("leg1_byLooseIsolationMVArun2v1DBoldDMwLT");
-	byMediumIsolationMVArun2v1DBoldDMwLT_1 = R.getF("leg1_byMediumIsolationMVArun2v1DBoldDMwLT");
-	byVLooseIsolationMVArun2v1DBoldDMwLT_1 = R.getF("leg1_byVLooseIsolationMVArun2v1DBoldDMwLT");
-	byVVTightIsolationMVArun2v1DBoldDMwLT_1 = R.getF("leg1_byVVTightIsolationMVArun2v1DBoldDMwLT");
+	byIsolationMVArun2v1DBdR03oldDMwLTraw_1 = R.getF("leg1_byIsolationMVArun2v1DBdR03oldDMwLTraw");
+	byTightIsolationMVArun2v1DBdR03oldDMwLT_1 = R.getF("leg1_byTightIsolationMVArun2v1DBdR03oldDMwLT");
+	byVTightIsolationMVArun2v1DBdR03oldDMwLT_1 = R.getF("leg1_byVTightIsolationMVArun2v1DBdR03oldDMwLT");
+	byLooseIsolationMVArun2v1DBdR03oldDMwLT_1 = R.getF("leg1_byLooseIsolationMVArun2v1DBdR03oldDMwLT");
+	byMediumIsolationMVArun2v1DBdR03oldDMwLT_1 = R.getF("leg1_byMediumIsolationMVArun2v1DBdR03oldDMwLT");
+	byVLooseIsolationMVArun2v1DBdR03oldDMwLT_1 = R.getF("leg1_byVLooseIsolationMVArun2v1DBdR03oldDMwLT");
+	byVVTightIsolationMVArun2v1DBdR03oldDMwLT_1 = R.getF("leg1_byVVTightIsolationMVArun2v1DBdR03oldDMwLT");
 	againstElectronVLooseMVA6_1 = R.getF("leg1_againstElectronVLooseMVA6");
 	againstMuonTight3_1 = R.getF("leg1_againstMuonTight3");
 	againstElectronTightMVA6_1 = R.getF("leg1_againstElectronTightMVA6");
@@ -367,13 +368,13 @@ void generateH2TauSyncTree::handleEvent()
 	MCMatchPdgId_2		= R.getI("leg2_MCMatchPdgId");
 
 
-	byIsolationMVArun2v1DBoldDMwLTraw_2 = R.getF("leg2_byIsolationMVArun2v1DBoldDMwLTraw");
-	byTightIsolationMVArun2v1DBoldDMwLT_2 = R.getF("leg2_byTightIsolationMVArun2v1DBoldDMwLT");
-	byVTightIsolationMVArun2v1DBoldDMwLT_2 = R.getF("leg2_byVTightIsolationMVArun2v1DBoldDMwLT");
-	byLooseIsolationMVArun2v1DBoldDMwLT_2 = R.getF("leg2_byLooseIsolationMVArun2v1DBoldDMwLT");
-	byMediumIsolationMVArun2v1DBoldDMwLT_2 = R.getF("leg2_byMediumIsolationMVArun2v1DBoldDMwLT");
-	byVLooseIsolationMVArun2v1DBoldDMwLT_2 = R.getF("leg2_byVLooseIsolationMVArun2v1DBoldDMwLT");
-	byVVTightIsolationMVArun2v1DBoldDMwLT_2 = R.getF("leg2_byVVTightIsolationMVArun2v1DBoldDMwLT");
+	byIsolationMVArun2v1DBdR03oldDMwLTraw_2 = R.getF("leg2_byIsolationMVArun2v1DBdR03oldDMwLTraw");
+	byTightIsolationMVArun2v1DBdR03oldDMwLT_2 = R.getF("leg2_byTightIsolationMVArun2v1DBdR03oldDMwLT");
+	byVTightIsolationMVArun2v1DBdR03oldDMwLT_2 = R.getF("leg2_byVTightIsolationMVArun2v1DBdR03oldDMwLT");
+	byLooseIsolationMVArun2v1DBdR03oldDMwLT_2 = R.getF("leg2_byLooseIsolationMVArun2v1DBdR03oldDMwLT");
+	byMediumIsolationMVArun2v1DBdR03oldDMwLT_2 = R.getF("leg2_byMediumIsolationMVArun2v1DBdR03oldDMwLT");
+	byVLooseIsolationMVArun2v1DBdR03oldDMwLT_2 = R.getF("leg2_byVLooseIsolationMVArun2v1DBdR03oldDMwLT");
+	byVVTightIsolationMVArun2v1DBdR03oldDMwLT_2 = R.getF("leg2_byVVTightIsolationMVArun2v1DBdR03oldDMwLT");
 	againstElectronVLooseMVA6_2 = R.getF("leg2_againstElectronVLooseMVA6");
 	againstMuonTight3_2 = R.getF("leg2_againstMuonTight3");
 	againstElectronTightMVA6_2 = R.getF("leg2_againstElectronTightMVA6");
@@ -1371,6 +1372,8 @@ void generateH2TauSyncTree::setupBranches(TTree * T)
 	T->Branch("puWeight_Weight", &puWeight_Weight);
 	T->Branch("TopQuarkPtWeight_Weight", &TopQuarkPtWeight_Weight);
 	T->Branch("ZReWeight_Weight", &ZReWeight_Weight);
+    T->Branch("ZReWeight_WeightUp", &ZReWeight_WeightUp);
+    T->Branch("ZReWeight_WeightDown", &ZReWeight_WeightDown);
     T->Branch("KReWeight_Weight", &KReWeight_Weight);
     T->Branch("JTF_WeightUp", &JTF_WeightUp);
     T->Branch("JTF_WeightDown", &JTF_WeightDown);
@@ -1438,13 +1441,13 @@ void generateH2TauSyncTree::setupBranches(TTree * T)
 	T->Branch("genMCmatch_phi_1", &genMCmatch_phi_1);
 	T->Branch("genMCmatch_M_1", &genMCmatch_M_1);
 	T->Branch("MCMatchPdgId_1", &MCMatchPdgId_1);
-	T->Branch("byIsolationMVArun2v1DBoldDMwLTraw_1", &byIsolationMVArun2v1DBoldDMwLTraw_1);
-	T->Branch("byTightIsolationMVArun2v1DBoldDMwLT_1", &byTightIsolationMVArun2v1DBoldDMwLT_1);
-	T->Branch("byVTightIsolationMVArun2v1DBoldDMwLT_1", &byVTightIsolationMVArun2v1DBoldDMwLT_1);
-	T->Branch("byLooseIsolationMVArun2v1DBoldDMwLT_1", &byLooseIsolationMVArun2v1DBoldDMwLT_1);
-	T->Branch("byMediumIsolationMVArun2v1DBoldDMwLT_1", &byMediumIsolationMVArun2v1DBoldDMwLT_1);
-	T->Branch("byVLooseIsolationMVArun2v1DBoldDMwLT_1", &byVLooseIsolationMVArun2v1DBoldDMwLT_1);
-	T->Branch("byVVTightIsolationMVArun2v1DBoldDMwLT_1", &byVVTightIsolationMVArun2v1DBoldDMwLT_1);
+	T->Branch("byIsolationMVArun2v1DBdR03oldDMwLTraw_1", &byIsolationMVArun2v1DBdR03oldDMwLTraw_1);
+	T->Branch("byTightIsolationMVArun2v1DBdR03oldDMwLT_1", &byTightIsolationMVArun2v1DBdR03oldDMwLT_1);
+	T->Branch("byVTightIsolationMVArun2v1DBdR03oldDMwLT_1", &byVTightIsolationMVArun2v1DBdR03oldDMwLT_1);
+	T->Branch("byLooseIsolationMVArun2v1DBdR03oldDMwLT_1", &byLooseIsolationMVArun2v1DBdR03oldDMwLT_1);
+	T->Branch("byMediumIsolationMVArun2v1DBdR03oldDMwLT_1", &byMediumIsolationMVArun2v1DBdR03oldDMwLT_1);
+	T->Branch("byVLooseIsolationMVArun2v1DBdR03oldDMwLT_1", &byVLooseIsolationMVArun2v1DBdR03oldDMwLT_1);
+	T->Branch("byVVTightIsolationMVArun2v1DBdR03oldDMwLT_1", &byVVTightIsolationMVArun2v1DBdR03oldDMwLT_1);
 	T->Branch("againstElectronVLooseMVA6_1", &againstElectronVLooseMVA6_1);
 	T->Branch("againstMuonTight3_1", &againstMuonTight3_1);
 	T->Branch("againstElectronTightMVA6_1", &againstElectronTightMVA6_1);
@@ -1480,13 +1483,13 @@ void generateH2TauSyncTree::setupBranches(TTree * T)
 	T->Branch("genMCmatch_phi_2", &genMCmatch_phi_2);
 	T->Branch("genMCmatch_M_2", &genMCmatch_M_2);
 	T->Branch("MCMatchPdgId_2", &MCMatchPdgId_2);
-	T->Branch("byIsolationMVArun2v1DBoldDMwLTraw_2", &byIsolationMVArun2v1DBoldDMwLTraw_2);
-	T->Branch("byTightIsolationMVArun2v1DBoldDMwLT_2", &byTightIsolationMVArun2v1DBoldDMwLT_2);
-	T->Branch("byVTightIsolationMVArun2v1DBoldDMwLT_2", &byVTightIsolationMVArun2v1DBoldDMwLT_2);
-	T->Branch("byLooseIsolationMVArun2v1DBoldDMwLT_2", &byLooseIsolationMVArun2v1DBoldDMwLT_2);
-	T->Branch("byMediumIsolationMVArun2v1DBoldDMwLT_2", &byMediumIsolationMVArun2v1DBoldDMwLT_2);
-	T->Branch("byVLooseIsolationMVArun2v1DBoldDMwLT_2", &byVLooseIsolationMVArun2v1DBoldDMwLT_2);
-	T->Branch("byVVTightIsolationMVArun2v1DBoldDMwLT_2", &byVVTightIsolationMVArun2v1DBoldDMwLT_2);
+	T->Branch("byIsolationMVArun2v1DBdR03oldDMwLTraw_2", &byIsolationMVArun2v1DBdR03oldDMwLTraw_2);
+	T->Branch("byTightIsolationMVArun2v1DBdR03oldDMwLT_2", &byTightIsolationMVArun2v1DBdR03oldDMwLT_2);
+	T->Branch("byVTightIsolationMVArun2v1DBdR03oldDMwLT_2", &byVTightIsolationMVArun2v1DBdR03oldDMwLT_2);
+	T->Branch("byLooseIsolationMVArun2v1DBdR03oldDMwLT_2", &byLooseIsolationMVArun2v1DBdR03oldDMwLT_2);
+	T->Branch("byMediumIsolationMVArun2v1DBdR03oldDMwLT_2", &byMediumIsolationMVArun2v1DBdR03oldDMwLT_2);
+	T->Branch("byVLooseIsolationMVArun2v1DBdR03oldDMwLT_2", &byVLooseIsolationMVArun2v1DBdR03oldDMwLT_2);
+	T->Branch("byVVTightIsolationMVArun2v1DBdR03oldDMwLT_2", &byVVTightIsolationMVArun2v1DBdR03oldDMwLT_2);
 	T->Branch("againstElectronVLooseMVA6_2", &againstElectronVLooseMVA6_2);
 	T->Branch("againstMuonTight3_2", &againstMuonTight3_2);
 	T->Branch("againstElectronTightMVA6_2", &againstElectronTightMVA6_2);
@@ -2096,6 +2099,8 @@ void generateH2TauSyncTree::reset()
 	puWeight_Weight = 1.0;
 	TopQuarkPtWeight_Weight = 1.0;
 	ZReWeight_Weight = 1.0;
+    ZReWeight_WeightUp = 1.0;
+    ZReWeight_WeightDown = 1.0;
     KReWeight_Weight = 1.0;
     JTF_WeightUp = 1.0;
     JTF_WeightDown = 1.0;
@@ -2170,13 +2175,13 @@ void generateH2TauSyncTree::reset()
 	genMCmatch_phi_1 = -999.0;
 	genMCmatch_M_1 = -999.0;
 	MCMatchPdgId_1 = -999;
-	byIsolationMVArun2v1DBoldDMwLTraw_1 = -999.0;
-	byTightIsolationMVArun2v1DBoldDMwLT_1 = -999.0;
-	byVTightIsolationMVArun2v1DBoldDMwLT_1 = -999.0;
-	byLooseIsolationMVArun2v1DBoldDMwLT_1 = -999.0;
-	byMediumIsolationMVArun2v1DBoldDMwLT_1 = -999.0;
-	byVLooseIsolationMVArun2v1DBoldDMwLT_1 = -999.0;
-	byVVTightIsolationMVArun2v1DBoldDMwLT_1 = -999.0;
+	byIsolationMVArun2v1DBdR03oldDMwLTraw_1 = -999.0;
+	byTightIsolationMVArun2v1DBdR03oldDMwLT_1 = -999.0;
+	byVTightIsolationMVArun2v1DBdR03oldDMwLT_1 = -999.0;
+	byLooseIsolationMVArun2v1DBdR03oldDMwLT_1 = -999.0;
+	byMediumIsolationMVArun2v1DBdR03oldDMwLT_1 = -999.0;
+	byVLooseIsolationMVArun2v1DBdR03oldDMwLT_1 = -999.0;
+	byVVTightIsolationMVArun2v1DBdR03oldDMwLT_1 = -999.0;
 	againstElectronVLooseMVA6_1 = -999.0;
 	againstMuonTight3_1 = -999.0;
 	againstElectronTightMVA6_1 = -999.0;
@@ -2213,13 +2218,13 @@ void generateH2TauSyncTree::reset()
 	genMCmatch_phi_2 = -999.0;
 	genMCmatch_M_2 = -999.0;
 	MCMatchPdgId_2 = -999;
-	byIsolationMVArun2v1DBoldDMwLTraw_2 = -999.0;
-	byTightIsolationMVArun2v1DBoldDMwLT_2 = -999.0;
-	byVTightIsolationMVArun2v1DBoldDMwLT_2 = -999.0;
-	byLooseIsolationMVArun2v1DBoldDMwLT_2 = -999.0;
-	byMediumIsolationMVArun2v1DBoldDMwLT_2 = -999.0;
-	byVLooseIsolationMVArun2v1DBoldDMwLT_2 = -999.0;
-	byVVTightIsolationMVArun2v1DBoldDMwLT_2 = -999.0;
+	byIsolationMVArun2v1DBdR03oldDMwLTraw_2 = -999.0;
+	byTightIsolationMVArun2v1DBdR03oldDMwLT_2 = -999.0;
+	byVTightIsolationMVArun2v1DBdR03oldDMwLT_2 = -999.0;
+	byLooseIsolationMVArun2v1DBdR03oldDMwLT_2 = -999.0;
+	byMediumIsolationMVArun2v1DBdR03oldDMwLT_2 = -999.0;
+	byVLooseIsolationMVArun2v1DBdR03oldDMwLT_2 = -999.0;
+	byVVTightIsolationMVArun2v1DBdR03oldDMwLT_2 = -999.0;
 	againstElectronVLooseMVA6_2 = -999.0;
 	againstMuonTight3_2 = -999.0;
 	againstElectronTightMVA6_2 = -999.0;
@@ -3246,6 +3251,10 @@ double generateH2TauSyncTree::getFinalWeight(bool verbose_)
     //only for SUSY gluglu samples
 	returnWeight_ *= getNLOReWeight(verbose_, 10 );
 
+    /* include anti-lepton disc factor for fake taus */
+    
+    returnWeight_ *= getALDScaleFactors(verbose_);
+
 	/* include trigger x id x iso scale factor */
 
 	returnWeight_ *= getFinalScaleFactorsForPair(0,0,0);
@@ -3271,14 +3280,17 @@ double generateH2TauSyncTree::getNominalWeight(bool verbose_)
 		if(verbose_) std::cout<<" real data, nominal weight returned as 1.0 \n";
 		return 1.0;
 	}
+    
+    //stitching
+    
+    if (R.getS("KeyName") == "DYJetsToLL_M-50") return (0.033977/(R.getD("FilterEff")));
+    if (R.getS("KeyName") == "DYJetsToLL_M-50ext1-v2") return (0.033977/(R.getD("FilterEff")));
+    if (R.getS("KeyName") == "DY1JetsToLL_M-50") return (0.010954/(R.getD("FilterEff")));
+    if (R.getS("KeyName") == "DY2JetsToLL_M-50") return (0.011181/(R.getD("FilterEff")));
+    if (R.getS("KeyName") == "DY3JetsToLL_M-50") return (0.011497/(R.getD("FilterEff")));
+    if (R.getS("KeyName") == "DY4JetsToLL_M-50") return (0.009426/(R.getD("FilterEff")));
+    
     /*
-    if (R.getS("KeyName") == "DYJetsToLL_M-50")
-    if (R.getS("KeyName") == "DYJetsToLL_M-50ext1-v2")
-    if (R.getS("KeyName") == "DY1JetsToLL_M-50")
-    if (R.getS("KeyName") == "DY2JetsToLL_M-50")
-    if (R.getS("KeyName") == "DY3JetsToLL_M-50")
-    if (R.getS("KeyName") == "DY4JetsToLL_M-50")
-
     if (R.getS("KeyName") == "WJetsToLNu")
     if (R.getS("KeyName") == "WJetsToLNuext2-v1")
     if (R.getS("KeyName") == "WJetsToLNu_HT-70To100")
@@ -3306,17 +3318,22 @@ double generateH2TauSyncTree::getNominalWeight(bool verbose_)
 
 	/* for a few samples crab job running was not 100% so we need to compensate for the missing fraction */
     
-    /*
-	if(R.getS("KeyName") == "Fall15_ZZTo2L2Q")
+	if(R.getS("KeyName") == "WJetsToLNu_HT-600To800orig")
 	{
-		nominal_weight *= 1.0/0.999347654;
+		nominal_weight *= 1.0/0.9864294558;
 	}
-
-	if(R.getS("KeyName") == "Fall15_SUSYggBBHTauTau_M2600")
+	if(R.getS("KeyName") == "WJetsToLNu_HT-1200To2500")
 	{
-		nominal_weight *= 1.0/0.98685;
+		nominal_weight *= 1.0/0.9266797417;
 	}
-    */
+	if(R.getS("KeyName") == "WJetsToLNu_HT-2500ToInf")
+	{
+		nominal_weight *= 1.0/0.9869171147;
+	}
+	if(R.getS("KeyName") == "ZJetsToNuNu_HT-200To400orig")
+	{
+		nominal_weight *= 1.0/0.9937765092;
+	}
     
 	return nominal_weight;
 
@@ -3636,8 +3653,8 @@ std::vector<double> generateH2TauSyncTree::getQCDWeightForEleMuChannel(bool verb
 double generateH2TauSyncTree::getCentralMuonFactor(Double_t eta, Double_t pt, bool trig)
 {
     float returnWeight_ = 1.0;
-    float periodBCDEFweight = 0.5543;
-    float periodGHweight = 0.4457;
+    float periodBCDEFweight = 0.557065;
+    float periodGHweight = 0.442935;
     
     if(trig)
     {
@@ -3773,8 +3790,7 @@ double generateH2TauSyncTree::getJetTauFakeFactor(bool verbose, int variant)
     return returnWeight_;
 }
 
-/*
-double getALDScaleFactors(bool verbose)
+double generateH2TauSyncTree::getALDScaleFactors(bool verbose)
 {
 
 	R.getF("leg2_againstElectronVLooseMVA6");
@@ -3784,22 +3800,64 @@ double getALDScaleFactors(bool verbose)
 
     double returnSF_ = 1.;
     
-    if (R.getI("CandidateEventType")==5 && (abs(R.getI("MCMatchPdgId_2"))==11 || abs(R.getI("MCMatchPdgId_2"))==13 || abs(R.getI("MCMatchPdgId_2"))==15))
+    if (R.getI("CandidateEventType")==5)
     {
+        if (R.getI("leg2_MCMatchType") == 1 || R.getI("leg2_MCMatchType") == 3)
+        {
+            if (abs(R.getD("leg2_eta")) < 1.460) returnSF_ *= 1.292;
+            else if (abs(R.getD("leg2_eta")) > 1.558) returnSF_ *= 1.536;
+        }
+        else if (R.getI("leg2_MCMatchType") == 2 || R.getI("leg2_MCMatchType") == 4)
+        {
+            if (abs(R.getD("leg2_eta")) < 1.2) returnSF_ *= 1.28;
+            else if (abs(R.getD("leg2_eta")) > 1.2 && abs(R.getD("leg2_eta")) < 1.7) returnSF_ *= 2.6;
+            else if (abs(R.getD("leg2_eta")) > 1.7 && abs(R.getD("leg2_eta")) < 2.3) returnSF_ *= 2.1;
+        }
+    }
+    else if (R.getI("CandidateEventType")==3)
+    {
+        if (R.getI("leg2_MCMatchType") == 1 || R.getI("leg2_MCMatchType") == 3)
+        {
+            if (abs(R.getD("leg2_eta")) < 1.460) returnSF_ *= 1.505;
+            else if (abs(R.getD("leg2_eta")) > 1.558) returnSF_ *= 1.994;
+        }
+        else if (R.getI("leg2_MCMatchType") == 2 || R.getI("leg2_MCMatchType") == 4)
+        {
+            if (abs(R.getD("leg2_eta")) < 1.2) returnSF_ *= 1.14;
+            else if (abs(R.getD("leg2_eta")) > 1.2 && abs(R.getD("leg2_eta")) < 1.7) returnSF_ *= 1.2;
+            else if (abs(R.getD("leg2_eta")) > 1.7 && abs(R.getD("leg2_eta")) < 2.3) returnSF_ *= 1.3;
+        }
+    }
+    else if (R.getI("CandidateEventType")==6)
+    {
+        if (R.getI("leg1_MCMatchType") == 1 || R.getI("leg1_MCMatchType") == 3)
+        {
+            if (abs(R.getD("leg1_eta")) < 1.460) returnSF_ *= 1.292;
+            else if (abs(R.getD("leg1_eta")) > 1.558) returnSF_ *= 1.536;
+        }
+        else if (R.getI("leg1_MCMatchType") == 2 || R.getI("leg1_MCMatchType") == 4)
+        {
+            if (abs(R.getD("leg1_eta")) < 1.2) returnSF_ *= 1.14;
+            else if (abs(R.getD("leg1_eta")) > 1.2 && abs(R.getD("leg1_eta")) < 1.7) returnSF_ *= 1.2;
+            else if (abs(R.getD("leg1_eta")) > 1.7 && abs(R.getD("leg1_eta")) < 2.3) returnSF_ *= 1.3;
+        }
         
-        returnSF_ =
+        if (R.getI("leg2_MCMatchType") == 1 || R.getI("leg2_MCMatchType") == 3)
+        {
+            if (abs(R.getD("leg2_eta")) < 1.460) returnSF_ *= 1.292;
+            else if (abs(R.getD("leg2_eta")) > 1.558) returnSF_ *= 1.536;
+        }
+        else if (R.getI("leg2_MCMatchType") == 2 || R.getI("leg2_MCMatchType") == 4)
+        {
+            if (abs(R.getD("leg2_eta")) < 1.2) returnSF_ *= 1.14;
+            else if (abs(R.getD("leg2_eta")) > 1.2 && abs(R.getD("leg2_eta")) < 1.7) returnSF_ *= 1.2;
+            else if (abs(R.getD("leg2_eta")) > 1.7 && abs(R.getD("leg2_eta")) < 2.3) returnSF_ *= 1.3;
+        }
     }
-    else if (R.getI("CandidateEventType")==3 && (abs(R.getI("MCMatchPdgId_2"))==11 || abs(R.getI("MCMatchPdgId_2"))==13 || abs(R.getI("MCMatchPdgId_2"))==15))
-    {
     
-    }
-    else if (R.getI("CandidateEventType")==6 && (abs(R.getI("MCMatchPdgId_2"))==11 || abs(R.getI("MCMatchPdgId_2"))==13 || abs(R.getI("MCMatchPdgId_2"))==15))
-    {
-    
-    }
+    return returnSF_;
 
 }
-*/
 
 double generateH2TauSyncTree::getFinalScaleFactorsForPair(bool verbose, int sysShift, bool useMuonCentral)
 {
