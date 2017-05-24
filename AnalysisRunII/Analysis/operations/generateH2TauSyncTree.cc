@@ -3,8 +3,6 @@
 #include <fstream>
 #include <string>
 
-bool useMuonCentral = 1;
-
 generateH2TauSyncTree::generateH2TauSyncTree(FlatTreeReader R_, bool run_, std::string fileOutName_)
 {
 	m_run = run_;
@@ -39,7 +37,7 @@ generateH2TauSyncTree::generateH2TauSyncTree(FlatTreeReader R_, bool run_, std::
 	setupBranches(tree_EleTau);
 	setupBranches(tree_TauTau);
 	setupBranches(tree_EleMu);
-
+    
 	/* init the susy signal pt reweight tool */
 	NLO_ReadFile();	
 
@@ -60,31 +58,42 @@ generateH2TauSyncTree::generateH2TauSyncTree(FlatTreeReader R_, bool run_, std::
     
 	sfTool_Electron_IdIso0p15_eff = new ScaleFactor();
     sfTool_Muon_SingleMu_eff = new ScaleFactor();
-	sfTool_Muon_Mu8_eff = new ScaleFactor();
-	sfTool_Muon_Mu17_eff = new ScaleFactor();
-	sfTool_Electron_Ele17_eff = new ScaleFactor();
-	sfTool_Electron_Ele12_eff = new ScaleFactor();
+    
+	//sfTool_Muon_Mu8_eff = new ScaleFactor();
+	//sfTool_Muon_Mu17_eff = new ScaleFactor();
+	//sfTool_Electron_Ele17_eff = new ScaleFactor();
+	//sfTool_Electron_Ele12_eff = new ScaleFactor();
 
 	sfTool_Muon_IdIso0p15_eff->init_ScaleFactor("Muon_IdIso_IsoLt0p15_2016BtoH_eff.root"); // 2016
 	sfTool_Muon_IdIso0p20_eff->init_ScaleFactor("Muon_IdIso_IsoLt0p2_2016BtoH_eff.root"); // 2016
 	
-	sfTool_Electron_IdIso0p10_eff->init_ScaleFactor("Electron_IdIso_IsoLt0p1_2016BtoH_eff.root"); // 2016
-	sfTool_Electron_IdIso0p15_eff->init_ScaleFactor("Electron_IdIso_IsoLt0p15_2016BtoH_eff.root"); // 2016
+	sfTool_Electron_IdIso0p10_eff->init_ScaleFactor("Electron_IdIso_IsoLt0p1_eff.root"); // 2016
+	sfTool_Electron_IdIso0p15_eff->init_ScaleFactor("Electron_IdIso_IsoLt0p15_eff.root"); // 2016
 
 	sfTool_Muon_SingleMu_eff->init_ScaleFactor("Muon_IsoMu24_OR_TkIsoMu24_2016BtoH_eff.root"); // 2016
     
-	sfTool_Electron_SingleEle_eff->init_ScaleFactor("Electron_Ele25_eta2p1_WPTight_2016BtoH_eff.root"); // 2016
-	sfTool_Muon_Mu8_eff->init_ScaleFactor("Muon_Mu8leg_2016BtoH_eff.root"); //2016
-	sfTool_Muon_Mu17_eff->init_ScaleFactor("Muon_Mu17_eff.root");
-	sfTool_Electron_Ele17_eff->init_ScaleFactor("Electron_Ele17_eff.root");
-	sfTool_Electron_Ele12_eff->init_ScaleFactor("Electron_Ele12_eff.root"); // 2016
+	sfTool_Electron_SingleEle_eff->init_ScaleFactor("Electron_Ele25WPTight_eff.root"); // 2016
+    
+	//sfTool_Muon_Mu8_eff->init_ScaleFactor("Muon_Mu8leg_2016BtoH_eff.root"); //2016
+	//sfTool_Muon_Mu17_eff->init_ScaleFactor("Muon_Mu17_eff.root");
+	//sfTool_Electron_Ele17_eff->init_ScaleFactor("Electron_Ele17_eff.root");
+	//sfTool_Electron_Ele12_eff->init_ScaleFactor("Electron_Ele12_eff.root"); // 2016
+    
+    //Corr Workspace Init
+    TFile t("htt_scalefactors_v16_4.root");
+    tw = (RooWorkspace*)t.Get("w");
+    t.Close();
+    
+    TFile f("htt_scalefactors_sm_moriond_v2.root");
+    w = (RooWorkspace*)f.Get("w");
+    f.Close();
     
     /* k factor initialization */
     
     EWK_Zcorr->Divide(LO_Zcorr);
     EWK_Gcorr->Divide(LO_Gcorr);
     EWK_Wcorr->Divide(LO_Wcorr);
-
+    
 	}
 
 	else
@@ -102,7 +111,315 @@ generateH2TauSyncTree::generateH2TauSyncTree(FlatTreeReader R_, bool run_, std::
 
 
 	initScaleFactorParametersRunII();
+    
+    //mt_MZP600A0400_reader->AddVariable( "read_pt_1", &rpt_1 );
+    mt_MZP600A0400_reader->AddVariable( "read_pt_2", &rpt_2 );
+    mt_MZP600A0400_reader->AddVariable( "read_mt_tot", &rmt_tot );
+    mt_MZP600A0400_reader->AddVariable( "read_pfmt_1", &rpfmt_1 );
+    mt_MZP600A0400_reader->AddVariable( "read_pt_tt", &rpt_tt );
+    //mt_MZP600A0400_reader->AddVariable( "read_m_vis", &rm_vis );
+    mt_MZP600A0400_reader->AddVariable( "read_met", &rmet );
+    mt_MZP600A0400_reader->AddVariable( "read_P_chi_pf", &rP_chi_pf );
+    mt_MZP600A0400_reader->AddVariable( "read_LPT", &rLPT );
+    mt_MZP600A0400_reader->AddVariable( "read_DeltaR_leg1_leg2", &rDeltaR_leg1_leg2 );
+    mt_MZP600A0400_reader->AddVariable( "read_cos_DeltaPhi_leg1_leg2", &rcos_DeltaPhi_leg1_leg2 );
+    mt_MZP600A0400_reader->AddVariable( "read_cos_DeltaPhi_PFMET_Higgs", &rcos_DeltaPhi_PFMET_Higgs );
+    
+    mt_MZP600A0400_reader->AddSpectator( "read_ratio_weight", &rratio_weight );
+    mt_MZP600A0400_reader->AddSpectator( "read_final_weight", &rfinal_weight );
+    mt_MZP600A0400_reader->AddSpectator( "read_npu", &rnpu );
+    mt_MZP600A0400_reader->AddSpectator( "read_event", &revent );
+    mt_MZP600A0400_reader->AddSpectator( "read_randNum", &rrandNum );
+    mt_MZP600A0400_reader->AddSpectator( "read_DataCardInt", &rDataCardInt );
+    mt_MZP600A0400_reader->AddSpectator( "read_IsZTT", &rIsZTT );
+    mt_MZP600A0400_reader->AddSpectator( "read_IsZJ", &rIsZJ );
+    mt_MZP600A0400_reader->AddSpectator( "read_IsZL", &rIsZL );
+    mt_MZP600A0400_reader->AddSpectator( "read_IsTTT", &rIsTTT );
+    
+    mt_MZP600A0400_reader->BookMVA("MLPBNN","TMVAClassification_MLPBNN_MuTau_MZP600_MA0400_MDM100_nodes30_epoch1000.weights.xml");
+    
+    mt_MZP800A0400_reader->AddVariable( "read_pt_1", &rpt_1 );
+    mt_MZP800A0400_reader->AddVariable( "read_pt_2", &rpt_2 );
+    mt_MZP800A0400_reader->AddVariable( "read_mt_tot", &rmt_tot );
+    mt_MZP800A0400_reader->AddVariable( "read_pfmt_1", &rpfmt_1 );
+    mt_MZP800A0400_reader->AddVariable( "read_pt_tt", &rpt_tt );
+    //mt_MZP800A0400_reader->AddVariable( "read_m_vis", &rm_vis );
+    mt_MZP800A0400_reader->AddVariable( "read_met", &rmet );
+    mt_MZP800A0400_reader->AddVariable( "read_P_chi_pf", &rP_chi_pf );
+    mt_MZP800A0400_reader->AddVariable( "read_LPT", &rLPT );
+    mt_MZP800A0400_reader->AddVariable( "read_DeltaR_leg1_leg2", &rDeltaR_leg1_leg2 );
+    mt_MZP800A0400_reader->AddVariable( "read_cos_DeltaPhi_leg1_leg2", &rcos_DeltaPhi_leg1_leg2 );
+    mt_MZP800A0400_reader->AddVariable( "read_cos_DeltaPhi_PFMET_Higgs", &rcos_DeltaPhi_PFMET_Higgs );
+    
+    mt_MZP800A0400_reader->AddSpectator( "read_ratio_weight", &rratio_weight );
+    mt_MZP800A0400_reader->AddSpectator( "read_final_weight", &rfinal_weight );
+    mt_MZP800A0400_reader->AddSpectator( "read_npu", &rnpu );
+    mt_MZP800A0400_reader->AddSpectator( "read_event", &revent );
+    mt_MZP800A0400_reader->AddSpectator( "read_randNum", &rrandNum );
+    mt_MZP800A0400_reader->AddSpectator( "read_DataCardInt", &rDataCardInt );
+    mt_MZP800A0400_reader->AddSpectator( "read_IsZTT", &rIsZTT );
+    mt_MZP800A0400_reader->AddSpectator( "read_IsZJ", &rIsZJ );
+    mt_MZP800A0400_reader->AddSpectator( "read_IsZL", &rIsZL );
+    mt_MZP800A0400_reader->AddSpectator( "read_IsTTT", &rIsTTT );
+    
+    mt_MZP800A0400_reader->BookMVA("MLPBNN","TMVAClassification_MLPBNN_MuTau_MZP800_MA0400_MDM100_nodes30_epoch1000.weights.xml");
 
+    mt_MZP1000A0400_reader->AddVariable( "read_pt_1", &rpt_1 );
+    mt_MZP1000A0400_reader->AddVariable( "read_pt_2", &rpt_2 );
+    mt_MZP1000A0400_reader->AddVariable( "read_mt_tot", &rmt_tot );
+    mt_MZP1000A0400_reader->AddVariable( "read_pfmt_1", &rpfmt_1 );
+    mt_MZP1000A0400_reader->AddVariable( "read_pt_tt", &rpt_tt );
+    mt_MZP1000A0400_reader->AddVariable( "read_m_vis", &rm_vis );
+    mt_MZP1000A0400_reader->AddVariable( "read_met", &rmet );
+    mt_MZP1000A0400_reader->AddVariable( "read_P_chi_pf", &rP_chi_pf );
+    mt_MZP1000A0400_reader->AddVariable( "read_LPT", &rLPT );
+    mt_MZP1000A0400_reader->AddVariable( "read_DeltaR_leg1_leg2", &rDeltaR_leg1_leg2 );
+    mt_MZP1000A0400_reader->AddVariable( "read_cos_DeltaPhi_leg1_leg2", &rcos_DeltaPhi_leg1_leg2 );
+    mt_MZP1000A0400_reader->AddVariable( "read_cos_DeltaPhi_PFMET_Higgs", &rcos_DeltaPhi_PFMET_Higgs );
+    
+    mt_MZP1000A0400_reader->AddSpectator( "read_ratio_weight", &rratio_weight );
+    mt_MZP1000A0400_reader->AddSpectator( "read_final_weight", &rfinal_weight );
+    mt_MZP1000A0400_reader->AddSpectator( "read_npu", &rnpu );
+    mt_MZP1000A0400_reader->AddSpectator( "read_event", &revent );
+    mt_MZP1000A0400_reader->AddSpectator( "read_randNum", &rrandNum );
+    mt_MZP1000A0400_reader->AddSpectator( "read_DataCardInt", &rDataCardInt );
+    mt_MZP1000A0400_reader->AddSpectator( "read_IsZTT", &rIsZTT );
+    mt_MZP1000A0400_reader->AddSpectator( "read_IsZJ", &rIsZJ );
+    mt_MZP1000A0400_reader->AddSpectator( "read_IsZL", &rIsZL );
+    mt_MZP1000A0400_reader->AddSpectator( "read_IsTTT", &rIsTTT );
+    
+    mt_MZP1000A0400_reader->BookMVA("MLPBNN","TMVAClassification_MLPBNN_MuTau_MZP1000_MA0400_MDM100_nodes30_epoch1000.weights.xml");
+    
+    mt_MZP1200A0400_reader->AddVariable( "read_pt_1", &rpt_1 );
+    mt_MZP1200A0400_reader->AddVariable( "read_pt_2", &rpt_2 );
+    mt_MZP1200A0400_reader->AddVariable( "read_mt_tot", &rmt_tot );
+    mt_MZP1200A0400_reader->AddVariable( "read_pfmt_1", &rpfmt_1 );
+    mt_MZP1200A0400_reader->AddVariable( "read_pt_tt", &rpt_tt );
+    mt_MZP1200A0400_reader->AddVariable( "read_m_vis", &rm_vis );
+    mt_MZP1200A0400_reader->AddVariable( "read_met", &rmet );
+    mt_MZP1200A0400_reader->AddVariable( "read_P_chi_pf", &rP_chi_pf );
+    mt_MZP1200A0400_reader->AddVariable( "read_LPT", &rLPT );
+    mt_MZP1200A0400_reader->AddVariable( "read_DeltaR_leg1_leg2", &rDeltaR_leg1_leg2 );
+    mt_MZP1200A0400_reader->AddVariable( "read_cos_DeltaPhi_leg1_leg2", &rcos_DeltaPhi_leg1_leg2 );
+    mt_MZP1200A0400_reader->AddVariable( "read_cos_DeltaPhi_PFMET_Higgs", &rcos_DeltaPhi_PFMET_Higgs );
+    
+    mt_MZP1200A0400_reader->AddSpectator( "read_ratio_weight", &rratio_weight );
+    mt_MZP1200A0400_reader->AddSpectator( "read_final_weight", &rfinal_weight );
+    mt_MZP1200A0400_reader->AddSpectator( "read_npu", &rnpu );
+    mt_MZP1200A0400_reader->AddSpectator( "read_event", &revent );
+    mt_MZP1200A0400_reader->AddSpectator( "read_randNum", &rrandNum );
+    mt_MZP1200A0400_reader->AddSpectator( "read_DataCardInt", &rDataCardInt );
+    mt_MZP1200A0400_reader->AddSpectator( "read_IsZTT", &rIsZTT );
+    mt_MZP1200A0400_reader->AddSpectator( "read_IsZJ", &rIsZJ );
+    mt_MZP1200A0400_reader->AddSpectator( "read_IsZL", &rIsZL );
+    mt_MZP1200A0400_reader->AddSpectator( "read_IsTTT", &rIsTTT );
+    
+    mt_MZP1200A0400_reader->BookMVA("MLPBNN","TMVAClassification_MLPBNN_MuTau_MZP1200_MA0400_MDM100_nodes30_epoch1000.weights.xml");
+    
+    //et_MZP600A0400_reader->AddVariable( "read_pt_1", &rpt_1 );
+    et_MZP600A0400_reader->AddVariable( "read_pt_2", &rpt_2 );
+    et_MZP600A0400_reader->AddVariable( "read_mt_tot", &rmt_tot );
+    et_MZP600A0400_reader->AddVariable( "read_pfmt_1", &rpfmt_1 );
+    et_MZP600A0400_reader->AddVariable( "read_pt_tt", &rpt_tt );
+    //et_MZP600A0400_reader->AddVariable( "read_m_vis", &rm_vis );
+    et_MZP600A0400_reader->AddVariable( "read_met", &rmet );
+    et_MZP600A0400_reader->AddVariable( "read_P_chi_pf", &rP_chi_pf );
+    et_MZP600A0400_reader->AddVariable( "read_LPT", &rLPT );
+    et_MZP600A0400_reader->AddVariable( "read_DeltaR_leg1_leg2", &rDeltaR_leg1_leg2 );
+    et_MZP600A0400_reader->AddVariable( "read_cos_DeltaPhi_leg1_leg2", &rcos_DeltaPhi_leg1_leg2 );
+    et_MZP600A0400_reader->AddVariable( "read_cos_DeltaPhi_PFMET_Higgs", &rcos_DeltaPhi_PFMET_Higgs );
+    
+    et_MZP600A0400_reader->AddSpectator( "read_ratio_weight", &rratio_weight );
+    et_MZP600A0400_reader->AddSpectator( "read_final_weight", &rfinal_weight );
+    et_MZP600A0400_reader->AddSpectator( "read_npu", &rnpu );
+    et_MZP600A0400_reader->AddSpectator( "read_event", &revent );
+    et_MZP600A0400_reader->AddSpectator( "read_randNum", &rrandNum );
+    et_MZP600A0400_reader->AddSpectator( "read_DataCardInt", &rDataCardInt );
+    et_MZP600A0400_reader->AddSpectator( "read_IsZTT", &rIsZTT );
+    et_MZP600A0400_reader->AddSpectator( "read_IsZJ", &rIsZJ );
+    et_MZP600A0400_reader->AddSpectator( "read_IsZL", &rIsZL );
+    et_MZP600A0400_reader->AddSpectator( "read_IsTTT", &rIsTTT );
+
+    et_MZP600A0400_reader->BookMVA("MLPBNN","TMVAClassification_MLPBNN_EleTau_MZP600_MA0400_MDM100_nodes30_epoch1000.weights.xml");
+    
+    et_MZP800A0400_reader->AddVariable( "read_pt_1", &rpt_1 );
+    et_MZP800A0400_reader->AddVariable( "read_pt_2", &rpt_2 );
+    et_MZP800A0400_reader->AddVariable( "read_mt_tot", &rmt_tot );
+    et_MZP800A0400_reader->AddVariable( "read_pfmt_1", &rpfmt_1 );
+    et_MZP800A0400_reader->AddVariable( "read_pt_tt", &rpt_tt );
+    //et_MZP800A0400_reader->AddVariable( "read_m_vis", &rm_vis );
+    et_MZP800A0400_reader->AddVariable( "read_met", &rmet );
+    et_MZP800A0400_reader->AddVariable( "read_P_chi_pf", &rP_chi_pf );
+    et_MZP800A0400_reader->AddVariable( "read_LPT", &rLPT );
+    et_MZP800A0400_reader->AddVariable( "read_DeltaR_leg1_leg2", &rDeltaR_leg1_leg2 );
+    et_MZP800A0400_reader->AddVariable( "read_cos_DeltaPhi_leg1_leg2", &rcos_DeltaPhi_leg1_leg2 );
+    et_MZP800A0400_reader->AddVariable( "read_cos_DeltaPhi_PFMET_Higgs", &rcos_DeltaPhi_PFMET_Higgs );
+    
+    et_MZP800A0400_reader->AddSpectator( "read_ratio_weight", &rratio_weight );
+    et_MZP800A0400_reader->AddSpectator( "read_final_weight", &rfinal_weight );
+    et_MZP800A0400_reader->AddSpectator( "read_npu", &rnpu );
+    et_MZP800A0400_reader->AddSpectator( "read_event", &revent );
+    et_MZP800A0400_reader->AddSpectator( "read_randNum", &rrandNum );
+    et_MZP800A0400_reader->AddSpectator( "read_DataCardInt", &rDataCardInt );
+    et_MZP800A0400_reader->AddSpectator( "read_IsZTT", &rIsZTT );
+    et_MZP800A0400_reader->AddSpectator( "read_IsZJ", &rIsZJ );
+    et_MZP800A0400_reader->AddSpectator( "read_IsZL", &rIsZL );
+    et_MZP800A0400_reader->AddSpectator( "read_IsTTT", &rIsTTT );
+
+    et_MZP800A0400_reader->BookMVA("MLPBNN","TMVAClassification_MLPBNN_EleTau_MZP800_MA0400_MDM100_nodes30_epoch1000.weights.xml");
+    
+    
+    et_MZP1000A0400_reader->AddVariable( "read_pt_1", &rpt_1 );
+    et_MZP1000A0400_reader->AddVariable( "read_pt_2", &rpt_2 );
+    et_MZP1000A0400_reader->AddVariable( "read_mt_tot", &rmt_tot );
+    et_MZP1000A0400_reader->AddVariable( "read_pfmt_1", &rpfmt_1 );
+    et_MZP1000A0400_reader->AddVariable( "read_pt_tt", &rpt_tt );
+    //et_MZP1000A0400_reader->AddVariable( "read_m_vis", &rm_vis );
+    et_MZP1000A0400_reader->AddVariable( "read_met", &rmet );
+    et_MZP1000A0400_reader->AddVariable( "read_P_chi_pf", &rP_chi_pf );
+    et_MZP1000A0400_reader->AddVariable( "read_LPT", &rLPT );
+    et_MZP1000A0400_reader->AddVariable( "read_DeltaR_leg1_leg2", &rDeltaR_leg1_leg2 );
+    et_MZP1000A0400_reader->AddVariable( "read_cos_DeltaPhi_leg1_leg2", &rcos_DeltaPhi_leg1_leg2 );
+    et_MZP1000A0400_reader->AddVariable( "read_cos_DeltaPhi_PFMET_Higgs", &rcos_DeltaPhi_PFMET_Higgs );
+    
+    et_MZP1000A0400_reader->AddSpectator( "read_ratio_weight", &rratio_weight );
+    et_MZP1000A0400_reader->AddSpectator( "read_final_weight", &rfinal_weight );
+    et_MZP1000A0400_reader->AddSpectator( "read_npu", &rnpu );
+    et_MZP1000A0400_reader->AddSpectator( "read_event", &revent );
+    et_MZP1000A0400_reader->AddSpectator( "read_randNum", &rrandNum );
+    et_MZP1000A0400_reader->AddSpectator( "read_DataCardInt", &rDataCardInt );
+    et_MZP1000A0400_reader->AddSpectator( "read_IsZTT", &rIsZTT );
+    et_MZP1000A0400_reader->AddSpectator( "read_IsZJ", &rIsZJ );
+    et_MZP1000A0400_reader->AddSpectator( "read_IsZL", &rIsZL );
+    et_MZP1000A0400_reader->AddSpectator( "read_IsTTT", &rIsTTT );
+
+    et_MZP1000A0400_reader->BookMVA("MLPBNN","TMVAClassification_MLPBNN_EleTau_MZP1000_MA0400_MDM100_nodes30_epoch1000.weights.xml");
+    
+    et_MZP1200A0400_reader->AddVariable( "read_pt_1", &rpt_1 );
+    et_MZP1200A0400_reader->AddVariable( "read_pt_2", &rpt_2 );
+    et_MZP1200A0400_reader->AddVariable( "read_mt_tot", &rmt_tot );
+    et_MZP1200A0400_reader->AddVariable( "read_pfmt_1", &rpfmt_1 );
+    et_MZP1200A0400_reader->AddVariable( "read_pt_tt", &rpt_tt );
+    et_MZP1200A0400_reader->AddVariable( "read_m_vis", &rm_vis );
+    et_MZP1200A0400_reader->AddVariable( "read_met", &rmet );
+    et_MZP1200A0400_reader->AddVariable( "read_P_chi_pf", &rP_chi_pf );
+    et_MZP1200A0400_reader->AddVariable( "read_LPT", &rLPT );
+    et_MZP1200A0400_reader->AddVariable( "read_DeltaR_leg1_leg2", &rDeltaR_leg1_leg2 );
+    et_MZP1200A0400_reader->AddVariable( "read_cos_DeltaPhi_leg1_leg2", &rcos_DeltaPhi_leg1_leg2 );
+    et_MZP1200A0400_reader->AddVariable( "read_cos_DeltaPhi_PFMET_Higgs", &rcos_DeltaPhi_PFMET_Higgs );
+    
+    et_MZP1200A0400_reader->AddSpectator( "read_ratio_weight", &rratio_weight );
+    et_MZP1200A0400_reader->AddSpectator( "read_final_weight", &rfinal_weight );
+    et_MZP1200A0400_reader->AddSpectator( "read_npu", &rnpu );
+    et_MZP1200A0400_reader->AddSpectator( "read_event", &revent );
+    et_MZP1200A0400_reader->AddSpectator( "read_randNum", &rrandNum );
+    et_MZP1200A0400_reader->AddSpectator( "read_DataCardInt", &rDataCardInt );
+    et_MZP1200A0400_reader->AddSpectator( "read_IsZTT", &rIsZTT );
+    et_MZP1200A0400_reader->AddSpectator( "read_IsZJ", &rIsZJ );
+    et_MZP1200A0400_reader->AddSpectator( "read_IsZL", &rIsZL );
+    et_MZP1200A0400_reader->AddSpectator( "read_IsTTT", &rIsTTT );
+
+    et_MZP1200A0400_reader->BookMVA("MLPBNN","TMVAClassification_MLPBNN_EleTau_MZP1200_MA0400_MDM100_nodes30_epoch1000.weights.xml");
+
+    //tt_MZP600A0400_reader->AddVariable( "read_pt_1", &rpt_1 );
+    //tt_MZP600A0400_reader->AddVariable( "read_pt_2", &rpt_2 );
+    tt_MZP600A0400_reader->AddVariable( "read_mt_tot", &rmt_tot );
+    tt_MZP600A0400_reader->AddVariable( "read_pfmt_1", &rpfmt_1 );
+    tt_MZP600A0400_reader->AddVariable( "read_pt_tt", &rpt_tt );
+    //tt_MZP600A0400_reader->AddVariable( "read_m_vis", &rm_vis );
+    tt_MZP600A0400_reader->AddVariable( "read_met", &rmet );
+    tt_MZP600A0400_reader->AddVariable( "read_LPT", &rLPT );
+    tt_MZP600A0400_reader->AddVariable( "read_DeltaR_leg1_leg2", &rDeltaR_leg1_leg2 );
+    tt_MZP600A0400_reader->AddVariable( "read_cos_DeltaPhi_leg1_leg2", &rcos_DeltaPhi_leg1_leg2 );
+    tt_MZP600A0400_reader->AddVariable( "read_cos_DeltaPhi_PFMET_Higgs", &rcos_DeltaPhi_PFMET_Higgs );
+    
+    tt_MZP600A0400_reader->AddSpectator( "read_ratio_weight", &rratio_weight );
+    tt_MZP600A0400_reader->AddSpectator( "read_final_weight", &rfinal_weight );
+    tt_MZP600A0400_reader->AddSpectator( "read_npu", &rnpu );
+    tt_MZP600A0400_reader->AddSpectator( "read_event", &revent );
+    tt_MZP600A0400_reader->AddSpectator( "read_randNum", &rrandNum );
+    tt_MZP600A0400_reader->AddSpectator( "read_DataCardInt", &rDataCardInt );
+    tt_MZP600A0400_reader->AddSpectator( "read_IsZTT", &rIsZTT );
+    tt_MZP600A0400_reader->AddSpectator( "read_IsZJ", &rIsZJ );
+    tt_MZP600A0400_reader->AddSpectator( "read_IsZL", &rIsZL );
+    tt_MZP600A0400_reader->AddSpectator( "read_IsTTT", &rIsTTT );
+
+    tt_MZP600A0400_reader->BookMVA("MLPBNN","TMVAClassification_MLPBNN_TauTau_MZP600_MA0400_MDM100_nodes30_epoch1000.weights.xml");
+    
+    tt_MZP800A0400_reader->AddVariable( "read_pt_1", &rpt_1 );
+    tt_MZP800A0400_reader->AddVariable( "read_pt_2", &rpt_2 );
+    tt_MZP800A0400_reader->AddVariable( "read_mt_tot", &rmt_tot );
+    tt_MZP800A0400_reader->AddVariable( "read_pfmt_1", &rpfmt_1 );
+    tt_MZP800A0400_reader->AddVariable( "read_pt_tt", &rpt_tt );
+    tt_MZP800A0400_reader->AddVariable( "read_m_vis", &rm_vis );
+    tt_MZP800A0400_reader->AddVariable( "read_met", &rmet );
+    tt_MZP800A0400_reader->AddVariable( "read_LPT", &rLPT );
+    tt_MZP800A0400_reader->AddVariable( "read_DeltaR_leg1_leg2", &rDeltaR_leg1_leg2 );
+    tt_MZP800A0400_reader->AddVariable( "read_cos_DeltaPhi_leg1_leg2", &rcos_DeltaPhi_leg1_leg2 );
+    tt_MZP800A0400_reader->AddVariable( "read_cos_DeltaPhi_PFMET_Higgs", &rcos_DeltaPhi_PFMET_Higgs );
+    
+    tt_MZP800A0400_reader->AddSpectator( "read_ratio_weight", &rratio_weight );
+    tt_MZP800A0400_reader->AddSpectator( "read_final_weight", &rfinal_weight );
+    tt_MZP800A0400_reader->AddSpectator( "read_npu", &rnpu );
+    tt_MZP800A0400_reader->AddSpectator( "read_event", &revent );
+    tt_MZP800A0400_reader->AddSpectator( "read_randNum", &rrandNum );
+    tt_MZP800A0400_reader->AddSpectator( "read_DataCardInt", &rDataCardInt );
+    tt_MZP800A0400_reader->AddSpectator( "read_IsZTT", &rIsZTT );
+    tt_MZP800A0400_reader->AddSpectator( "read_IsZJ", &rIsZJ );
+    tt_MZP800A0400_reader->AddSpectator( "read_IsZL", &rIsZL );
+    tt_MZP800A0400_reader->AddSpectator( "read_IsTTT", &rIsTTT );
+
+    tt_MZP800A0400_reader->BookMVA("MLPBNN","TMVAClassification_MLPBNN_TauTau_MZP800_MA0400_MDM100_nodes30_epoch1000.weights.xml");
+
+    tt_MZP1000A0400_reader->AddVariable( "read_pt_1", &rpt_1 );
+    tt_MZP1000A0400_reader->AddVariable( "read_pt_2", &rpt_2 );
+    tt_MZP1000A0400_reader->AddVariable( "read_mt_tot", &rmt_tot );
+    tt_MZP1000A0400_reader->AddVariable( "read_pfmt_1", &rpfmt_1 );
+    tt_MZP1000A0400_reader->AddVariable( "read_pt_tt", &rpt_tt );
+    tt_MZP1000A0400_reader->AddVariable( "read_m_vis", &rm_vis );
+    tt_MZP1000A0400_reader->AddVariable( "read_met", &rmet );
+    tt_MZP1000A0400_reader->AddVariable( "read_LPT", &rLPT );
+    tt_MZP1000A0400_reader->AddVariable( "read_DeltaR_leg1_leg2", &rDeltaR_leg1_leg2 );
+    tt_MZP1000A0400_reader->AddVariable( "read_cos_DeltaPhi_leg1_leg2", &rcos_DeltaPhi_leg1_leg2 );
+    tt_MZP1000A0400_reader->AddVariable( "read_cos_DeltaPhi_PFMET_Higgs", &rcos_DeltaPhi_PFMET_Higgs );
+    
+    tt_MZP1000A0400_reader->AddSpectator( "read_ratio_weight", &rratio_weight );
+    tt_MZP1000A0400_reader->AddSpectator( "read_final_weight", &rfinal_weight );
+    tt_MZP1000A0400_reader->AddSpectator( "read_npu", &rnpu );
+    tt_MZP1000A0400_reader->AddSpectator( "read_event", &revent );
+    tt_MZP1000A0400_reader->AddSpectator( "read_randNum", &rrandNum );
+    tt_MZP1000A0400_reader->AddSpectator( "read_DataCardInt", &rDataCardInt );
+    tt_MZP1000A0400_reader->AddSpectator( "read_IsZTT", &rIsZTT );
+    tt_MZP1000A0400_reader->AddSpectator( "read_IsZJ", &rIsZJ );
+    tt_MZP1000A0400_reader->AddSpectator( "read_IsZL", &rIsZL );
+    tt_MZP1000A0400_reader->AddSpectator( "read_IsTTT", &rIsTTT );
+
+    tt_MZP1000A0400_reader->BookMVA("MLPBNN","TMVAClassification_MLPBNN_TauTau_MZP1000_MA0400_MDM100_nodes30_epoch1000.weights.xml");
+    
+    tt_MZP1200A0400_reader->AddVariable( "read_pt_1", &rpt_1 );
+    tt_MZP1200A0400_reader->AddVariable( "read_pt_2", &rpt_2 );
+    tt_MZP1200A0400_reader->AddVariable( "read_mt_tot", &rmt_tot );
+    tt_MZP1200A0400_reader->AddVariable( "read_pfmt_1", &rpfmt_1 );
+    tt_MZP1200A0400_reader->AddVariable( "read_pt_tt", &rpt_tt );
+    tt_MZP1200A0400_reader->AddVariable( "read_m_vis", &rm_vis );
+    tt_MZP1200A0400_reader->AddVariable( "read_met", &rmet );
+    tt_MZP1200A0400_reader->AddVariable( "read_LPT", &rLPT );
+    tt_MZP1200A0400_reader->AddVariable( "read_DeltaR_leg1_leg2", &rDeltaR_leg1_leg2 );
+    tt_MZP1200A0400_reader->AddVariable( "read_cos_DeltaPhi_leg1_leg2", &rcos_DeltaPhi_leg1_leg2 );
+    tt_MZP1200A0400_reader->AddVariable( "read_cos_DeltaPhi_PFMET_Higgs", &rcos_DeltaPhi_PFMET_Higgs );
+    
+    tt_MZP1200A0400_reader->AddSpectator( "read_ratio_weight", &rratio_weight );
+    tt_MZP1200A0400_reader->AddSpectator( "read_final_weight", &rfinal_weight );
+    tt_MZP1200A0400_reader->AddSpectator( "read_npu", &rnpu );
+    tt_MZP1200A0400_reader->AddSpectator( "read_event", &revent );
+    tt_MZP1200A0400_reader->AddSpectator( "read_randNum", &rrandNum );
+    tt_MZP1200A0400_reader->AddSpectator( "read_DataCardInt", &rDataCardInt );
+    tt_MZP1200A0400_reader->AddSpectator( "read_IsZTT", &rIsZTT );
+    tt_MZP1200A0400_reader->AddSpectator( "read_IsZJ", &rIsZJ );
+    tt_MZP1200A0400_reader->AddSpectator( "read_IsZL", &rIsZL );
+    tt_MZP1200A0400_reader->AddSpectator( "read_IsTTT", &rIsTTT );
+
+    tt_MZP1200A0400_reader->BookMVA("MLPBNN","TMVAClassification_MLPBNN_TauTau_MZP1200_MA0400_MDM100_nodes30_epoch1000.weights.xml");
 }
 
 
@@ -179,7 +496,10 @@ void generateH2TauSyncTree::handleEvent()
     }
     else {flag_MVAEventType = -1;}
 
-	/* note: two factors can control what variables are available in the FlatTuple 
+    randNum = randVal;
+
+	/* 
+      note: two factors can control what variables are available in the FlatTuple
 	  -- (1) both tau ES and electron ES are nominal (it will be nan for channels without e or tau)
 	  -- (2) the FlatTuple was not produced under small tree conditions 
 	
@@ -203,6 +523,10 @@ void generateH2TauSyncTree::handleEvent()
 	TLorentzVector mvaMetVec_resolutionUP(0.,0.,0.,0.);	
 	TLorentzVector mvaMetVec_resolutionDOWN(0.,0.,0.,0.);	
 	TLorentzVector pfMetVec(0.,0.,0.,0.);
+    TLorentzVector pfMetVecUESUp(0.,0.,0.,0.);
+    TLorentzVector pfMetVecUESDown(0.,0.,0.,0.);
+    TLorentzVector pfMetVecJEnUp(0.,0.,0.,0.);
+    TLorentzVector pfMetVecJEnDown(0.,0.,0.,0.);
 	TLorentzVector puppiMetVec(0.,0.,0.,0.);
 
 	/* set leg1 4-vector */
@@ -212,8 +536,7 @@ void generateH2TauSyncTree::handleEvent()
 	/* set the leg2 4-vector */
 
 	l2.SetPtEtaPhiM(R.getD("leg2_pt"),R.getD("leg2_eta"),R.getD("leg2_phi"),R.getD("leg2_M"));
-
-
+    
 	/* set the MET 4-vectors */
 
 	mvaMetVec.SetPtEtaPhiM(R.getD("corr_mvaMET"),0.0,R.getD("corr_mvaMETphi"),0.0);
@@ -231,7 +554,12 @@ void generateH2TauSyncTree::handleEvent()
 
    	/* alternate mets */
 
-	pfMetVec.SetPtEtaPhiM(R.getD("pfMET"),0.0,R.getD("pfMETphi"),0.0);
+	pfMetVec.SetPtEtaPhiM(R.getD("pfmet_type1_Pt"),0.0,R.getD("pfmet_type1_Phi"),0.0);
+    pfMetVecUESUp.SetPtEtaPhiM(R.getD("pfmet_type1_UnclusteredEnUp_Pt"),0.0,R.getD("pfmet_type1_UnclusteredEnUp_Phi"),0.0);
+    pfMetVecUESDown.SetPtEtaPhiM(R.getD("pfmet_type1_UnclusteredEnDown_Pt"),0.0,R.getD("pfmet_type1_UnclusteredEnDown_Phi"),0.0);
+    pfMetVecJEnUp.SetPtEtaPhiM(R.getD("pfmet_type1_JetEnUp_Pt"),0.0,R.getD("pfmet_type1_JetEnUp_Phi"),0.0);
+    pfMetVecJEnDown.SetPtEtaPhiM(R.getD("pfmet_type1_JetEnDown_Pt"),0.0,R.getD("pfmet_type1_JetEnDown_Phi"),0.0);
+    
 	puppiMetVec.SetPtEtaPhiM(R.getD("puppiMET"),0.0,R.getD("puppiMETphi"),0.0);
 
     /* The LHE weights & Scale Factor Vector, mapping is available in FlatTuple production log file */
@@ -247,7 +575,18 @@ void generateH2TauSyncTree::handleEvent()
 
 	pairRank = R.getUI("pairRank");
  	isOsPair = R.getI("isOsPair");
-
+    isBoostedChannelPair = R.getB("isBoostedChannelPair");
+    
+    if (R.getS("DataCard") == "DY") DataCardInt = 1;
+    if (R.getS("DataCard") == "TT") DataCardInt = 2;
+    if (R.getS("DataCard") == "VV") DataCardInt = 3;
+    if (R.getS("DataCard") == "VVV") DataCardInt = 4;
+    if (R.getS("DataCard") == "EWK") DataCardInt = 5;
+    if (R.getS("DataCard") == "W") DataCardInt = 6;
+    if (R.getS("DataCard") == "SMHIGGS") DataCardInt = 7;
+    if (R.getS("DataCard") == "DYINV") DataCardInt = 8;
+    if (R.getS("DataCard") == "MonoHiggs_2HDM") DataCardInt = 9;
+    if (R.getS("DataCard") == "MonoHiggs_ZpBaryonic") DataCardInt = 10;
 
  	/* gen boson/top info */
 
@@ -292,8 +631,12 @@ void generateH2TauSyncTree::handleEvent()
 	tau_decay_mode_1 	= R.getI("leg1_decayMode");
 	ZimpactTau_1 		= R.getF("leg1_ZimpactTau");
 	dzTauVertex_1 		= R.getF("leg1_dzTauVertex");
-	mt_1  				= R.getD("corr_MTmvaMET_leg1");
+	mt_1  				= R.getD("pfmet_type1_MT1");
 	pfmt_1 				= GetTransverseMass(pfMetVec,l1);
+    pfmt_1_UESUp		= R.getD("pfmet_type1_UnclusteredEnUp_MT1");
+    pfmt_1_UESDown 		= R.getD("pfmet_type1_UnclusteredEnDown_MT1");
+    pfmt_1_JEnUp		= R.getD("pfmet_type1_JetEnUp_MT1");
+    pfmt_1_JEnDown 		= R.getD("pfmet_type1_JetEnDown_MT1");
 	puppimt_1 			= GetTransverseMass(puppiMetVec,l1);
 	mt_uncorr_1   		= GetTransverseMass(mvaMetVec_uncorr,l1);
 
@@ -305,14 +648,12 @@ void generateH2TauSyncTree::handleEvent()
 		resolutionDOWN_MTmvaMET_1	=  GetTransverseMass(mvaMetVec_resolutionDOWN,l1);
 	}
 
-
 	gen_match_1 		= R.getI("leg1_MCMatchType");
 	genMCmatch_pt_1		= R.getD("leg1_genMCmatch_pt");
 	genMCmatch_eta_1	= R.getD("leg1_genMCmatch_eta");
 	genMCmatch_phi_1	= R.getD("leg1_genMCmatch_phi");
 	genMCmatch_M_1		= R.getD("leg1_genMCmatch_M");
 	MCMatchPdgId_1		= R.getI("leg1_MCMatchPdgId");
-
 
 	byIsolationMVArun2v1DBdR03oldDMwLTraw_1 = R.getF("leg1_byIsolationMVArun2v1DBdR03oldDMwLTraw");
 	byTightIsolationMVArun2v1DBdR03oldDMwLT_1 = R.getF("leg1_byTightIsolationMVArun2v1DBdR03oldDMwLT");
@@ -331,7 +672,6 @@ void generateH2TauSyncTree::handleEvent()
 	byIsolationMVArun2v1DBnewDMwLTraw_1 = R.getF("leg1_byIsolationMVArun2v1DBnewDMwLTraw");
 	decayModeFindingNewDMs_1 = R.getF("leg1_decayModeFindingNewDMs");
 
-
 	/* leg 2 quantities */
 
  	pt_2 				= R.getD("leg2_pt");
@@ -346,7 +686,7 @@ void generateH2TauSyncTree::handleEvent()
 	tau_decay_mode_2 	= R.getI("leg2_decayMode");
 	ZimpactTau_2 		= R.getF("leg2_ZimpactTau");
 	dzTauVertex_2 		= R.getF("leg2_dzTauVertex");
-	mt_2  				= R.getD("corr_MTmvaMET_leg2");
+	mt_2  				= R.getD("pfmet_type1_MT2");
 	pfmt_2 				= GetTransverseMass(pfMetVec,l2);
 	puppimt_2 			= GetTransverseMass(puppiMetVec,l2);
 	mt_uncorr_2   		= GetTransverseMass(mvaMetVec_uncorr,l2);
@@ -358,7 +698,6 @@ void generateH2TauSyncTree::handleEvent()
 		resolutionUP_MTmvaMET_2		=  GetTransverseMass(mvaMetVec_resolutionUP,l2);
 		resolutionDOWN_MTmvaMET_2	=  GetTransverseMass(mvaMetVec_resolutionDOWN,l2);
 	}
-
 
 	gen_match_2 		= R.getI("leg2_MCMatchType");
 	genMCmatch_pt_2		= R.getD("leg2_genMCmatch_pt");
@@ -385,15 +724,21 @@ void generateH2TauSyncTree::handleEvent()
 	byIsolationMVArun2v1DBnewDMwLTraw_2 = R.getF("leg2_byIsolationMVArun2v1DBnewDMwLTraw");
 	decayModeFindingNewDMs_2 = R.getF("leg2_decayModeFindingNewDMs");
 
-
 	/* di-tau system */
 
-	pt_tt = (l1+l2+mvaMetVec).Pt();
-	mt_tot = mtTotCalc(l1, l2, mvaMetVec);
+	pt_tt = (l1+l2).Pt();
+	mt_tot = mtTotCalc(l1, l2, pfMetVec);
+    mt_tot_UESUp = mtTotCalc(l1, l2, pfMetVecUESUp);
+    mt_tot_UESDown = mtTotCalc(l1, l2, pfMetVecUESDown);
 	m_vis = R.getD("VISMass");
 	DeltaR_leg1_leg2 = R.getD("DeltaR_leg1_leg2");
-
-
+    cos_DeltaPhi_leg1_leg2 = cos(l1.DeltaPhi(l2));
+    cos_DeltaPhi_PFMET_Higgs = cos((pfMetVec).DeltaPhi(l1+l2));
+    cos_DeltaPhi_PFMET_Higgs_UESUp = cos((pfMetVecUESUp).DeltaPhi(l1+l2));
+    cos_DeltaPhi_PFMET_Higgs_UESDown = cos((pfMetVecUESDown).DeltaPhi(l1+l2));
+    cos_DeltaPhi_PFMET_Higgs_JEnUp = cos((pfMetVecJEnUp).DeltaPhi(l1+l2));
+    cos_DeltaPhi_PFMET_Higgs_JEnDown = cos((pfMetVecJEnDown).DeltaPhi(l1+l2));
+    
 	/* sv fit -- only keeping variants which use mvaMET, study by H2Tau group showed met variants have minimal impact on SVMass shape
 	and so those are omitted */
     
@@ -411,8 +756,8 @@ void generateH2TauSyncTree::handleEvent()
 
 	mvamet				= R.getD("corr_mvaMET");
 	mvametphi			= R.getD("corr_mvaMETphi");
-	met					= R.getD("pfMET");
-	metphi				= R.getD("pfMETphi");
+	met					= R.getD("pfmet_type1_Pt");
+	metphi				= R.getD("pfmet_type1_Phi");
 	puppimet			= R.getD("puppiMET");	
 	puppimetphi			= R.getD("puppiMETphi");
 	uncorr_mvamet		= R.getD("uncorr_mvaMET");
@@ -438,7 +783,7 @@ void generateH2TauSyncTree::handleEvent()
 	mvacov10			= R.getD("mvaMET_cov10");
 	mvacov11			= R.getD("mvaMET_cov11");
 
-	/* sig matrix using pf met */
+	/* sig matrix using  met */
 
 	if(eventIsNotSmallTree)
 	{
@@ -519,6 +864,12 @@ void generateH2TauSyncTree::handleEvent()
 	pfmet_type1_PhotonEnDown_MT2 = R.getD("pfmet_type1_PhotonEnDown_MT2");
 
 	/* p_zeta variables */
+    
+    mt_tot_JEnUp = mtTotCalc(l1, l2, pfMetVecJEnUp);
+    mt_tot_JEnDown = mtTotCalc(l1, l2, pfMetVecJEnDown);
+    
+    weight_ttPtUp = ttTrigPtShape(1);
+    weight_ttPtDown =  ttTrigPtShape(0);
 
 	pzetavis 			= pzetaVisCalc(l1,l2);
 
@@ -542,7 +893,6 @@ void generateH2TauSyncTree::handleEvent()
 
    	jetINFOstruct.reset();
 	fillJetBranches(eventHasNominalLeptonEnergyScales, eventIsNotSmallTree, argString, jetINFOstruct);
-
 
 	njets = jetINFOstruct.m_njets;
 	njetspt20 = jetINFOstruct.m_njetspt20;
@@ -614,8 +964,31 @@ void generateH2TauSyncTree::handleEvent()
    	jetINFOstruct.reset();
 	fillJetBranches(eventHasNominalLeptonEnergyScales, eventIsNotSmallTree, argString, jetINFOstruct);
 
-       /* the event-based mono-H style btag scale factors */
-
+    /* the event-based mono-H style btag scale factors, necessary values fixed, different branch name format */
+   /*
+   BtagEventSFproduct_looseWpDown = R.getD("BtagEventSFproduct_looseWpDown");
+   BtagEventSFproduct_looseWpCentral = R.getD("BtagEventSFproduct_looseWpCentral");
+   BtagEventSFproduct_looseWpUp = R.getD("BtagEventSFproduct_looseWpUp");
+   BtagEventSFproduct_mediumWpDown = R.getD("jets_zero_btag_event_weight_down");
+   BtagEventSFproduct_mediumWpCentral = R.getD("jets_zero_btag_event_weight");
+   BtagEventSFproduct_mediumWpUp = R.getD("jets_zero_btag_event_weight_up");
+   BtagEventSFproduct_tightWpDown = R.getD("BtagEventSFproduct_tightWpDown");
+   BtagEventSFproduct_tightWpCentral = R.getD("BtagEventSFproduct_tightWpCentral");
+   BtagEventSFproduct_tightWpUp = R.getD("BtagEventSFproduct_tightWpUp");
+   BtagEventSFproduct_looseWpCentral_JECshiftedUp = R.getD("BtagEventSFproduct_looseWpCentral_JECshiftedUp");
+   BtagEventSFproduct_mediumWpCentral_JECshiftedUp = R.getD("jets_JECshiftedUp_zero_btag_event_weight");
+   BtagEventSFproduct_tightWpCentral_JECshiftedUp = R.getD("BtagEventSFproduct_tightWpCentral_JECshiftedUp");
+   BtagEventSFproduct_looseWpCentral_JECshiftedDown = R.getD("BtagEventSFproduct_looseWpCentral_JECshiftedDown");
+   BtagEventSFproduct_mediumWpCentral_JECshiftedDown = R.getD("jets_JECshiftedDown_zero_btag_event_weight");
+   BtagEventSFproduct_tightWpCentral_JECshiftedDown = R.getD("BtagEventSFproduct_tightWpCentral_JECshiftedDown");
+   BtagEventSFproduct_looseWpCentral_JERup = R.getD("BtagEventSFproduct_looseWpCentral_JERup");
+   BtagEventSFproduct_mediumWpCentral_JERup = R.getD("jets_JERup_zero_btag_event_weight");
+   BtagEventSFproduct_tightWpCentral_JERup = R.getD("BtagEventSFproduct_tightWpCentral_JERup");
+   BtagEventSFproduct_looseWpCentral_JERdown = R.getD("BtagEventSFproduct_looseWpCentral_JERdown");
+   BtagEventSFproduct_mediumWpCentral_JERdown = R.getD("jets_JERdown_zero_btag_event_weight");
+   BtagEventSFproduct_tightWpCentral_JERdown = R.getD("BtagEventSFproduct_tightWpCentral_JERdown");
+   */
+   
    BtagEventSFproduct_looseWpDown = R.getD("BtagEventSFproduct_looseWpDown");
    BtagEventSFproduct_looseWpCentral = R.getD("BtagEventSFproduct_looseWpCentral");
    BtagEventSFproduct_looseWpUp = R.getD("BtagEventSFproduct_looseWpUp");
@@ -637,7 +1010,8 @@ void generateH2TauSyncTree::handleEvent()
    BtagEventSFproduct_looseWpCentral_JERdown = R.getD("BtagEventSFproduct_looseWpCentral_JERdown");
    BtagEventSFproduct_mediumWpCentral_JERdown = R.getD("BtagEventSFproduct_mediumWpCentral_JERdown");
    BtagEventSFproduct_tightWpCentral_JERdown = R.getD("BtagEventSFproduct_tightWpCentral_JERdown");
-
+   
+    
 	njets_JECshiftedUp = jetINFOstruct.m_njets;
 	njetspt20_JECshiftedUp = jetINFOstruct.m_njetspt20;
 	mjj_JECshiftedUp = jetINFOstruct.m_mjj;
@@ -694,10 +1068,24 @@ void generateH2TauSyncTree::handleEvent()
 	bm_2_TightWp_JECshiftedUp = jetINFOstruct.m_bm_2_TightWp;
 	bmva_2_TightWp_JECshiftedUp = jetINFOstruct.m_bmva_2_TightWp;
 	bcsv_2_TightWp_JECshiftedUp = jetINFOstruct.m_bcsv_2_TightWp;
-
-
-
-
+    
+    if (R.getB("isRealData")==0)
+   {
+        BtagEventSFproduct_or_DataTag_Central = BtagEventSFproduct_mediumWpCentral;
+        BtagEventSFproduct_or_DataTag_Up = BtagEventSFproduct_mediumWpUp;
+        BtagEventSFproduct_or_DataTag_Down = BtagEventSFproduct_mediumWpDown;
+        BtagEventSFproduct_or_DataTag_Central_JECshiftedUp = BtagEventSFproduct_mediumWpCentral_JECshiftedUp;
+        BtagEventSFproduct_or_DataTag_Central_JECshiftedDown = BtagEventSFproduct_mediumWpCentral_JECshiftedDown;
+   }
+   else if (R.getB("isRealData")==1)
+   {
+        if (nbtag==0) BtagEventSFproduct_or_DataTag_Central = 1.0;
+        if (nbtag_oneSigmaUp==0) BtagEventSFproduct_or_DataTag_Up = 1.0;
+        if (nbtag_oneSigmaDown==0) BtagEventSFproduct_or_DataTag_Down = 1.0;
+        if (nbtag_JECshiftedUp==0) BtagEventSFproduct_or_DataTag_Central_JECshiftedUp = 1.0;
+        if (nbtag_JECshiftedDown==0) BtagEventSFproduct_or_DataTag_Central_JECshiftedDown = 1.0;
+   }
+   
    	/* for _JECshiftedDown jets */
    	argString = "_JECshiftedDown";
 
@@ -823,9 +1211,6 @@ void generateH2TauSyncTree::handleEvent()
 	bm_2_TightWp_JERup = jetINFOstruct.m_bm_2_TightWp;
 	bmva_2_TightWp_JERup = jetINFOstruct.m_bmva_2_TightWp;
 	bcsv_2_TightWp_JERup = jetINFOstruct.m_bcsv_2_TightWp;
-	
-
-
 
    	/* for _JERdown jets */
    	argString = "_JERdown";
@@ -930,7 +1315,6 @@ void generateH2TauSyncTree::handleEvent()
 	veto_LeptonPassesDiElectronVetoCuts = R.getVI("veto_LeptonPassesDiElectronVetoCuts");
 	veto_LeptonPassesDiMuonVetoCuts = R.getVI("veto_LeptonPassesDiMuonVetoCuts");
 
-
 	/* MET FILTERS */
 	HBHENoiseFilter 					= R.getB("HBHENoiseFilter");
 	HBHENoiseIsoFilter 				  	= R.getB("HBHENoiseIsoFilter");
@@ -1009,13 +1393,15 @@ void generateH2TauSyncTree::handleEvent()
     leg2_HLT_IsoMu24 = R.getF("leg2_HLT_IsoMu24");
     leg2_HLT_IsoTkMu24 = R.getF("leg2_HLT_IsoTkMu24");
 
+    //use if NO triggers in MC
+    /*
     if (R.getB("isRealData") == 1)
     {
-        if(R.getI("CandidateEventType")==3 && (leg1_HLT_Ele25_eta2p1_WPTight_Gsf>0.5 || leg1_HLT_Ele45_WPLoose_Gsf_L1JetTauSeeded>0.5))
+        if(R.getI("CandidateEventType")==3 && (leg1_HLT_Ele25_eta2p1_WPTight_Gsf>0.5))
         {
             pairGoodForTrigger = 1;
         }
-        else if(R.getI("CandidateEventType")==5 && (leg1_HLT_IsoMu22>0.5 || leg1_HLT_IsoTkMu22>0.5 || leg1_HLT_IsoMu22_eta2p1>0.5 || leg1_HLT_IsoTkMu22_eta2p1>0.5 || leg1_HLT_IsoMu24>0.5 || leg1_HLT_IsoTkMu24>0.5))
+        else if(R.getI("CandidateEventType")==5 && (leg1_HLT_IsoMu24>0.5 || leg1_HLT_IsoTkMu24>0.5))
         {
             pairGoodForTrigger = 1;
         }
@@ -1027,19 +1413,43 @@ void generateH2TauSyncTree::handleEvent()
     
     }
     else pairGoodForTrigger = 1;
-
-	//////////////////////////////////////////////////////////////////////////////
-
-	// tMVA variable calculations
-
-
-	LPT = computeLPT(0);
-
-
+    */
+    
+    if(R.getI("CandidateEventType")==3 && (leg1_HLT_Ele25_eta2p1_WPTight_Gsf>0.5))
+    {
+        pairGoodForTrigger = 1;
+    }
+    else if(R.getI("CandidateEventType")==5 && (leg1_HLT_IsoMu24>0.5 || leg1_HLT_IsoTkMu24>0.5))
+    {
+        pairGoodForTrigger = 1;
+    }
+    else if(R.getI("CandidateEventType")==6 && ((leg1_HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg>0.5 && leg2_HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg>0.5) || (leg1_HLT_DoubleMediumCombinedIsoPFTau35_Trk1_eta2p1_Reg>0.5 && leg2_HLT_DoubleMediumCombinedIsoPFTau35_Trk1_eta2p1_Reg>0.5)))
+    {
+        pairGoodForTrigger = 1;
+    }
+    else {pairGoodForTrigger = 0;}
+    
+    //Use instead of above elseif IF not using MC triggers in Di-Tau
+    /*
+    if(R.getI("CandidateEventType")==6)
+    {
+        if (R.getB("isRealData") == 0)
+        {
+            pairGoodForTrigger = 1;
+        }
+        else if(R.getB("isRealData") == 1 && ((leg1_HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg>0.5 && leg2_HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg>0.5) || (leg1_HLT_DoubleMediumCombinedIsoPFTau35_Trk1_eta2p1_Reg>0.5 && leg2_HLT_DoubleMediumCombinedIsoPFTau35_Trk1_eta2p1_Reg>0.5)))
+        {
+            pairGoodForTrigger = 1;
+        }
+    }
+    */
+    
+    //get LPT value
+    LPT = computeLPT(0);
+    
 	// Pchi and Mmin Calculations
 
 	std::vector <double> dummyPchiMmin;
-
 
 	dummyPchiMmin = computePchi_and_Mmin(0, R.getD("corr_mvaMET"), R.getD("corr_mvaMETphi"));
     P_chi = dummyPchiMmin[0];
@@ -1049,8 +1459,7 @@ void generateH2TauSyncTree::handleEvent()
 	P_chi_uncorr = dummyPchiMmin[0];
 	M_min_uncorr= dummyPchiMmin[1];
 	
-
-	dummyPchiMmin = computePchi_and_Mmin(0, R.getD("pfMET"), R.getD("pfMETphi"));
+	dummyPchiMmin = computePchi_and_Mmin(0, R.getD("pfmet_type1_Pt"), R.getD("pfmet_type1_Phi"));
 	P_chi_pf = dummyPchiMmin[0];
 	M_min_pf = dummyPchiMmin[1];
 	
@@ -1061,6 +1470,9 @@ void generateH2TauSyncTree::handleEvent()
 
 	if(eventHasNominalLeptonEnergyScales)
 	{
+    
+        //MVAMET
+        
 		dummyPchiMmin = computePchi_and_Mmin(0, R.getD("responseUP_mvaMET"), R.getD("responseUP_mvaMETphi"));
 		P_chi_responseUP = dummyPchiMmin[0];
 		M_min_responseUP = dummyPchiMmin[1];
@@ -1076,8 +1488,149 @@ void generateH2TauSyncTree::handleEvent()
 		dummyPchiMmin = computePchi_and_Mmin(0, R.getD("resolutionDOWN_mvaMET"), R.getD("resolutionDOWN_mvaMETphi"));
 		P_chi_resolutionDOWN = dummyPchiMmin[0];
 		M_min_resolutionDOWN = dummyPchiMmin[1];
+        
+        //PFMET
+        
+        dummyPchiMmin = computePchi_and_Mmin(0, R.getD("pfmet_type1_UnclusteredEnUp_Pt"), R.getD("pfmet_type1_UnclusteredEnUp_Phi"));
+		P_chi_pf_UESUp = dummyPchiMmin[0];
+        
+        dummyPchiMmin = computePchi_and_Mmin(0, R.getD("pfmet_type1_UnclusteredEnDown_Pt"), R.getD("pfmet_type1_UnclusteredEnDown_Phi"));
+		P_chi_pf_UESDown = dummyPchiMmin[0];
+        
+        dummyPchiMmin = computePchi_and_Mmin(0, R.getD("pfmet_type1_JetEnUp_Pt"), R.getD("pfmet_type1_JetEnUp_Phi"));
+		P_chi_pf_JEnUp = dummyPchiMmin[0];
+        
+        dummyPchiMmin = computePchi_and_Mmin(0, R.getD("pfmet_type1_JetEnDown_Pt"), R.getD("pfmet_type1_JetEnDown_Phi"));
+		P_chi_pf_JEnDown = dummyPchiMmin[0];
+        
 	}
+    
+	//////////////////////////////////////////////////////////////////////////////
 
+	// Nominal TMVA variable calculations
+    
+    rpt_1 = pt_1;
+    rpt_2 = pt_2;
+    rpfmt_1 = pfmt_1;
+    rmt_tot = mt_tot;
+    rpt_tt = pt_tt;
+    rm_vis = m_vis;
+    rmet = met;
+    rP_chi_pf = P_chi_pf;
+    rLPT = LPT;
+    rDeltaR_leg1_leg2 = DeltaR_leg1_leg2;
+    rcos_DeltaPhi_leg1_leg2 = cos_DeltaPhi_leg1_leg2;
+    rcos_DeltaPhi_PFMET_Higgs = cos_DeltaPhi_PFMET_Higgs;
+    
+    rratio_weight = -999.0;
+    rfinal_weight = final_weight;
+    rnpu = npu;
+    revent = evt;
+    rrandNum = randNum;
+    rDataCardInt = DataCardInt;
+    rIsZTT = IsZTT;
+    rIsZJ = IsZJ;
+    rIsZL = IsZL;
+    rIsTTT = IsTTT;
+    
+    mvaVar_mt_MZP600A0400 = mt_MZP600A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_mt_MZP800A0400 = mt_MZP800A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_mt_MZP1000A0400 = mt_MZP1000A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_mt_MZP1200A0400 = mt_MZP1200A0400_reader->EvaluateMVA( "MLPBNN" );
+    
+    mvaVar_et_MZP600A0400 = et_MZP600A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_et_MZP800A0400 = et_MZP800A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_et_MZP1000A0400 = et_MZP1000A0400_reader->EvaluateMVA("MLPBNN");
+    mvaVar_et_MZP1200A0400 = et_MZP1200A0400_reader->EvaluateMVA( "MLPBNN" );
+    
+    mvaVar_tt_MZP600A0400 = tt_MZP600A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_tt_MZP800A0400 = tt_MZP800A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_tt_MZP1000A0400 = tt_MZP1000A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_tt_MZP1200A0400 = tt_MZP1200A0400_reader->EvaluateMVA( "MLPBNN" );
+    
+    rpfmt_1 = pfmt_1_UESUp;
+    rmt_tot = mt_tot_UESUp;
+    rmet = pfmet_type1_UnclusteredEnUp_Pt;
+    rP_chi_pf = P_chi_pf_UESUp;
+    rcos_DeltaPhi_PFMET_Higgs = cos_DeltaPhi_PFMET_Higgs_UESUp;
+    
+    mvaVar_mt_MZP600A0400_UESUp = mt_MZP600A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_mt_MZP800A0400_UESUp = mt_MZP800A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_mt_MZP1000A0400_UESUp = mt_MZP1000A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_mt_MZP1200A0400_UESUp = mt_MZP1200A0400_reader->EvaluateMVA( "MLPBNN" );
+    
+    mvaVar_et_MZP600A0400_UESUp = et_MZP600A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_et_MZP800A0400_UESUp = et_MZP800A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_et_MZP1000A0400_UESUp = et_MZP1000A0400_reader->EvaluateMVA("MLPBNN");
+    mvaVar_et_MZP1200A0400_UESUp = et_MZP1200A0400_reader->EvaluateMVA( "MLPBNN" );
+    
+    mvaVar_tt_MZP600A0400_UESUp = tt_MZP600A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_tt_MZP800A0400_UESUp = tt_MZP800A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_tt_MZP1000A0400_UESUp = tt_MZP1000A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_tt_MZP1200A0400_UESUp = tt_MZP1200A0400_reader->EvaluateMVA( "MLPBNN" );
+    
+    rpfmt_1 = pfmt_1_UESDown;
+    rmt_tot = mt_tot_UESDown;
+    rmet = pfmet_type1_UnclusteredEnDown_Pt;
+    rP_chi_pf = P_chi_pf_UESDown;
+    rcos_DeltaPhi_PFMET_Higgs = cos_DeltaPhi_PFMET_Higgs_UESDown;
+    
+    mvaVar_mt_MZP600A0400_UESDown = mt_MZP600A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_mt_MZP800A0400_UESDown = mt_MZP800A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_mt_MZP1000A0400_UESDown = mt_MZP1000A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_mt_MZP1200A0400_UESDown = mt_MZP1200A0400_reader->EvaluateMVA( "MLPBNN" );
+    
+    mvaVar_et_MZP600A0400_UESDown = et_MZP600A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_et_MZP800A0400_UESDown = et_MZP800A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_et_MZP1000A0400_UESDown = et_MZP1000A0400_reader->EvaluateMVA("MLPBNN");
+    mvaVar_et_MZP1200A0400_UESDown = et_MZP1200A0400_reader->EvaluateMVA( "MLPBNN" );
+    
+    mvaVar_tt_MZP600A0400_UESDown = tt_MZP600A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_tt_MZP800A0400_UESDown = tt_MZP800A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_tt_MZP1000A0400_UESDown = tt_MZP1000A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_tt_MZP1200A0400_UESDown = tt_MZP1200A0400_reader->EvaluateMVA( "MLPBNN" );
+    
+    rpfmt_1 = pfmt_1_JEnUp;
+    rmt_tot = mt_tot_JEnUp;
+    rmet = pfmet_type1_JetEnUp_Pt;
+    rP_chi_pf = P_chi_pf_JEnUp;
+    rcos_DeltaPhi_PFMET_Higgs = cos_DeltaPhi_PFMET_Higgs_JEnUp;
+    
+    mvaVar_mt_MZP600A0400_JEnUp = mt_MZP600A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_mt_MZP800A0400_JEnUp = mt_MZP800A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_mt_MZP1000A0400_JEnUp = mt_MZP1000A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_mt_MZP1200A0400_JEnUp = mt_MZP1200A0400_reader->EvaluateMVA( "MLPBNN" );
+    
+    mvaVar_et_MZP600A0400_JEnUp = et_MZP600A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_et_MZP800A0400_JEnUp = et_MZP800A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_et_MZP1000A0400_JEnUp = et_MZP1000A0400_reader->EvaluateMVA("MLPBNN");
+    mvaVar_et_MZP1200A0400_JEnUp = et_MZP1200A0400_reader->EvaluateMVA( "MLPBNN" );
+    
+    mvaVar_tt_MZP600A0400_JEnUp = tt_MZP600A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_tt_MZP800A0400_JEnUp = tt_MZP800A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_tt_MZP1000A0400_JEnUp = tt_MZP1000A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_tt_MZP1200A0400_JEnUp = tt_MZP1200A0400_reader->EvaluateMVA( "MLPBNN" );
+    
+    rpfmt_1 = pfmt_1_JEnDown;
+    rmt_tot = mt_tot_JEnDown;
+    rmet = pfmet_type1_JetEnDown_Pt;
+    rP_chi_pf = P_chi_pf_JEnDown;
+    rcos_DeltaPhi_PFMET_Higgs = cos_DeltaPhi_PFMET_Higgs_JEnDown;
+    
+    mvaVar_mt_MZP600A0400_JEnDown = mt_MZP600A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_mt_MZP800A0400_JEnDown = mt_MZP800A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_mt_MZP1000A0400_JEnDown = mt_MZP1000A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_mt_MZP1200A0400_JEnDown = mt_MZP1200A0400_reader->EvaluateMVA( "MLPBNN" );
+    
+    mvaVar_et_MZP600A0400_JEnDown = et_MZP600A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_et_MZP800A0400_JEnDown = et_MZP800A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_et_MZP1000A0400_JEnDown = et_MZP1000A0400_reader->EvaluateMVA("MLPBNN");
+    mvaVar_et_MZP1200A0400_JEnDown = et_MZP1200A0400_reader->EvaluateMVA( "MLPBNN" );
+    
+    mvaVar_tt_MZP600A0400_JEnDown = tt_MZP600A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_tt_MZP800A0400_JEnDown = tt_MZP800A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_tt_MZP1000A0400_JEnDown = tt_MZP1000A0400_reader->EvaluateMVA( "MLPBNN" );
+    mvaVar_tt_MZP1200A0400_JEnDown = tt_MZP1200A0400_reader->EvaluateMVA( "MLPBNN" );
 
 	/* handle event weights */
 
@@ -1087,17 +1640,22 @@ void generateH2TauSyncTree::handleEvent()
     TopQuarkPtWeight_Weight = getTopQuarkPtWeight(0);
     ZReWeight_Weight = getZReWeight(0);
     ZReWeight_WeightUp = getZReWeight(0);
-    ZReWeight_WeightDown = (1/getZReWeight(0));
+    if (ZReWeight_Weight != 0.) ZReWeight_WeightDown = (1./ZReWeight_Weight);
     KReWeight_Weight = getKFactor(0);
-    KReWeight_WeightUp = getKFactor(0);
-    KReWeight_WeightDown = 1/(getKFactor(0));
+    KReWeight_WeightUp = getKFactorSyst(0);
+    KReWeight_WeightDown = (KReWeight_WeightUp - 1.0);
     JTF_WeightUp = getJetTauFakeFactor(0,1);
     JTF_WeightDown = getJetTauFakeFactor(0,-1);
     NLOReWeight_Weight = getNLOReWeight(0,10);
+    sf_ALD = getALDScaleFactors(0);
 
-    ScaleFactorsForPair_Weight = getFinalScaleFactorsForPair(0,0,1);
-    ScaleFactorsForPair_WeightUp  = getFinalScaleFactorsForPair(0,1,0);
-    ScaleFactorsForPair_WeightDown = getFinalScaleFactorsForPair(0,-1,0);
+    sf_IDISO = getFinalScaleFactorsForPair(0,0,1,1,0,0);
+    sf_TRIG = getFinalScaleFactorsForPair(0,0,1,0,1,0);
+    sf_TRACK = getFinalScaleFactorsForPair(0,0,1,0,0,1);
+    
+    ScaleFactorsForPair_Weight = getFinalScaleFactorsForPair(0,0,1,0,0,0);
+    ScaleFactorsForPair_WeightUp  = getFinalScaleFactorsForPair(0,1,1,0,0,0);
+    ScaleFactorsForPair_WeightDown = getFinalScaleFactorsForPair(0,-1,1,0,0,0);
 
 	std::vector <double> qcd_eleMu = getQCDWeightForEleMuChannel(0);
 
@@ -1115,13 +1673,29 @@ void generateH2TauSyncTree::handleEvent()
 
 	///////// cutoff ---- XXXXX
 
+    //Final cuts plus loose isolation taus, abreviated sync trees make plotting fast
+    
+    //bool passMuonFilters = (BadMuonTaggedMoriond17==0 && DuplicateMuonTaggedMoriond17==0); Not used with re-miniAOD
+    
+    //bool passMetFiltersData = (R.getB("isRealData")==1 && HBHENoiseFilter==1 && HBHENoiseIsoFilter==1 && EcalDeadCellTriggerPrimitiveFilter==1 && goodVerticesFilter==1 && eeBadScFilter==1 && chargedHadronTrackResolutionFilter==1 && globalTightHalo2016Filter==1 && BadChargedCandidateFilter==1 && BadPFMuonFilter==1);
+    //bool passMetFiltersMC = (R.getB("isRealData")==0 && HBHENoiseFilter==1 && HBHENoiseIsoFilter==1 && EcalDeadCellTriggerPrimitiveFilter==1 && goodVerticesFilter==1 && chargedHadronTrackResolutionFilter==1 && globalTightHalo2016Filter==1 && BadChargedCandidateFilter==1 && BadPFMuonFilter==1);
+    
+    bool passMetFiltersData = (R.getB("isRealData")==1 && HBHENoiseFilter==1 && HBHENoiseIsoFilter==1 && EcalDeadCellTriggerPrimitiveFilter==1 && goodVerticesFilter==1 && eeBadScFilter==1 && chargedHadronTrackResolutionFilter==1 && globalTightHalo2016Filter==1 && BadChargedCandidateFilter==1 && BadPFMuonFilter==1 && BadMuonTaggedMoriond17==0 && DuplicateMuonTaggedMoriond17==0);
+    bool passMetFiltersMC = (R.getB("isRealData")==0 && HBHENoiseFilter==1 && HBHENoiseIsoFilter==1 && EcalDeadCellTriggerPrimitiveFilter==1 && goodVerticesFilter==1 && chargedHadronTrackResolutionFilter==1 && globalTightHalo2016Filter==1 && BadChargedCandidateFilter==1 && BadPFMuonFilter==1);
+    
+    bool passFilters = ((passMetFiltersData || passMetFiltersMC) && isBoostedChannelPair==0);
 
-	if(R.getI("CandidateEventType")==3) {num_et++; tree_EleTau->Fill();}
-	else if(R.getI("CandidateEventType")==2){num_em++; tree_EleMu->Fill();}
-	else if(R.getI("CandidateEventType")==5){num_mt++; tree_MuTau->Fill();}
-	else if(R.getI("CandidateEventType")==6) {num_tt++; tree_TauTau->Fill();}
+    bool AbrevCutsTT = (passFilters && pt_1 > 40. && pt_2 > 40. && DeltaR_leg1_leg2 > 0.3 && DeltaR_leg1_leg2 < 2.0  && pairGoodForTrigger==1 && extramuon_veto==0  && extraelec_veto==0 && againstElectronVLooseMVA6_1 > 0.5 && againstMuonLoose3_1 > 0.5 && againstElectronVLooseMVA6_2 > 0.5 && againstMuonLoose3_2 > 0.5 && decayModeFinding_1 > 0.5 && decayModeFinding_2 > 0.5 && byLooseIsolationMVArun2v1DBdR03oldDMwLT_1 > 0.5 && byLooseIsolationMVArun2v1DBdR03oldDMwLT_2 > 0.5);
+    
+    bool AbrevCutsET = (passFilters && pt_1 > 26. && pt_2 > 20. && DeltaR_leg1_leg2 > 0.3 && DeltaR_leg1_leg2 < 2.0  && pairGoodForTrigger==1 && extramuon_veto==0  && extraelec_veto==0 && iso_1 < 0.1 && againstElectronTightMVA6_2 > 0.5 && againstMuonLoose3_2 > 0.5 && byLooseIsolationMVArun2v1DBdR03oldDMwLT_2 > 0.5 && decayModeFinding_2 > 0.5);
+    
+    bool AbrevCutsMT = (passFilters && pt_1 > 26. && pt_2 > 20. && DeltaR_leg1_leg2 > 0.3 && DeltaR_leg1_leg2 < 2.0   && pairGoodForTrigger==1 && extramuon_veto==0  && extraelec_veto==0 && iso_1 < 0.15 && againstElectronVLooseMVA6_2 > 0.5 && againstMuonTight3_2 > 0.5 && byLooseIsolationMVArun2v1DBdR03oldDMwLT_2 > 0.5 && decayModeFinding_2 > 0.5 );
+
+	if(AbrevCutsET && R.getI("CandidateEventType")==3) {num_et++; tree_EleTau->Fill();}
+	else if(R.getI("CandidateEventType")==2) {num_em++; tree_EleMu->Fill();}
+	else if(AbrevCutsMT && R.getI("CandidateEventType")==5) {num_mt++; tree_MuTau->Fill();}
+	else if(AbrevCutsTT && R.getI("CandidateEventType")==6) {num_tt++; tree_TauTau->Fill();}
 	
-
 	if(num_total%1000==0){
 	 std::cout<<" etau = "<<num_et<<"\n";
 	 std::cout<<" mtau = "<<num_mt<<"\n";
@@ -1218,7 +1792,6 @@ std::vector <double> generateH2TauSyncTree::computePchi_and_Mmin(bool verbose_, 
 		}
 
     }
-
 
     returnVector.clear();
     returnVector.push_back(P_chi_);
@@ -1356,8 +1929,20 @@ double generateH2TauSyncTree::computeLPT( bool verbose_)
 	    std::cout << "best Prob: " << bestFracProb << std::endl;
     }
 
-
     return LPT_;
+}
+
+double generateH2TauSyncTree::ttTrigPtShape(bool up)
+{
+
+    double ttPt1Var = 0.01*(-0.5*(std::min(60.0,R.getD("leg1_pt"))) + 32.);
+    double ttPt2Var = 0.01*(-0.5*(std::min(60.0,R.getD("leg2_pt"))) + 32.);
+    
+    double weightUp = 1.0 + ttPt1Var + ttPt2Var;
+    double weightDown =  1.0 - ttPt1Var - ttPt2Var;
+    if (up) {return weightUp;}
+    else {return weightDown;}
+
 }
 
 
@@ -1370,11 +1955,17 @@ void generateH2TauSyncTree::setupBranches(TTree * T)
 	T->Branch("final_weight", &final_weight);
 	T->Branch("nominalCrossSection_Weight", &nominalCrossSection_Weight);
 	T->Branch("puWeight_Weight", &puWeight_Weight);
+    T->Branch("sf_IDISO", &sf_IDISO);
+    T->Branch("sf_TRIG", &sf_TRIG);
+    T->Branch("sf_TRACK", &sf_TRACK);
+    T->Branch("sf_ALD", &sf_ALD);
 	T->Branch("TopQuarkPtWeight_Weight", &TopQuarkPtWeight_Weight);
 	T->Branch("ZReWeight_Weight", &ZReWeight_Weight);
     T->Branch("ZReWeight_WeightUp", &ZReWeight_WeightUp);
     T->Branch("ZReWeight_WeightDown", &ZReWeight_WeightDown);
     T->Branch("KReWeight_Weight", &KReWeight_Weight);
+    T->Branch("KReWeight_WeightUp", &KReWeight_WeightUp);
+    T->Branch("KReWeight_WeightDown", &KReWeight_WeightDown);
     T->Branch("JTF_WeightUp", &JTF_WeightUp);
     T->Branch("JTF_WeightDown", &JTF_WeightDown);
     T->Branch("KReWeight_Weight", &KReWeight_Weight);
@@ -1392,11 +1983,14 @@ void generateH2TauSyncTree::setupBranches(TTree * T)
 	T->Branch("highPtTauEff_WeightDown", &highPtTauEff_WeightDown);
 
     T->Branch("flag_MVAEventType", &flag_MVAEventType);
+    T->Branch("randNum", &randNum);
 
 	T->Branch("originalXWGTUP", &originalXWGTUP);
 	T->Branch("theory_scale_factors", &theory_scale_factors);
 	T->Branch("pairRank", &pairRank);
 	T->Branch("isOsPair", &isOsPair);
+    T->Branch("isBoostedChannelPair", &isBoostedChannelPair);
+    T->Branch("DataCardInt", &DataCardInt);
 	T->Branch("genBosonTotal_pt", &genBosonTotal_pt);
 	T->Branch("genBosonTotal_eta", &genBosonTotal_eta);
 	T->Branch("genBosonTotal_phi", &genBosonTotal_phi);
@@ -1428,7 +2022,9 @@ void generateH2TauSyncTree::setupBranches(TTree * T)
 	T->Branch("tau_decay_mode_1", &tau_decay_mode_1);
 	T->Branch("ZimpactTau_1", &ZimpactTau_1);
 	T->Branch("mt_1", &mt_1);
-	T->Branch("pfmt_1", &pfmt_1);
+    T->Branch("pfmt_1", &pfmt_1);
+    T->Branch("pfmt_1_UESUp", &pfmt_1_UESUp);
+    T->Branch("pfmt_1_UESDown", &pfmt_1_UESDown);
 	T->Branch("puppimt_1", &puppimt_1);
 	T->Branch("mt_uncorr_1", &mt_uncorr_1);
 	T->Branch("responseUP_MTmvaMET_1", &responseUP_MTmvaMET_1);
@@ -1501,7 +2097,17 @@ void generateH2TauSyncTree::setupBranches(TTree * T)
 	T->Branch("decayModeFindingNewDMs_2", &decayModeFindingNewDMs_2);
 	T->Branch("pt_tt", &pt_tt);
 	T->Branch("DeltaR_leg1_leg2", &DeltaR_leg1_leg2);
+    T->Branch("cos_DeltaPhi_leg1_leg2", &cos_DeltaPhi_leg1_leg2);
+    T->Branch("cos_DeltaPhi_PFMET_Higgs", &cos_DeltaPhi_PFMET_Higgs);
+    T->Branch("cos_DeltaPhi_PFMET_Higgs_UESUp", &cos_DeltaPhi_PFMET_Higgs_UESUp);
+    T->Branch("cos_DeltaPhi_PFMET_Higgs_UESDown", &cos_DeltaPhi_PFMET_Higgs_UESDown);
 	T->Branch("mt_tot", &mt_tot);
+    T->Branch("weight_ttPtUp", &weight_ttPtUp);
+    T->Branch("weight_ttPtDown", &weight_ttPtDown);
+    T->Branch("mt_tot_UESUp", &mt_tot_UESUp);
+    T->Branch("mt_tot_UESDown", &mt_tot_UESDown);
+    T->Branch("mt_tot_JEnUp", &mt_tot_JEnUp);
+    T->Branch("mt_tot_JEnDown", &mt_tot_JEnDown);
 	T->Branch("m_vis", &m_vis);
 	T->Branch("m_sv", &m_sv);
 	T->Branch("mt_sv", &mt_sv);
@@ -1918,7 +2524,6 @@ void generateH2TauSyncTree::setupBranches(TTree * T)
     T->Branch("BadMuonTaggedMoriond17", &BadMuonTaggedMoriond17);
     T->Branch("DuplicateMuonTaggedMoriond17", &DuplicateMuonTaggedMoriond17);
 
-
     T->Branch("BtagEventSFproduct_looseWpDown",  &BtagEventSFproduct_looseWpDown);
     T->Branch("BtagEventSFproduct_looseWpCentral",  &BtagEventSFproduct_looseWpCentral);
     T->Branch("BtagEventSFproduct_looseWpUp",  &BtagEventSFproduct_looseWpUp);
@@ -1940,6 +2545,12 @@ void generateH2TauSyncTree::setupBranches(TTree * T)
     T->Branch("BtagEventSFproduct_looseWpCentral_JERdown",  &BtagEventSFproduct_looseWpCentral_JERdown);
     T->Branch("BtagEventSFproduct_mediumWpCentral_JERdown",  &BtagEventSFproduct_mediumWpCentral_JERdown);
     T->Branch("BtagEventSFproduct_tightWpCentral_JERdown",  &BtagEventSFproduct_tightWpCentral_JERdown);
+    
+    T->Branch("BtagEventSFproduct_or_DataTag_Central",  &BtagEventSFproduct_or_DataTag_Central);
+    T->Branch("BtagEventSFproduct_or_DataTag_Up",  &BtagEventSFproduct_or_DataTag_Up);
+    T->Branch("BtagEventSFproduct_or_DataTag_Down",  &BtagEventSFproduct_or_DataTag_Down);
+    T->Branch("BtagEventSFproduct_or_DataTag_Central_JECshiftedUp",  &BtagEventSFproduct_or_DataTag_Central_JECshiftedUp);
+    T->Branch("BtagEventSFproduct_or_DataTag_Central_JECshiftedDown",  &BtagEventSFproduct_or_DataTag_Central_JECshiftedDown);
 
 	T->Branch("NUP", &NUP);
 	T->Branch("weight", &weight);
@@ -2017,6 +2628,8 @@ void generateH2TauSyncTree::setupBranches(TTree * T)
 	T->Branch("P_chi", &P_chi);
 	T->Branch("M_min", &M_min);
 	T->Branch("P_chi_pf", &P_chi_pf);
+    T->Branch("P_chi_pf_UESUp", &P_chi_pf_UESUp);
+    T->Branch("P_chi_pf_UESDown", &P_chi_pf_UESDown);
 	T->Branch("M_min_pf", &M_min_pf);
 	T->Branch("P_chi_puppi", &P_chi_puppi);
 	T->Branch("M_min_puppi", &M_min_puppi);
@@ -2030,9 +2643,51 @@ void generateH2TauSyncTree::setupBranches(TTree * T)
 	T->Branch("M_min_resolutionUP", &M_min_resolutionUP);
 	T->Branch("P_chi_resolutionDOWN", &P_chi_resolutionDOWN);
 	T->Branch("M_min_resolutionDOWN", &M_min_resolutionDOWN);
-
-
-
+    
+    T->Branch("mvaVar_mt_MZP600A0400", &mvaVar_mt_MZP600A0400);
+    T->Branch("mvaVar_mt_MZP800A0400", &mvaVar_mt_MZP800A0400);
+    T->Branch("mvaVar_mt_MZP1000A0400", &mvaVar_mt_MZP1000A0400);
+    T->Branch("mvaVar_mt_MZP1200A0400", &mvaVar_mt_MZP1200A0400);
+    
+    T->Branch("mvaVar_et_MZP600A0400", &mvaVar_et_MZP600A0400);
+    T->Branch("mvaVar_et_MZP800A0400", &mvaVar_et_MZP800A0400);
+    T->Branch("mvaVar_et_MZP1000A0400", &mvaVar_et_MZP1000A0400);
+    T->Branch("mvaVar_et_MZP1200A0400", &mvaVar_et_MZP1200A0400);
+    
+    T->Branch("mvaVar_tt_MZP600A0400", &mvaVar_tt_MZP600A0400);
+    T->Branch("mvaVar_tt_MZP800A0400", &mvaVar_tt_MZP800A0400);
+    T->Branch("mvaVar_tt_MZP1000A0400", &mvaVar_tt_MZP1000A0400);
+    T->Branch("mvaVar_tt_MZP1200A0400", &mvaVar_tt_MZP1200A0400);
+    
+    T->Branch("mvaVar_mt_MZP600A0400_UESUp", &mvaVar_mt_MZP600A0400_UESUp);
+    T->Branch("mvaVar_mt_MZP800A0400_UESUp", &mvaVar_mt_MZP800A0400_UESUp);
+    T->Branch("mvaVar_mt_MZP1000A0400_UESUp", &mvaVar_mt_MZP1000A0400_UESUp);
+    T->Branch("mvaVar_mt_MZP1200A0400_UESUp", &mvaVar_mt_MZP1200A0400_UESUp);
+    
+    T->Branch("mvaVar_et_MZP600A0400_UESUp", &mvaVar_et_MZP600A0400_UESUp);
+    T->Branch("mvaVar_et_MZP800A0400_UESUp", &mvaVar_et_MZP800A0400_UESUp);
+    T->Branch("mvaVar_et_MZP1000A0400_UESUp", &mvaVar_et_MZP1000A0400_UESUp);
+    T->Branch("mvaVar_et_MZP1200A0400_UESUp", &mvaVar_et_MZP1200A0400_UESUp);
+    
+    T->Branch("mvaVar_tt_MZP600A0400_UESUp", &mvaVar_tt_MZP600A0400_UESUp);
+    T->Branch("mvaVar_tt_MZP800A0400_UESUp", &mvaVar_tt_MZP800A0400_UESUp);
+    T->Branch("mvaVar_tt_MZP1000A0400_UESUp", &mvaVar_tt_MZP1000A0400_UESUp);
+    T->Branch("mvaVar_tt_MZP1200A0400_UESUp", &mvaVar_tt_MZP1200A0400_UESUp);
+    
+    T->Branch("mvaVar_mt_MZP600A0400_UESDown", &mvaVar_mt_MZP600A0400_UESDown);
+    T->Branch("mvaVar_mt_MZP800A0400_UESDown", &mvaVar_mt_MZP800A0400_UESDown);
+    T->Branch("mvaVar_mt_MZP1000A0400_UESDown", &mvaVar_mt_MZP1000A0400_UESDown);
+    T->Branch("mvaVar_mt_MZP1200A0400_UESDown", &mvaVar_mt_MZP1200A0400_UESDown);
+    
+    T->Branch("mvaVar_et_MZP600A0400_UESDown", &mvaVar_et_MZP600A0400_UESDown);
+    T->Branch("mvaVar_et_MZP800A0400_UESDown", &mvaVar_et_MZP800A0400_UESDown);
+    T->Branch("mvaVar_et_MZP1000A0400_UESDown", &mvaVar_et_MZP1000A0400_UESDown);
+    T->Branch("mvaVar_et_MZP1200A0400_UESDown", &mvaVar_et_MZP1200A0400_UESDown);
+    
+    T->Branch("mvaVar_tt_MZP600A0400_UESDown", &mvaVar_tt_MZP600A0400_UESDown);
+    T->Branch("mvaVar_tt_MZP800A0400_UESDown", &mvaVar_tt_MZP800A0400_UESDown);
+    T->Branch("mvaVar_tt_MZP1000A0400_UESDown", &mvaVar_tt_MZP1000A0400_UESDown);
+    T->Branch("mvaVar_tt_MZP1200A0400_UESDown", &mvaVar_tt_MZP1200A0400_UESDown);
 
 }
 
@@ -2095,6 +2750,12 @@ void generateH2TauSyncTree::reset()
 
 
 	final_weight = 1.0;
+    
+    sf_IDISO = 1.0;
+    sf_TRIG = 1.0;
+    sf_TRACK = 1.0;
+    sf_ALD = 1.0;
+    
 	nominalCrossSection_Weight = 1.0;
 	puWeight_Weight = 1.0;
 	TopQuarkPtWeight_Weight = 1.0;
@@ -2102,6 +2763,8 @@ void generateH2TauSyncTree::reset()
     ZReWeight_WeightUp = 1.0;
     ZReWeight_WeightDown = 1.0;
     KReWeight_Weight = 1.0;
+    KReWeight_WeightUp = 1.0;
+    KReWeight_WeightDown = 1.0;
     JTF_WeightUp = 1.0;
     JTF_WeightDown = 1.0;
 	NLOReWeight_Weight = 1.0;
@@ -2118,12 +2781,85 @@ void generateH2TauSyncTree::reset()
 	highPtTauEff_WeightDown = 1.0;
 
     flag_MVAEventType = -999;
+    randNum = -999;
+    
+    mvaVar_mt_MZP600A0400= -999.;
+    mvaVar_mt_MZP800A0400= -999.;
+    mvaVar_mt_MZP1000A0400= -999.;
+    mvaVar_mt_MZP1200A0400= -999.;
+    
+    mvaVar_et_MZP600A0400= -999.;
+    mvaVar_et_MZP800A0400= -999.;
+    mvaVar_et_MZP1000A0400= -999.;
+    mvaVar_et_MZP1200A0400= -999.;
+    
+    mvaVar_tt_MZP600A0400= -999.;
+    mvaVar_tt_MZP800A0400= -999.;
+    mvaVar_tt_MZP1000A0400= -999.;
+    mvaVar_tt_MZP1200A0400= -999.;
+    
+    mvaVar_mt_MZP600A0400_UESUp= -999.;
+    mvaVar_mt_MZP800A0400_UESUp= -999.;
+    mvaVar_mt_MZP1000A0400_UESUp= -999.;
+    mvaVar_mt_MZP1200A0400_UESUp= -999.;
+    
+    mvaVar_et_MZP600A0400_UESUp= -999.;
+    mvaVar_et_MZP800A0400_UESUp= -999.;
+    mvaVar_et_MZP1000A0400_UESUp= -999.;
+    mvaVar_et_MZP1200A0400_UESUp= -999.;
+    
+    mvaVar_tt_MZP600A0400_UESUp= -999.;
+    mvaVar_tt_MZP800A0400_UESUp= -999.;
+    mvaVar_tt_MZP1000A0400_UESUp= -999.;
+    mvaVar_tt_MZP1200A0400_UESUp= -999.;
+    
+    mvaVar_mt_MZP600A0400_UESDown= -999.;
+    mvaVar_mt_MZP800A0400_UESDown= -999.;
+    mvaVar_mt_MZP1000A0400_UESDown= -999.;
+    mvaVar_mt_MZP1200A0400_UESDown= -999.;
+    
+    mvaVar_et_MZP600A0400_UESDown= -999.;
+    mvaVar_et_MZP800A0400_UESDown= -999.;
+    mvaVar_et_MZP1000A0400_UESDown= -999.;
+    mvaVar_et_MZP1200A0400_UESDown= -999.;
+    
+    mvaVar_tt_MZP600A0400_UESDown= -999.;
+    mvaVar_tt_MZP800A0400_UESDown= -999.;
+    mvaVar_tt_MZP1000A0400_UESDown= -999.;
+    mvaVar_tt_MZP1200A0400_UESDown= -999.;
+    
+    rpt_1 = -999.;
+    rpt_2 = -999.;
+    rpfmt_1 = -999.;
+    rmt_tot = -999.;
+    rpt_tt = -999.;
+    rm_vis = -999.;
+    rmet = -999.;
+    rP_chi_pf = -999.;
+    rLPT = -999.;
+    rDeltaR_leg1_leg2 = -999.;
+    rcos_DeltaPhi_leg1_leg2 = -999.;
+    rcos_DeltaPhi_PFMET_Higgs = -999.;
+
+    rratio_weight = -999.;
+    rfinal_weight = -999.;
+    rnpu = -999.;
+    revent = -999.;
+    rrandNum = -999.;
+    rDataCardInt = -999.;
+    rIsZTT = -999.;
+    rIsZJ = -999.;
+    rIsZL = -999.;
+    rIsTTT = -999.;
 
     originalXWGTUP = 1.0;			/* always init a weight to 1.0 */
     theory_scale_factors.clear();	/* std::vectors are reset using clear() */
 
 	pairRank = 999;
 	isOsPair = -999;
+    isBoostedChannelPair = 0;
+    DataCardInt = 0;
+    
     genBosonTotal_pt = -999.;
     genBosonTotal_eta = -999.;
     genBosonTotal_phi = -999.;
@@ -2147,8 +2883,6 @@ void generateH2TauSyncTree::reset()
 	rho =  -999.0;
 	puweight = 1.0;
 
-
-
 	pt_1 = -999.0;
 	phi_1 = -999.0;
 	eta_1 = -999.0;
@@ -2163,6 +2897,10 @@ void generateH2TauSyncTree::reset()
 	ZimpactTau_1 = -999.0;
 	mt_1 = -999.0;
 	pfmt_1 = -999.0;
+    pfmt_1_UESUp = -999.0;
+    pfmt_1_UESDown = -999.0;
+    pfmt_1_JEnUp = -999.0;
+    pfmt_1_JEnDown = -999.0;
 	puppimt_1 = -999.0;
 	mt_uncorr_1 = -999.0;
 	responseUP_MTmvaMET_1 = -999.0;
@@ -2237,7 +2975,19 @@ void generateH2TauSyncTree::reset()
 
 	pt_tt = -999.0;
 	DeltaR_leg1_leg2 = -999.0;
-	mt_tot = -999.0;
+    cos_DeltaPhi_leg1_leg2 = -999.;
+    cos_DeltaPhi_PFMET_Higgs = -999.;
+    cos_DeltaPhi_PFMET_Higgs_UESUp = -999.;
+    cos_DeltaPhi_PFMET_Higgs_UESDown = -999.;
+    cos_DeltaPhi_PFMET_Higgs_JEnUp = -999.;
+    cos_DeltaPhi_PFMET_Higgs_JEnDown = -999.;
+    mt_tot = -999.0;
+    weight_ttPtUp = -999.;
+    weight_ttPtDown = -999.;
+	mt_tot_UESUp = -999.0;
+    mt_tot_UESDown = -999.0;
+    mt_tot_JEnUp = -999.0;
+    mt_tot_JEnDown = -999.0;
 	m_vis = -999.0;
 	m_sv = -999.0;
 	mt_sv = -999.0;
@@ -2275,7 +3025,6 @@ void generateH2TauSyncTree::reset()
 	genMETphi = -999.0;
 	genMETeta = -999.0;
 	genMETmass = -999.0;
-
 
 	pfmet_raw_Pt = -999.0;
 	pfmet_raw_Phi = -999.0;
@@ -2666,7 +3415,13 @@ void generateH2TauSyncTree::reset()
     BtagEventSFproduct_looseWpCentral_JERdown = 1.0;
     BtagEventSFproduct_mediumWpCentral_JERdown = 1.0;
     BtagEventSFproduct_tightWpCentral_JERdown = 1.0;
-
+    
+    BtagEventSFproduct_or_DataTag_Central = 0.0;
+    BtagEventSFproduct_or_DataTag_Up = 0.0;
+    BtagEventSFproduct_or_DataTag_Down = 0.0;
+    BtagEventSFproduct_or_DataTag_Central_JECshiftedUp = 0.0;
+    BtagEventSFproduct_or_DataTag_Central_JECshiftedDown = 0.0;
+    
 	dilepton_veto = -999.0;
 	extraelec_veto = -999.0;
 	extramuon_veto = -999.0;
@@ -2772,6 +3527,10 @@ void generateH2TauSyncTree::reset()
     M_min = -999.;
     
 	P_chi_pf = -999.0;
+    P_chi_pf_UESUp = -999.0;
+    P_chi_pf_UESDown = -999.0;
+    P_chi_pf_JEnUp = -999.0;
+    P_chi_pf_JEnDown = -999.0;
 	M_min_pf = -999.0;
 	P_chi_puppi = -999.0;
 	M_min_puppi = -999.0;
@@ -2870,6 +3629,21 @@ void generateH2TauSyncTree::initScaleFactorParametersRunII()
 
     Run2_TauTau_legTriggerEff_DataReal = {3.81919e+01 , 5.38746e+00 , 4.44730e+00 , 7.39646e+00 , 9.33402e-01};
     Run2_TauTau_legTriggerEff_DataFake = {3.90677e+01 , 7.03152e+00 , 1.11690e+01 , 1.29314e+00 , 9.99999e-01};
+
+    Run2_TauTau_legTriggerEff_DataReal_dm0 = {39.04720616800577 ,7.264937515910671 ,7.481036846472791 ,2.2186432555766045 ,0.9979282164307409 };
+    Run2_TauTau_legTriggerEff_DataReal_dm1 = {36.84199904252395 ,4.753143697071493 ,5.531763963597042 ,1.6898901594761204 ,0.9999999995735358 };
+    Run2_TauTau_legTriggerEff_DataReal_dm10 = {40.75183952916798 ,5.3504479220811 ,2.313487662004634 ,9.97183433262574 ,0.9999999999882239 };
+    Run2_TauTau_legTriggerEff_DataFake_dm0 = {37.12956370824129 ,6.983025697293738 ,5.363894244046358 ,2.4407568585097326 ,0.8911595667452936 };
+    Run2_TauTau_legTriggerEff_DataFake_dm1 = {36.97927866559607 ,6.644502687462261 ,9.841922721381033 ,1.3676315442177307 ,0.9389735758585416 };
+    Run2_TauTau_legTriggerEff_DataFake_dm10 = {41.43164872255737 ,6.705919352986819 ,4.1052875425000055 ,5.778073936840931 ,0.9338411883350912 };
+    
+    Run2_TauTau_legTriggerEff_MCReal_dm0 = {38.15007577090958 ,6.311019635208034 ,5.494801948596283 ,2.63419150959934 ,0.937851738589565 };
+    Run2_TauTau_legTriggerEff_MCReal_dm1 = {36.3666829038776 ,4.5131284656300705 ,4.5285997287953785 ,1.6296625819252648 ,0.9999999997812011 };
+    Run2_TauTau_legTriggerEff_MCReal_dm10 = {39.50277114020348 ,4.853831493248512 ,1.4594666703565793 ,117.98597869527406 ,0.9851724068805524 };
+    Run2_TauTau_legTriggerEff_MCFake_dm0 = {35.32703569423916 ,5.691102365767336 ,3.9167310355092373 ,1.5068105014095727 ,0.9999999531102266 };
+    Run2_TauTau_legTriggerEff_MCFake_dm1 = {36.250161105296414 ,4.8515088360634815 ,4.712192817046861 ,1.5331124616660115 ,0.9999999999586987 };
+    Run2_TauTau_legTriggerEff_MCFake_dm10 = {41.85875828593461 ,6.291301353413331 ,4.38982391097697 ,2.4534222687442755 ,0.9999998258581441 };
+
 
 	Run2_TauTau_legTriggerEff_Data = {3.45412e+01 , 5.63353e+00 , 2.49242e+00 , 3.35896e+00 , 1.00000e+00};
 	Run2_TauTau_legTriggerEff_DataUP = {3.31713e+01 , 5.66551e+00 , 1.87175e+00 , 8.07790e+00 , 1.00000e+00};
@@ -3237,7 +4011,7 @@ double generateH2TauSyncTree::getFinalWeight(bool verbose_)
 
 	/* include top pt rewight (this returns 1.0 for non ttbar sample ) */
 
-	returnWeight_ *=  getTopQuarkPtWeight(verbose_);
+	//returnWeight_ *=  getTopQuarkPtWeight(verbose_);
 
 	/* include V pt reweights for W,DY samples. Monojet k factors for W, NLO weight for Z*/
 
@@ -3249,15 +4023,15 @@ double generateH2TauSyncTree::getFinalWeight(bool verbose_)
 		susy signal samples use 10 as tan beta --- need to double check on this
 	*/
     //only for SUSY gluglu samples
-	returnWeight_ *= getNLOReWeight(verbose_, 10 );
+	//returnWeight_ *= getNLOReWeight(verbose_, 10 );
 
     /* include anti-lepton disc factor for fake taus */
     
     returnWeight_ *= getALDScaleFactors(verbose_);
 
 	/* include trigger x id x iso scale factor */
-
-	returnWeight_ *= getFinalScaleFactorsForPair(0,0,0);
+    ///useMuonCentral ON
+	returnWeight_ *= getFinalScaleFactorsForPair(0,0,1,0,0,0);
 
 	return returnWeight_;
 }
@@ -3280,66 +4054,64 @@ double generateH2TauSyncTree::getNominalWeight(bool verbose_)
 		if(verbose_) std::cout<<" real data, nominal weight returned as 1.0 \n";
 		return 1.0;
 	}
+
+    bool stitch = 0;
+    double returnWeight_ = 1.;
     
-    //stitching
+    //including LOtoNLO for DY
+    if(R.getS("KeyName") == "DYJetsToLL_M-50" ||\
+    R.getS("KeyName") == "DYJetsToLL_M-50ext1-v2" ||\
+    R.getS("KeyName") == "DY1JetsToLL_M-50" ||\
+    R.getS("KeyName") == "DY2JetsToLL_M-50" ||\
+    R.getS("KeyName") == "DY3JetsToLL_M-50"  ||\
+    R.getS("KeyName") == "DY4JetsToLL_M-50")
+    {
+        stitch = 1;
+        int outgoingJets_ = R.getI("lheOutGoingPartons");
+        
+        if (outgoingJets_ == 0 ) returnWeight_ = (0.039542/(R.getD("FilterEff")));
+        if (outgoingJets_ == 1 ) returnWeight_ = (0.012748/(R.getD("FilterEff")));
+        if (outgoingJets_ == 2 ) returnWeight_ = (0.013013/(R.getD("FilterEff")));
+        if (outgoingJets_ == 3 ) returnWeight_ = (0.013380/(R.getD("FilterEff")));
+        if (outgoingJets_ == 4 ) returnWeight_ = (0.010970/(R.getD("FilterEff")));
+    }
     
-    if (R.getS("KeyName") == "DYJetsToLL_M-50") return (0.033977/(R.getD("FilterEff")));
-    if (R.getS("KeyName") == "DYJetsToLL_M-50ext1-v2") return (0.033977/(R.getD("FilterEff")));
-    if (R.getS("KeyName") == "DY1JetsToLL_M-50") return (0.010954/(R.getD("FilterEff")));
-    if (R.getS("KeyName") == "DY2JetsToLL_M-50") return (0.011181/(R.getD("FilterEff")));
-    if (R.getS("KeyName") == "DY3JetsToLL_M-50") return (0.011497/(R.getD("FilterEff")));
-    if (R.getS("KeyName") == "DY4JetsToLL_M-50") return (0.009426/(R.getD("FilterEff")));
-    
-    /*
-    if (R.getS("KeyName") == "WJetsToLNu")
-    if (R.getS("KeyName") == "WJetsToLNuext2-v1")
-    if (R.getS("KeyName") == "WJetsToLNu_HT-70To100")
-    if (R.getS("KeyName") == "WJetsToLNu_HT-100To200orig")
-    if (R.getS("KeyName") == "WJetsToLNu_HT-100To200")
-    if (R.getS("KeyName") == "WJetsToLNu_HT-100To200ext2-v1")
-    if (R.getS("KeyName") == "WJetsToLNu_HT-200To400orig")
-    if (R.getS("KeyName") == "WJetsToLNu_HT-200To400ext1-v1")
-    if (R.getS("KeyName") == "WJetsToLNu_HT-200To400")
-    if (R.getS("KeyName") == "WJetsToLNu_HT-400To600orig")
-    if (R.getS("KeyName") == "WJetsToLNu_HT-400To600")
-    if (R.getS("KeyName") == "WJetsToLNu_HT-600To800orig")
-    if (R.getS("KeyName") == "WJetsToLNu_HT-600To800")
-    if (R.getS("KeyName") == "WJetsToLNu_HT-800To1200orig")
-    if (R.getS("KeyName") == "WJetsToLNu_HT-800To1200")
-    if (R.getS("KeyName") == "WJetsToLNu_HT-1200To2500orig")
-    if (R.getS("KeyName") == "WJetsToLNu_HT-1200To2500")
-    if (R.getS("KeyName") == "WJetsToLNu_HT-2500ToInforig")
-    if (R.getS("KeyName") == "WJetsToLNu_HT-2500ToInf")
-    */
+    else if (R.getS("KeyName") == "WJetsToLNu" ||\
+    R.getS("KeyName") == "WJetsToLNuext2-v1" ||\
+    R.getS("KeyName") == "WJetsToLNu_HT-100To200orig" ||\
+    R.getS("KeyName") == "WJetsToLNu_HT-100To200" ||\
+    R.getS("KeyName") == "WJetsToLNu_HT-100To200ext2-v1" ||\
+    R.getS("KeyName") == "WJetsToLNu_HT-200To400orig" ||\
+    R.getS("KeyName") == "WJetsToLNu_HT-200To400ext1-v1" ||\
+    R.getS("KeyName") == "WJetsToLNu_HT-200To400" ||\
+    R.getS("KeyName") == "WJetsToLNu_HT-400To600orig" ||\
+    R.getS("KeyName") == "WJetsToLNu_HT-400To600"  ||\
+    R.getS("KeyName") == "WJetsToLNu_HT-600To800orig" ||\
+    R.getS("KeyName") == "WJetsToLNu_HT-600To800" ||\
+    R.getS("KeyName") == "WJetsToLNu_HT-800To1200orig" ||\
+    R.getS("KeyName") == "WJetsToLNu_HT-800To1200" ||\
+    R.getS("KeyName") == "WJetsToLNu_HT-1200To2500orig" ||\
+    R.getS("KeyName") == "WJetsToLNu_HT-1200To2500" ||\
+    R.getS("KeyName") == "WJetsToLNu_HT-2500ToInforig" ||\
+    R.getS("KeyName") == "WJetsToLNu_HT-2500ToInf")
+    {
+        stitch = 1.0;
+        if (R.getD("lheHT") < 100.0) {returnWeight_ = (0.5808909/(R.getD("FilterEff")));}
+        else if (R.getD("lheHT") > 100.0 && R.getD("lheHT") < 200.0) {returnWeight_ = (0.0164683/(R.getD("FilterEff")));}
+        else if (R.getD("lheHT") > 200.0 && R.getD("lheHT") < 400.0) {returnWeight_ = (0.0089255/(R.getD("FilterEff")));}
+        else if (R.getD("lheHT") > 400.0 && R.getD("lheHT") < 600.0) {returnWeight_ = (0.0062354/(R.getD("FilterEff")));}
+        else if (R.getD("lheHT") > 600.0 && R.getD("lheHT") < 800.0) {returnWeight_ = (0.0006453/(R.getD("FilterEff")));}
+        else if (R.getD("lheHT") > 800.0 && R.getD("lheHT") < 1200.0) {returnWeight_ = (0.0007118/(R.getD("FilterEff")));}
+        else if (R.getD("lheHT") > 1200.0 && R.getD("lheHT") < 2500.0) {returnWeight_ = (0.0001934/(R.getD("FilterEff")));}
+        else if (R.getD("lheHT") > 2500.0)  {returnWeight_ = (0.0000122/(R.getD("FilterEff")));}
+    }
     
 	/* for other samples return the nominal weight */
-
-	double nominal_weight = ( 1000.0 * R.getD("CrossSection") ) / ( R.getI("EventTotal") * R.getD("FilterEff"));
-
-	/* for a few samples crab job running was not 100% so we need to compensate for the missing fraction */
+	if (stitch == 0) returnWeight_ = ( 1000.0 * R.getD("CrossSection") ) / ( R.getI("EventTotal") * R.getD("FilterEff"));
     
-	if(R.getS("KeyName") == "WJetsToLNu_HT-600To800orig")
-	{
-		nominal_weight *= 1.0/0.9864294558;
-	}
-	if(R.getS("KeyName") == "WJetsToLNu_HT-1200To2500")
-	{
-		nominal_weight *= 1.0/0.9266797417;
-	}
-	if(R.getS("KeyName") == "WJetsToLNu_HT-2500ToInf")
-	{
-		nominal_weight *= 1.0/0.9869171147;
-	}
-	if(R.getS("KeyName") == "ZJetsToNuNu_HT-200To400orig")
-	{
-		nominal_weight *= 1.0/0.9937765092;
-	}
-    
-	return nominal_weight;
+	return returnWeight_;
 
 }
-
-
 
 
 /* function: getTopQuarkPtWeight 
@@ -3380,7 +4152,10 @@ double generateH2TauSyncTree::getZReWeight(bool verbose_)
     R.getS("KeyName") == "DY1JetsToLL_M-50" ||\
     R.getS("KeyName") == "DY2JetsToLL_M-50" ||\
     R.getS("KeyName") == "DY3JetsToLL_M-50"  ||\
-    R.getS("KeyName") == "DY4JetsToLL_M-50")	calc = 1;
+    R.getS("KeyName") == "DY4JetsToLL_M-50"  ||\
+    R.getS("KeyName") == "EWKZ2Jets_ZToLL_M-50"  ||\
+    R.getS("KeyName") == "EWKZ2Jets_ZToNuNu"
+    )	calc = 1;
 
 	if(calc == 0)
 	{
@@ -3439,10 +4214,10 @@ std::vector<double> generateH2TauSyncTree::getHighPtTauUncertainty(bool verbose_
 	if(R.getB("isRealData") == 0)
 	{
 		/* get the up shift */
-		eff1 = 1 + (unc1 + unc2 - unc1 * unc2);
+		eff1 = 1 + (unc1 + unc2);
 
 		/* get the down shift */
-		eff2 = 1 - (unc1 + unc2 - unc1 * unc2);
+		eff2 = 1 - (unc1 + unc2);
 
 	}
 
@@ -3605,7 +4380,6 @@ std::vector<double> generateH2TauSyncTree::getQCDWeightForEleMuChannel(bool verb
 	double pt_m = R.getD("leg2_pt");
 	double dR = R.getD("DeltaR_leg1_leg2");
 
-
 	/* should always have leg1 = e and leg2 = mu, but just in case order changes in the future */
 	if(R.getI("leg1_leptonType")!=1 && R.getI("leg2_leptonType") == 1)  pt_e = R.getD("leg2_pt");
 	if(R.getI("leg2_leptonType")!=2 && R.getI("leg1_leptonType") == 2)   pt_m = R.getD("leg1_pt");
@@ -3658,29 +4432,25 @@ double generateH2TauSyncTree::getCentralMuonFactor(Double_t eta, Double_t pt, bo
     
     if(trig)
     {
-        if(eta > 2.4 || pt < 20.0 || pt > 500.0) return 1.0;
-        else
-        {
-            float TRIGsfBCDEF = sfHisto_Muon_Trigger_BCDEF->GetBinContent(sfHisto_Muon_Trigger_BCDEF->GetXaxis()->FindBin(eta),sfHisto_Muon_Trigger_BCDEF->GetYaxis()->FindBin(pt));
-            
-            float TRIGsfGH = sfHisto_Muon_Trigger_GH->GetBinContent(sfHisto_Muon_Trigger_GH->GetXaxis()->FindBin(eta),sfHisto_Muon_Trigger_GH->GetYaxis()->FindBin(pt));
-            
-            returnWeight_ *= ((periodBCDEFweight*TRIGsfBCDEF + periodGHweight*TRIGsfGH) * (periodBCDEFweight*TRIGsfBCDEF + periodGHweight*TRIGsfGH));
-        }
+
+        float TRIGsfBCDEF = sfHisto_Muon_Trigger_BCDEF->GetBinContent(sfHisto_Muon_Trigger_BCDEF->GetXaxis()->FindBin(eta),sfHisto_Muon_Trigger_BCDEF->GetYaxis()->FindBin(std::min(pt,499.)));
+        
+        float TRIGsfGH = sfHisto_Muon_Trigger_GH->GetBinContent(sfHisto_Muon_Trigger_GH->GetXaxis()->FindBin(eta),sfHisto_Muon_Trigger_GH->GetYaxis()->FindBin(std::min(pt,499.)));
+        
+        returnWeight_ *= (periodBCDEFweight*TRIGsfBCDEF + periodGHweight*TRIGsfGH);
+
     }
     else
     {
-        if(eta > 2.4 || pt < 20.0 || pt > 120.0) return 1.0;
-        else
-        {
-            float IDsfBCDEF = sfHisto_Muon_MediumID2016_BCDEF->GetBinContent(sfHisto_Muon_MediumID2016_BCDEF->GetXaxis()->FindBin(eta),sfHisto_Muon_MediumID2016_BCDEF->GetYaxis()->FindBin(pt));
-            float ISOsfBCDEF = sfHisto_Muon_TightIso_BCDEF->GetBinContent(sfHisto_Muon_TightIso_BCDEF->GetXaxis()->FindBin(eta),sfHisto_Muon_TightIso_BCDEF->GetYaxis()->FindBin(pt));
-            
-            float IDsfGH = sfHisto_Muon_MediumID2016_GH->GetBinContent(sfHisto_Muon_MediumID2016_GH->GetXaxis()->FindBin(eta),sfHisto_Muon_MediumID2016_GH->GetYaxis()->FindBin(pt));
-            float ISOsfGH = sfHisto_Muon_TightIso_GH->GetBinContent(sfHisto_Muon_TightIso_GH->GetXaxis()->FindBin(eta),sfHisto_Muon_TightIso_GH->GetYaxis()->FindBin(pt));
-            
-            returnWeight_ *= ((periodBCDEFweight*IDsfBCDEF + periodGHweight*IDsfGH) * (periodBCDEFweight*ISOsfBCDEF + periodGHweight*ISOsfGH));
-        }
+
+        float IDsfBCDEF = sfHisto_Muon_TightID2016_BCDEF->GetBinContent(sfHisto_Muon_TightID2016_BCDEF->GetXaxis()->FindBin(eta),sfHisto_Muon_TightID2016_BCDEF->GetYaxis()->FindBin(std::min(pt,119.)));
+        float ISOsfBCDEF = sfHisto_Muon_TightIso_BCDEF->GetBinContent(sfHisto_Muon_TightIso_BCDEF->GetXaxis()->FindBin(eta),sfHisto_Muon_TightIso_BCDEF->GetYaxis()->FindBin(std::min(pt,119.)));
+        
+        float IDsfGH = sfHisto_Muon_TightID2016_GH->GetBinContent(sfHisto_Muon_TightID2016_GH->GetXaxis()->FindBin(eta),sfHisto_Muon_TightID2016_GH->GetYaxis()->FindBin(std::min(pt,119.)));
+        float ISOsfGH = sfHisto_Muon_TightIso_GH->GetBinContent(sfHisto_Muon_TightIso_GH->GetXaxis()->FindBin(eta),sfHisto_Muon_TightIso_GH->GetYaxis()->FindBin(std::min(pt,119.)));
+        
+        returnWeight_ *= ((periodBCDEFweight*IDsfBCDEF + periodGHweight*IDsfGH) * (periodBCDEFweight*ISOsfBCDEF + periodGHweight*ISOsfGH));
+
     }
     return returnWeight_;
 }
@@ -3688,7 +4458,7 @@ double generateH2TauSyncTree::getCentralMuonFactor(Double_t eta, Double_t pt, bo
 double generateH2TauSyncTree::getKFactor(bool verbose)
 {
     double returnWeight_ = 1.0;
-    double genBosonMass_ = R.getD("genBosonTotal_M");
+    //double genBosonMass_ = R.getD("genBosonTotal_M");
     double genBosonTotal_pt = R.getD("genBosonTotal_pt");
     // Add W jets key names only
 
@@ -3713,9 +4483,13 @@ double generateH2TauSyncTree::getKFactor(bool verbose)
        R.getS("KeyName") == "WJetsToLNu_HT-2500ToInf")
        
     {
-        returnWeight_ *= EWK_Wcorr->GetBinContent(EWK_Wcorr->FindBin(genBosonTotal_pt));
+        if (genBosonTotal_pt < 150) genBosonTotal_pt = 151;
+        double k = EWK_Wcorr->GetBinContent(EWK_Wcorr->GetXaxis()->FindBin(genBosonTotal_pt));
+        returnWeight_ *= k;
         if (verbose)std::cout<<" W k-factor: " << returnWeight_ << " \n";
     }
+    
+    /*
     else if(R.getS("KeyName") == "DYJetsToLL_M-50" ||\
 	   R.getS("KeyName") == "DYJetsToLL_M-50ext1-v2" ||\
 	   R.getS("KeyName") == "DY1JetsToLL_M-50" ||\
@@ -3729,9 +4503,63 @@ double generateH2TauSyncTree::getKFactor(bool verbose)
         //else {returnWeight_ *= EWK_Gcorr->GetBinContent(EWK_Gcorr->FindBin(genBosonTotal_pt));}
         if (verbose) {std::cout<<" Z/G k-factor: " << returnWeight_ << " \n";}
     }
-
+    */
+    
     return returnWeight_;
     
+}
+
+double generateH2TauSyncTree::getKFactorSyst(bool verbose, bool down)
+{
+    double returnWeight_ = 1.0;
+    //double genBosonMass_ = R.getD("genBosonTotal_M");
+    double genBosonTotal_pt = R.getD("genBosonTotal_pt");
+    // Add W jets key names only
+
+    if(R.getS("KeyName") == "WJetsToLNu" ||\
+	   R.getS("KeyName") == "WJetsToLNuext2-v1" ||\
+	   R.getS("KeyName") == "WJetsToLNu_HT-70To100" ||\
+	   R.getS("KeyName") == "WJetsToLNu_HT-100To200orig" ||\
+	   R.getS("KeyName") == "WJetsToLNu_HT-100To200" ||\
+       R.getS("KeyName") == "WJetsToLNu_HT-100To200ext2-v1" ||\
+       R.getS("KeyName") == "WJetsToLNu_HT-200To400orig" ||\
+       R.getS("KeyName") == "WJetsToLNu_HT-200To400ext1-v1" ||\
+       R.getS("KeyName") == "WJetsToLNu_HT-200To400" ||\
+       R.getS("KeyName") == "WJetsToLNu_HT-400To600orig" ||\
+       R.getS("KeyName") == "WJetsToLNu_HT-400To600" ||\
+       R.getS("KeyName") == "WJetsToLNu_HT-600To800orig" ||\
+       R.getS("KeyName") == "WJetsToLNu_HT-600To800" ||\
+       R.getS("KeyName") == "WJetsToLNu_HT-800To1200orig" ||\
+       R.getS("KeyName") == "WJetsToLNu_HT-800To1200" ||\
+       R.getS("KeyName") == "WJetsToLNu_HT-1200To2500orig" ||\
+       R.getS("KeyName") == "WJetsToLNu_HT-1200To2500" ||\
+       R.getS("KeyName") == "WJetsToLNu_HT-2500ToInforig" ||\
+       R.getS("KeyName") == "WJetsToLNu_HT-2500ToInf")
+       
+    {
+        if (genBosonTotal_pt < 150) genBosonTotal_pt = 151;
+        double k = EWK_Wcorr_orig->GetBinContent(EWK_Wcorr_orig->GetXaxis()->FindBin(genBosonTotal_pt));
+        returnWeight_ *= k;
+        if (verbose)std::cout<<" W k-factor Systematic (EWK factor only) : " << returnWeight_ << " \n";
+        if (down) {returnWeight_ -= 1.0};
+    }
+    
+    /*
+    else if(R.getS("KeyName") == "DYJetsToLL_M-50" ||\
+	   R.getS("KeyName") == "DYJetsToLL_M-50ext1-v2" ||\
+	   R.getS("KeyName") == "DY1JetsToLL_M-50" ||\
+	   R.getS("KeyName") == "DY2JetsToLL_M-50" ||\
+	   R.getS("KeyName") == "DY3JetsToLL_M-50"  ||\
+	   R.getS("KeyName") == "DY4JetsToLL_M-50")
+	{
+        // turn off k factor for DY now, using Z reweight
+        returnWeight_ = 1.;
+        //if(genBosonMass_ > 5.0) {returnWeight_ *= EWK_Zcorr->GetBinContent(EWK_Zcorr->FindBin(genBosonTotal_pt));}
+        //else {returnWeight_ *= EWK_Gcorr->GetBinContent(EWK_Gcorr->FindBin(genBosonTotal_pt));}
+        if (verbose) {std::cout<<" Z/G k-factor: " << returnWeight_ << " \n";}
+    }
+    */
+    return returnWeight_;
 }
 
 double generateH2TauSyncTree::getJetTauFakeFactor(bool verbose, int variant)
@@ -3745,11 +4573,11 @@ double generateH2TauSyncTree::getJetTauFakeFactor(bool verbose, int variant)
 
     if (R.getI("CandidateEventType")==5 || R.getI("CandidateEventType")==3)
     {
-        if (variant == 1 && gen_match_2 == 6)
+        if (variant == 1 && R.getI("leg2_MCMatchType") == 6)
         {
             returnWeight_ *= 1.224-0.0044*pt2+0.00001*pt2*pt2;
         }
-        else if (variant == -1 && gen_match_2 == 6)
+        else if (variant == -1 && R.getI("leg2_MCMatchType") == 6)
         {
             returnWeight_ *= 1/(1.224-0.0044*pt2+0.00001*pt2*pt2);
         }
@@ -3758,30 +4586,30 @@ double generateH2TauSyncTree::getJetTauFakeFactor(bool verbose, int variant)
     {
         if (variant == 1)
         {
-            if(gen_match_1 == 6 && gen_match_2 == 6)
+            if(R.getI("leg1_MCMatchType") == 6 && R.getI("leg2_MCMatchType") == 6)
             {
                 returnWeight_ *= (1.224-0.0044*pt1+0.00001*pt1*pt1)*(1.224-0.0044*pt2+0.00001*pt2*pt2);
             }
-            else if(gen_match_1 == 6 && gen_match_2 != 6)
+            else if(R.getI("leg1_MCMatchType") == 6 && R.getI("leg2_MCMatchType") != 6)
             {
                 returnWeight_ *= 1.224-0.0044*pt1+0.00001*pt1*pt1;
             }
-            else if(gen_match_1 != 6 && gen_match_2 == 6)
+            else if(R.getI("leg1_MCMatchType") != 6 && R.getI("leg2_MCMatchType") == 6)
             {
                 returnWeight_ *= 1.224-0.0044*pt2+0.00001*pt2*pt2;
             }
         }
         else if (variant == -1)
         {
-            if(gen_match_1 == 6 && gen_match_2 == 6)
+            if(R.getI("leg1_MCMatchType") == 6 && R.getI("leg2_MCMatchType") == 6)
             {
                 returnWeight_ *= 1/((1.224-0.0044*pt1+0.00001*pt1*pt1)*(1.224-0.0044*pt2+0.00001*pt2*pt2));
             }
-            else if(gen_match_1 == 6 && gen_match_2 != 6)
+            else if(R.getI("leg1_MCMatchType") == 6 && R.getI("leg2_MCMatchType") != 6)
             {
                 returnWeight_ *= 1/(1.224-0.0044*pt1+0.00001*pt1*pt1);
             }
-            else if(gen_match_1 != 6 && gen_match_2 == 6)
+            else if(R.getI("leg1_MCMatchType") != 6 && R.getI("leg2_MCMatchType") == 6)
             {
                 returnWeight_ *= 1/(1.224-0.0044*pt2+0.00001*pt2*pt2);
             }
@@ -3793,65 +4621,68 @@ double generateH2TauSyncTree::getJetTauFakeFactor(bool verbose, int variant)
 double generateH2TauSyncTree::getALDScaleFactors(bool verbose)
 {
 
-	R.getF("leg2_againstElectronVLooseMVA6");
-	R.getF("leg2_againstMuonTight3");
-	R.getF("leg2_againstElectronTightMVA6");
-	R.getF("leg2_againstMuonLoose3");
-
-    double returnSF_ = 1.;
+    double returnSF_ = 1.0;
     
     if (R.getI("CandidateEventType")==5)
     {
         if (R.getI("leg2_MCMatchType") == 1 || R.getI("leg2_MCMatchType") == 3)
         {
-            if (abs(R.getD("leg2_eta")) < 1.460) returnSF_ *= 1.292;
-            else if (abs(R.getD("leg2_eta")) > 1.558) returnSF_ *= 1.536;
+            if (fabs(R.getD("leg2_eta")) < 1.460) returnSF_ *= 1.213;
+            else if (fabs(R.getD("leg2_eta")) > 1.558) returnSF_ *= 1.375;
         }
         else if (R.getI("leg2_MCMatchType") == 2 || R.getI("leg2_MCMatchType") == 4)
         {
-            if (abs(R.getD("leg2_eta")) < 1.2) returnSF_ *= 1.28;
-            else if (abs(R.getD("leg2_eta")) > 1.2 && abs(R.getD("leg2_eta")) < 1.7) returnSF_ *= 2.6;
-            else if (abs(R.getD("leg2_eta")) > 1.7 && abs(R.getD("leg2_eta")) < 2.3) returnSF_ *= 2.1;
+            if (fabs(R.getD("leg2_eta")) < 0.4) returnSF_ *= 1.263;
+            else if (fabs(R.getD("leg2_eta")) > 0.4 && fabs(R.getD("leg2_eta")) < 0.8) returnSF_ *= 1.364;
+            else if (fabs(R.getD("leg2_eta")) > 0.8 && fabs(R.getD("leg2_eta")) < 1.2) returnSF_ *= 0.854;
+            else if (fabs(R.getD("leg2_eta")) > 1.2 && fabs(R.getD("leg2_eta")) < 1.7) returnSF_ *= 1.712;
+            else if (fabs(R.getD("leg2_eta")) > 1.7 && fabs(R.getD("leg2_eta")) < 2.3) returnSF_ *= 2.324;
         }
     }
     else if (R.getI("CandidateEventType")==3)
     {
         if (R.getI("leg2_MCMatchType") == 1 || R.getI("leg2_MCMatchType") == 3)
         {
-            if (abs(R.getD("leg2_eta")) < 1.460) returnSF_ *= 1.505;
-            else if (abs(R.getD("leg2_eta")) > 1.558) returnSF_ *= 1.994;
+            if (fabs(R.getD("leg2_eta")) < 1.460) returnSF_ *= 1.402;
+            else if (fabs(R.getD("leg2_eta")) > 1.558) returnSF_ *= 1.900;
         }
         else if (R.getI("leg2_MCMatchType") == 2 || R.getI("leg2_MCMatchType") == 4)
         {
-            if (abs(R.getD("leg2_eta")) < 1.2) returnSF_ *= 1.14;
-            else if (abs(R.getD("leg2_eta")) > 1.2 && abs(R.getD("leg2_eta")) < 1.7) returnSF_ *= 1.2;
-            else if (abs(R.getD("leg2_eta")) > 1.7 && abs(R.getD("leg2_eta")) < 2.3) returnSF_ *= 1.3;
+            if (fabs(R.getD("leg2_eta")) < 0.4) returnSF_ *= 1.010;
+            else if (fabs(R.getD("leg2_eta")) > 0.4 && fabs(R.getD("leg2_eta")) < 0.8) returnSF_ *= 1.007;
+            else if (fabs(R.getD("leg2_eta")) > 0.8 && fabs(R.getD("leg2_eta")) < 1.2) returnSF_ *= 0.870;
+            else if (fabs(R.getD("leg2_eta")) > 1.2 && fabs(R.getD("leg2_eta")) < 1.7) returnSF_ *= 1.154;
+            else if (fabs(R.getD("leg2_eta")) > 1.7 && fabs(R.getD("leg2_eta")) < 2.3) returnSF_ *= 2.281;
         }
     }
     else if (R.getI("CandidateEventType")==6)
     {
         if (R.getI("leg1_MCMatchType") == 1 || R.getI("leg1_MCMatchType") == 3)
         {
-            if (abs(R.getD("leg1_eta")) < 1.460) returnSF_ *= 1.292;
-            else if (abs(R.getD("leg1_eta")) > 1.558) returnSF_ *= 1.536;
+            if (fabs(R.getD("leg1_eta")) < 1.460) returnSF_ *= 1.213;
+            else if (fabs(R.getD("leg1_eta")) > 1.558) returnSF_ *= 1.375;
         }
         else if (R.getI("leg1_MCMatchType") == 2 || R.getI("leg1_MCMatchType") == 4)
         {
-            if (abs(R.getD("leg1_eta")) < 1.2) returnSF_ *= 1.14;
-            else if (abs(R.getD("leg1_eta")) > 1.2 && abs(R.getD("leg1_eta")) < 1.7) returnSF_ *= 1.2;
-            else if (abs(R.getD("leg1_eta")) > 1.7 && abs(R.getD("leg1_eta")) < 2.3) returnSF_ *= 1.3;
+            if (fabs(R.getD("leg1_eta")) < 0.4) returnSF_ *= 1.010;
+            else if (fabs(R.getD("leg1_eta")) > 0.4 && fabs(R.getD("leg1_eta")) < 0.8) returnSF_ *= 1.007;
+            else if (fabs(R.getD("leg1_eta")) > 0.8 && fabs(R.getD("leg1_eta")) < 1.2) returnSF_ *= 0.870;
+            else if (fabs(R.getD("leg1_eta")) > 1.2 && fabs(R.getD("leg1_eta")) < 1.7) returnSF_ *= 1.154;
+            else if (fabs(R.getD("leg1_eta")) > 1.7 && fabs(R.getD("leg1_eta")) < 2.3) returnSF_ *= 2.281;
         }
         
         if (R.getI("leg2_MCMatchType") == 1 || R.getI("leg2_MCMatchType") == 3)
         {
-            if (abs(R.getD("leg2_eta")) < 1.460) returnSF_ *= 1.292;
-            else if (abs(R.getD("leg2_eta")) > 1.558) returnSF_ *= 1.536;
+            if (fabs(R.getD("leg2_eta")) < 1.460) returnSF_ *= 1.213;
+            else if (fabs(R.getD("leg2_eta")) > 1.558) returnSF_ *= 1.375;
         }
         else if (R.getI("leg2_MCMatchType") == 2 || R.getI("leg2_MCMatchType") == 4)
         {
-            if (abs(R.getD("leg2_eta")) < 1.2) returnSF_ *= 1.14;
-            else if (abs(R.getD("leg2_eta")) > 1.2 && abs(R.getD("leg2_eta")) < 1.7) returnSF_ *= 1.2;
-            else if (abs(R.getD("leg2_eta")) > 1.7 && abs(R.getD("leg2_eta")) < 2.3) returnSF_ *= 1.3;
+            if (fabs(R.getD("leg2_eta")) < 0.4) returnSF_ *= 1.010;
+            else if (fabs(R.getD("leg2_eta")) > 0.4 && fabs(R.getD("leg2_eta")) < 0.8) returnSF_ *= 1.007;
+            else if (fabs(R.getD("leg2_eta")) > 0.8 && fabs(R.getD("leg2_eta")) < 1.2) returnSF_ *= 0.870;
+            else if (fabs(R.getD("leg2_eta")) > 1.2 && fabs(R.getD("leg2_eta")) < 1.7) returnSF_ *= 1.154;
+            else if (fabs(R.getD("leg2_eta")) > 1.7 && fabs(R.getD("leg2_eta")) < 2.3) returnSF_ *= 2.281;
         }
     }
     
@@ -3859,11 +4690,15 @@ double generateH2TauSyncTree::getALDScaleFactors(bool verbose)
 
 }
 
-double generateH2TauSyncTree::getFinalScaleFactorsForPair(bool verbose, int sysShift, bool useMuonCentral)
+double generateH2TauSyncTree::getFinalScaleFactorsForPair(bool verbose, int sysShift, bool useMuonCentral, bool returnIDISO, bool returnTRIG, bool returnTRACK)
 {
 
-    double tauID = .99;  //current tau ID scale factor (just DMF)
-
+    double tauID1 = 1.0;  //current tau ID scale factor (just DMF)
+    double tauID2 = 1.0;
+    
+    if (R.getI("leg1_MCMatchType")==5) tauID1=0.94;
+    if (R.getI("leg2_MCMatchType")==5) tauID2=0.94;
+    
 	double returnSF = 1.0;
     
 	/* muon + tau */
@@ -3873,11 +4708,12 @@ double generateH2TauSyncTree::getFinalScaleFactorsForPair(bool verbose, int sysS
 
 		double muonID = 1.0;
 		double muonTrigger = 1.0;
+        double muonTrack = 1.0;
 
 		/* muon */
 		double pt1 = 0.0;
 		double eta1 = 0.0;
-
+        
 		/* should always have leg1 = mu and leg2 = tau, but just in case order changes in the future */
 		if(R.getI("leg1_leptonType")==2 && R.getI("leg2_leptonType") == 3)  
 		{
@@ -3891,21 +4727,26 @@ double generateH2TauSyncTree::getFinalScaleFactorsForPair(bool verbose, int sysS
 			eta1 = R.getD("leg2_eta");
 		}
     
+        tw->var("m_eta")->setVal(eta1);
+        muonTrack = tw->function("m_trk_ratio")->getVal();
+        
         if(useMuonCentral)
         {
-            muonID = getCentralMuonFactor(abs(eta1), pt1, 0);
-            muonTrigger = getCentralMuonFactor(abs(eta1), pt1, 1);
+            muonID = getCentralMuonFactor(fabs(eta1), pt1, 0);
+            muonTrigger = getCentralMuonFactor(fabs(eta1), pt1, 1);
         }
         else
         {
             muonID = sfTool_Muon_IdIso0p15_eff->get_ScaleFactor(pt1,eta1);
             muonTrigger = sfTool_Muon_SingleMu_eff->get_ScaleFactor(pt1,eta1);
         }
+        returnSF = muonID * muonTrigger * muonTrack * tauID2;
+        if(returnIDISO) return muonID;
+        else if(returnTRIG) return muonTrigger;
+        else if(returnTRACK) return muonTrack;
+        else return returnSF;
         
-		returnSF = muonID * muonTrigger * tauID;
-
 	/////////////////////////////////////
-		return returnSF;
 	}
 
 	/* electron + tau */
@@ -3917,11 +4758,11 @@ double generateH2TauSyncTree::getFinalScaleFactorsForPair(bool verbose, int sysS
 
 		double electronID = 1.0;
 		double electronTrigger = 1.0;
+        double electronTrack = 1.0;
 
 		/* electron */
 		double pt1 = 0.0;
 		double eta1 = 0.0;
-
 
 		/* should always have leg1 = electron and leg2 = tau, but just in case order changes in the future */
 		if(R.getI("leg1_leptonType")==1 && R.getI("leg2_leptonType") == 3)  
@@ -3936,13 +4777,19 @@ double generateH2TauSyncTree::getFinalScaleFactorsForPair(bool verbose, int sysS
 			eta1 = R.getD("leg2_eta");
 		}
 
+        tw->var("e_eta")->setVal(eta1);
+        electronTrack = tw->function("e_trk_ratio")->getVal();
+
 		electronID = sfTool_Electron_IdIso0p10_eff->get_ScaleFactor(pt1,eta1);
 		electronTrigger = sfTool_Electron_SingleEle_eff->get_ScaleFactor(pt1,eta1);
 
-		returnSF = electronID * electronTrigger * tauID;
+        returnSF = electronID * electronTrigger * electronTrack * tauID2;
+        
+        if(returnIDISO) return electronID;
+        else if(returnTRIG) return electronTrigger;
+        else if(returnTRACK) return electronTrack;
+        else return returnSF;
 
-        /////////////////////////////////
-		return returnSF;
 	}
 
 	/* electron + muon */
@@ -4025,51 +4872,107 @@ double generateH2TauSyncTree::getFinalScaleFactorsForPair(bool verbose, int sysS
 
 		/* tau1 */
 		double pt1 = R.getD("leg1_pt");
-        double mt1 = TMath::Sqrt((R.getD("leg1_M"))*(R.getD("leg1_M"))+pt1*pt1);
+        //double mt1 = TMath::Sqrt((R.getD("leg1_M"))*(R.getD("leg1_M"))+pt1*pt1);
+        double dm1 = R.getI("leg1_decayMode");
 
 		/* tau2 */
 		double pt2 = R.getD("leg2_pt");
-        double mt2 = TMath::Sqrt((R.getD("leg2_M"))*(R.getD("leg2_M"))+pt2*pt2);
+        //double mt2 = TMath::Sqrt((R.getD("leg2_M"))*(R.getD("leg2_M"))+pt2*pt2);
+        double dm2 = R.getI("leg2_decayMode");
         
 		/* make sure sysShift is valid */
 		assert (sysShift==0 || sysShift==1 || sysShift == -1);
 
 		if(sysShift == 0)
 		{
-            if(mt1<30.0)
+        
+            w->var("t_pt")->setVal(pt1);
+            w->var("t_dm")->setVal(dm1);
+            SF1 = w->function("t_genuine_TightIso_tt_ratio")->getVal();
+            
+            //if using fake and real
+            /*if(mt1<30.0)
             {
-                effData1 = CBeff( pt1, Run2_TauTau_legTriggerEff_DataReal);
+                SF1 = w->function("t_genuine_TightIso_tt_ratio")->getVal();
             }
             else
             {
-                effData1 = CBeff( pt1, Run2_TauTau_legTriggerEff_DataFake);
+                SF1 = w->function("t_fake_TightIso_tt_ratio")->getVal();
+            }*/
+            
+            w->var("t_pt")->setVal(pt2);
+            w->var("t_dm")->setVal(dm2);
+            SF2 = w->function("t_genuine_TightIso_tt_ratio")->getVal();
+            
+            //if using fake and real
+            /*if(mt2<30.0)
+            {
+                SF2 = w->function("t_genuine_TightIso_tt_ratio")->getVal();
+            }
+            else
+            {
+                SF2 = w->function("t_fake_TightIso_tt_ratio")->getVal();
+            }*/
+            
+            /*
+            if(mt1<30.0)
+            {
+                if (dm1==0) effData1 = CBeff( pt1, Run2_TauTau_legTriggerEff_DataReal_dm0);
+                if (dm1==1) effData1 = CBeff( pt1, Run2_TauTau_legTriggerEff_DataReal_dm1);
+                if (dm1==10) effData1 = CBeff( pt1, Run2_TauTau_legTriggerEff_DataReal_dm10);
+            }
+            else
+            {
+                if (dm1==0) effData1 = CBeff( pt1, Run2_TauTau_legTriggerEff_DataFake_dm0);
+                if (dm1==1) effData1 = CBeff( pt1, Run2_TauTau_legTriggerEff_DataFake_dm1);
+                if (dm1==10) effData1 = CBeff( pt1, Run2_TauTau_legTriggerEff_DataFake_dm10);
             }
             
             if(mt2<30.0)
             {
-                effData2 = CBeff( pt2, Run2_TauTau_legTriggerEff_DataReal);
+                if (dm2==0) effData2 = CBeff( pt2, Run2_TauTau_legTriggerEff_DataReal_dm0);
+                if (dm2==1) effData2 = CBeff( pt2, Run2_TauTau_legTriggerEff_DataReal_dm1);
+                if (dm2==10) effData2 = CBeff( pt2, Run2_TauTau_legTriggerEff_DataReal_dm10);
             }
             else
             {
-                effData2 = CBeff( pt2, Run2_TauTau_legTriggerEff_DataFake);
+                if (dm2==0) effData2 = CBeff( pt2, Run2_TauTau_legTriggerEff_DataFake_dm0);
+                if (dm2==1) effData2 = CBeff( pt2, Run2_TauTau_legTriggerEff_DataFake_dm1);
+                if (dm2==10) effData2 = CBeff( pt2, Run2_TauTau_legTriggerEff_DataFake_dm10);
             }
             
-			//effMC1 = CBeff( pt1, Run2_TauTau_legTriggerEff_Mc);
-			//effMC2 = CBeff( pt2, Run2_TauTau_legTriggerEff_Mc);
-
-			//if(effMC1!=0) SF1 = effData1/effMC1;
-			//if(effMC2!=0)  SF2 = effData2/effMC2;
             
+            if(mt1<30.0)
+            {
+                if (dm1==0) effMC1 = CBeff( pt1, Run2_TauTau_legTriggerEff_MCReal_dm0);
+                if (dm1==1) effMC1 = CBeff( pt1, Run2_TauTau_legTriggerEff_MCReal_dm1);
+                if (dm1==10) effMC1 = CBeff( pt1, Run2_TauTau_legTriggerEff_MCReal_dm10);
+            }
+            else
+            {
+                if (dm1==0) effMC1 = CBeff( pt1, Run2_TauTau_legTriggerEff_MCFake_dm0);
+                if (dm1==1) effMC1 = CBeff( pt1, Run2_TauTau_legTriggerEff_MCFake_dm1);
+                if (dm1==10) effMC1 = CBeff( pt1, Run2_TauTau_legTriggerEff_MCFake_dm10);
+            }
             
+            if(mt2<30.0)
+            {
+                if (dm2==0) effMC2 = CBeff( pt2, Run2_TauTau_legTriggerEff_MCReal_dm0);
+                if (dm2==1) effMC2 = CBeff( pt2, Run2_TauTau_legTriggerEff_MCReal_dm1);
+                if (dm2==10) effMC2 = CBeff( pt2, Run2_TauTau_legTriggerEff_MCReal_dm10);
+            }
+            else
+            {
+                if (dm2==0) effMC2 = CBeff( pt2, Run2_TauTau_legTriggerEff_MCFake_dm0);
+                if (dm2==1) effMC2 = CBeff( pt2, Run2_TauTau_legTriggerEff_MCFake_dm1);
+                if (dm2==10) effMC2 = CBeff( pt2, Run2_TauTau_legTriggerEff_MCFake_dm10);
+            }
+            */
             
-            SF1 = effData1;
-			SF2 = effData2;
-
-			returnSF = SF1 * SF2 * tauID * tauID;
+			returnSF = SF1 * SF2 * tauID1 * tauID2;
 		}
 
         //No Shifts defined in 2016, keeping in case needed later
-
 		else if( sysShift == 1) /* defined as up data over down mc */
 		{
 			effData1 = CBeff( pt1, Run2_TauTau_legTriggerEff_DataUP);
@@ -4083,7 +4986,6 @@ double generateH2TauSyncTree::getFinalScaleFactorsForPair(bool verbose, int sysS
 
 			returnSF = SF1 * SF2;
 		}
-
 		else if( sysShift == -1) /* defined as down data over up mc */
 		{
 			effData1 = CBeff( pt1, Run2_TauTau_legTriggerEff_DataDOWN);
@@ -4098,8 +5000,10 @@ double generateH2TauSyncTree::getFinalScaleFactorsForPair(bool verbose, int sysS
 			returnSF = SF1 * SF2;
 		}
 
-	/////////////////////////////////////
-		return returnSF;
+        if(returnIDISO) return tauID1 * tauID2;
+        else if(returnTRIG) return SF1 * SF2;
+        else if(returnTRACK) return 1.0;
+        else return returnSF;
 	}
 
 
@@ -4107,7 +5011,4 @@ double generateH2TauSyncTree::getFinalScaleFactorsForPair(bool verbose, int sysS
 	std::cout<<"WARNING ---- Trigger x ID x ISO sf not available for CandidateEventType "<<R.getI("CandidateEventType")<<" using 1.0 \n";
 	return returnSF;
 }
-
-
-
 

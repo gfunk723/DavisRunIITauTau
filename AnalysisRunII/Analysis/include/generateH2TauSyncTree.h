@@ -39,8 +39,13 @@ see : https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsToTauTauWorking2015#Sync
 #include <math.h>
 #include "HTT-utilities/LepEffInterface/interface/ScaleFactor.h"
 #include "HTT-utilities/QCDModelingEMu/interface/QCDModelForEMu.h"
+#include "CorrectionsWorkspace/CrystalBallEfficiency.h"
 #include <TGraphAsymmErrors.h>
 #include <TRandom3.h>
+#include "RooWorkspace.h"
+#include "RooRealVar.h"
+#include "CrystalBallEfficiency.h"
+#include "TMVA/Reader.h"
 
 /* new struct to contain jet info under a give correction or systematic shift */
 
@@ -209,6 +214,8 @@ public:
 	double GetTransverseMass(TLorentzVector, TLorentzVector);
 
 	double computeLPT(bool); /* arg is a bool flag for verbose running */
+    
+    double ttTrigPtShape(bool); /* arg is a bool for up variant, 0 is down */
 
 	std::vector <double> computePchi_and_Mmin(bool, double, double); /* args are (bool flag for verbose running, met, metPhi) */
 
@@ -240,39 +247,47 @@ private:
 	QCDModelForEMu * qcdWeights;//("HTT-utilities/QCDModelingEMu/data/QCD_weight_emu.root"); 
 
 	// w/o DZeta cut ->
-	QCDModelForEMu * qcdWeightsNoDZeta; //("HTT-utilities/QCDModelingEMu/data/QCD_weight_emu_nodzeta.root"); 
+	QCDModelForEMu * qcdWeightsNoDZeta; //("HTT-utilities/QCDModelingEMu/data/QCD_weight_emu_nodzeta.root");
 
-    // Muon POG central muon sf tool
+    //Binned Tau trigger SFs from CorrectionsWorkspace
+
+    RooWorkspace *w;
+    RooWorkspace *tw;
     
+    // Muon POG central muon sf tool
     /* for Trigger runs bcdef */
     
     TFile * sfFile_Muon_Trigger_BCDEF = new TFile("EfficienciesAndSF_TRIG_BCDEF.root","READ");
-    TH2F * sfHisto_Muon_Trigger_BCDEF = (TH2F*)sfFile_Muon_Trigger_BCDEF->Get("/IsoMu24_OR_IsoTkMu24_PtEtaBins/efficienciesDATA/abseta_pt_DATA");
+    TH2F * sfHisto_Muon_Trigger_BCDEF = (TH2F*)sfFile_Muon_Trigger_BCDEF->Get("/IsoMu24_OR_IsoTkMu24_PtEtaBins/abseta_pt_ratio");
     
     /* for Trigger runs gh */
     
     TFile * sfFile_Muon_Trigger_GH = new TFile("EfficienciesAndSF_TRIG_GH.root","READ");
-    TH2F * sfHisto_Muon_Trigger_GH = (TH2F*)sfFile_Muon_Trigger_GH->Get("/IsoMu24_OR_IsoTkMu24_PtEtaBins/efficienciesDATA/abseta_pt_DATA");
+    TH2F * sfHisto_Muon_Trigger_GH = (TH2F*)sfFile_Muon_Trigger_GH->Get("/IsoMu24_OR_IsoTkMu24_PtEtaBins/abseta_pt_ratio");
     
-    /* for mediumID2016 runs bcdef */
+    /* for TightID2016 runs bcdef */
     
-    TFile * sfFile_Muon_MediumID2016_BCDEF = new TFile("EfficienciesAndSF_ID_BCDEF.root","READ");
-    TH2F * sfHisto_Muon_MediumID2016_BCDEF = (TH2F*)sfFile_Muon_MediumID2016_BCDEF->Get("/MC_NUM_TightID_DEN_genTracks_PAR_pt_eta/efficienciesDATA/abseta_pt_DATA");
+    TFile * sfFile_Muon_TightID2016_BCDEF = new TFile("EfficienciesAndSF_ID_BCDEF.root","READ");
+    TH2F * sfHisto_Muon_TightID2016_BCDEF = (TH2F*)sfFile_Muon_TightID2016_BCDEF->Get("/MC_NUM_TightID_DEN_genTracks_PAR_pt_eta/abseta_pt_ratio");
     
     /* for Iso runs bcdef */
     
     TFile * sfFile_Muon_TightIso_BCDEF = new TFile("EfficienciesAndSF_ISO_BCDEF.root","READ");
-    TH2F * sfHisto_Muon_TightIso_BCDEF = (TH2F*)sfFile_Muon_TightIso_BCDEF->Get("/TightISO_TightID_pt_eta/efficienciesDATA/abseta_pt_DATA");
+    TH2F * sfHisto_Muon_TightIso_BCDEF = (TH2F*)sfFile_Muon_TightIso_BCDEF->Get("/TightISO_TightID_pt_eta/abseta_pt_ratio");
     
-    /* for mediumID2016 runs gh */
+    /* for TightID2016 runs gh */
     
-    TFile * sfFile_Muon_MediumID2016_GH = new TFile("EfficienciesAndSF_ID_GH.root","READ");
-    TH2F * sfHisto_Muon_MediumID2016_GH = (TH2F*)sfFile_Muon_MediumID2016_GH->Get("/MC_NUM_TightID_DEN_genTracks_PAR_pt_eta/efficienciesDATA/abseta_pt_DATA");
+    TFile * sfFile_Muon_TightID2016_GH = new TFile("EfficienciesAndSF_ID_GH.root","READ");
+    TH2F * sfHisto_Muon_TightID2016_GH = (TH2F*)sfFile_Muon_TightID2016_GH->Get("/MC_NUM_TightID_DEN_genTracks_PAR_pt_eta/abseta_pt_ratio");
     
     /* for Iso runs gh */
     
     TFile * sfFile_Muon_TightIso_GH = new TFile("EfficienciesAndSF_ISO_GH.root","READ");
-    TH2F * sfHisto_Muon_TightIso_GH = (TH2F*)sfFile_Muon_TightIso_GH->Get("/TightISO_TightID_pt_eta/efficienciesDATA/abseta_pt_DATA");
+    TH2F * sfHisto_Muon_TightIso_GH = (TH2F*)sfFile_Muon_TightIso_GH->Get("/TightISO_TightID_pt_eta/abseta_pt_ratio");
+    
+    /* for tracking all runs */
+    
+    //TFile * sfFile_Muon_Tracking = new TFile("","READ");
 
 	// for HTT derived lepton ID and trigger scale factors and efficiencies
 
@@ -314,6 +329,9 @@ private:
     TH1F* EWK_Zcorr = (TH1F*) kFactorsFile->Get("/EWKcorr/Z");
     TH1F* EWK_Gcorr = (TH1F*) kFactorsFile->Get("/EWKcorr/photon");
     TH1F* EWK_Wcorr = (TH1F*) kFactorsFile->Get("/EWKcorr/W");
+    TH1F* EWK_Zcorr_orig = (TH1F*) kFactorsFile->Get("/EWKcorr/Z");
+    TH1F* EWK_Gcorr_orig = (TH1F*) kFactorsFile->Get("/EWKcorr/photon");
+    TH1F* EWK_Wcorr_orig = (TH1F*) kFactorsFile->Get("/EWKcorr/W");
     TH1F* LO_Zcorr = (TH1F*) kFactorsFile->Get("/ZJets_LO/inv_pt");
     TH1F* LO_Gcorr = (TH1F*) kFactorsFile->Get("/GJets_LO/inv_pt_G");
     TH1F* LO_Wcorr = (TH1F*) kFactorsFile->Get("/WJets_LO/inv_pt");
@@ -342,6 +360,108 @@ private:
     //using int for analysis, train, or test -> -1.0,1
 
     int flag_MVAEventType;
+    float randNum;
+
+    //Declare TMVA readers and variables
+
+    TMVA::Reader *mt_MZP600A0400_reader = new TMVA::Reader();
+    TMVA::Reader *mt_MZP800A0400_reader = new TMVA::Reader();
+    TMVA::Reader *mt_MZP1000A0400_reader = new TMVA::Reader();
+    TMVA::Reader *mt_MZP1200A0400_reader = new TMVA::Reader();
+    
+    TMVA::Reader *et_MZP600A0400_reader = new TMVA::Reader();
+    TMVA::Reader *et_MZP800A0400_reader = new TMVA::Reader();
+    TMVA::Reader *et_MZP1000A0400_reader = new TMVA::Reader();
+    TMVA::Reader *et_MZP1200A0400_reader = new TMVA::Reader();
+    
+    TMVA::Reader *tt_MZP600A0400_reader = new TMVA::Reader();
+    TMVA::Reader *tt_MZP800A0400_reader = new TMVA::Reader();
+    TMVA::Reader *tt_MZP1000A0400_reader = new TMVA::Reader();
+    TMVA::Reader *tt_MZP1200A0400_reader = new TMVA::Reader();
+
+    Float_t rpt_1, rpt_2, rmt_tot, rpfmt_1, rpt_tt, rm_vis, rmet, rP_chi_pf, rLPT, rDeltaR_leg1_leg2, rcos_DeltaPhi_leg1_leg2, rcos_DeltaPhi_PFMET_Higgs;
+    Float_t rratio_weight, rfinal_weight, rnpu, revent, rrandNum, rDataCardInt, rIsZTT, rIsZJ, rIsZL, rIsTTT;
+    
+    //Nominal
+    
+    double mvaVar_mt_MZP600A0400;
+    double mvaVar_mt_MZP800A0400;
+    double mvaVar_mt_MZP1000A0400;
+    double mvaVar_mt_MZP1200A0400;
+    
+    double mvaVar_et_MZP600A0400;
+    double mvaVar_et_MZP800A0400;
+    double mvaVar_et_MZP1000A0400;
+    double mvaVar_et_MZP1200A0400;
+    
+    double mvaVar_tt_MZP600A0400;
+    double mvaVar_tt_MZP800A0400;
+    double mvaVar_tt_MZP1000A0400;
+    double mvaVar_tt_MZP1200A0400;
+    
+    //UES Variants
+    
+    double mvaVar_mt_MZP600A0400_UESUp;
+    double mvaVar_mt_MZP800A0400_UESUp;
+    double mvaVar_mt_MZP1000A0400_UESUp;
+    double mvaVar_mt_MZP1200A0400_UESUp;
+    
+    double mvaVar_et_MZP600A0400_UESUp;
+    double mvaVar_et_MZP800A0400_UESUp;
+    double mvaVar_et_MZP1000A0400_UESUp;
+    double mvaVar_et_MZP1200A0400_UESUp;
+    
+    double mvaVar_tt_MZP600A0400_UESUp;
+    double mvaVar_tt_MZP800A0400_UESUp;
+    double mvaVar_tt_MZP1000A0400_UESUp;
+    double mvaVar_tt_MZP1200A0400_UESUp;
+    
+    double mvaVar_mt_MZP600A0400_UESDown;
+    double mvaVar_mt_MZP800A0400_UESDown;
+    double mvaVar_mt_MZP1000A0400_UESDown;
+    double mvaVar_mt_MZP1200A0400_UESDown;
+    
+    double mvaVar_et_MZP600A0400_UESDown;
+    double mvaVar_et_MZP800A0400_UESDown;
+    double mvaVar_et_MZP1000A0400_UESDown;
+    double mvaVar_et_MZP1200A0400_UESDown;
+    
+    double mvaVar_tt_MZP600A0400_UESDown;
+    double mvaVar_tt_MZP800A0400_UESDown;
+    double mvaVar_tt_MZP1000A0400_UESDown;
+    double mvaVar_tt_MZP1200A0400_UESDown;
+    
+    //JEn Variants
+    
+    double mvaVar_mt_MZP600A0400_JEnUp;
+    double mvaVar_mt_MZP800A0400_JEnUp;
+    double mvaVar_mt_MZP1000A0400_JEnUp;
+    double mvaVar_mt_MZP1200A0400_JEnUp;
+    
+    double mvaVar_et_MZP600A0400_JEnUp;
+    double mvaVar_et_MZP800A0400_JEnUp;
+    double mvaVar_et_MZP1000A0400_JEnUp;
+    double mvaVar_et_MZP1200A0400_JEnUp;
+    
+    double mvaVar_tt_MZP600A0400_JEnUp;
+    double mvaVar_tt_MZP800A0400_JEnUp;
+    double mvaVar_tt_MZP1000A0400_JEnUp;
+    double mvaVar_tt_MZP1200A0400_JEnUp;
+    
+    double mvaVar_mt_MZP600A0400_JEnDown;
+    double mvaVar_mt_MZP800A0400_JEnDown;
+    double mvaVar_mt_MZP1000A0400_JEnDown;
+    double mvaVar_mt_MZP1200A0400_JEnDown;
+    
+    double mvaVar_et_MZP600A0400_JEnDown;
+    double mvaVar_et_MZP800A0400_JEnDown;
+    double mvaVar_et_MZP1000A0400_JEnDown;
+    double mvaVar_et_MZP1200A0400_JEnDown;
+    
+    double mvaVar_tt_MZP600A0400_JEnDown;
+    double mvaVar_tt_MZP800A0400_JEnDown;
+    double mvaVar_tt_MZP1000A0400_JEnDown;
+    double mvaVar_tt_MZP1200A0400_JEnDown;
 
     /* theory event weights */
     
@@ -351,7 +471,9 @@ private:
 	/* davis specific */
 
 	unsigned int pairRank; 
-	int isOsPair; 
+	int isOsPair;
+    bool isBoostedChannelPair;
+    
     double genBosonTotal_pt, genBosonTotal_eta, genBosonTotal_phi, genBosonTotal_M; 	    /* the gen total 4-vector of W/Z/H */
 	double genBosonVisible_pt, genBosonVisible_eta, genBosonVisible_phi, genBosonVisible_M; /* the gen visible 4-vector of W/Z/H */
     double genTopPt1;
@@ -389,9 +511,12 @@ private:
     float ZimpactTau_1;
 
 
-
 	double mt_1;			        /* using mva met */
-	double pfmt_1; 
+	double pfmt_1;
+    double pfmt_1_UESUp;
+    double pfmt_1_UESDown;
+    double pfmt_1_JEnUp;
+    double pfmt_1_JEnDown;
 	double puppimt_1;
 	double mt_uncorr_1;			    /* using mva met, no recoil corr */
 
@@ -401,7 +526,6 @@ private:
     double responseDOWN_MTmvaMET_1;
     double resolutionUP_MTmvaMET_1;
     double resolutionDOWN_MTmvaMET_1;
-
 
 	/* H2TauTau group's gen-match codes, 
 	   see DavisRunIITauTau/FlatTupleGenerator/interface/GenMcMatchTypes.h */ 
@@ -496,8 +620,22 @@ private:
 
 	double pt_tt;
 	double DeltaR_leg1_leg2;
-	double mt_tot; /* use mva met */	
+    double cos_DeltaPhi_leg1_leg2;
+    double cos_DeltaPhi_PFMET_Higgs;
+	double mt_tot; /* use pf met */
+    double mt_tot_UESUp;
+    double mt_tot_UESDown;
+    double mt_tot_JEnUp;
+    double mt_tot_JEnDown;
+    double weight_ttPtUp;
+    double weight_ttPtDown;
 	double m_vis;
+
+    double cos_DeltaPhi_PFMET_Higgs_UESUp;
+    double cos_DeltaPhi_PFMET_Higgs_UESDown;
+    
+    double cos_DeltaPhi_PFMET_Higgs_JEnUp;
+    double cos_DeltaPhi_PFMET_Higgs_JEnDown;
 
 	/* sv fit -- only keeping variants which use mvaMET, study by H2Tau group showed met variants have minimal impact on SVMass shape
 	and so those are omitted */
@@ -656,7 +794,6 @@ private:
 	double pfmet_type1_PhotonEnDown_MT1;
 	double pfmet_type1_PhotonEnDown_MT2;
 
-
 	/* JET system */
     /* this is a bit complicated :
 	
@@ -666,7 +803,6 @@ private:
 	-- next we have JEC and JER shifted jets, along with btagging performed under medium, loose, and tight wp
 
 	*/
-
 
 	///////////////////////////////////////////////////
 	// NOMINAL JETS 								 //
@@ -741,6 +877,13 @@ private:
     ///////////////////////////////////////////////////////////////
     /* new (with 8_0_25 ) b-tag overall event weights for mono-H */
     ///////////////////////////////////////////////////////////////
+    
+    //general variable for data and MC
+    double BtagEventSFproduct_or_DataTag_Central;
+    double BtagEventSFproduct_or_DataTag_Up;
+    double BtagEventSFproduct_or_DataTag_Down;
+    double BtagEventSFproduct_or_DataTag_Central_JECshiftedUp;
+    double BtagEventSFproduct_or_DataTag_Central_JECshiftedDown;
 
     double BtagEventSFproduct_looseWpDown;
     double BtagEventSFproduct_looseWpCentral;
@@ -791,9 +934,6 @@ private:
 	double bm_2_TightWp; 	// for trailing b-jet in pt (pt > 20) (tight WP central)
 	double bmva_2_TightWp; 	// for trailing b-jet in pt (pt > 20) (tight WP central)
 	float bcsv_2_TightWp;	// for trailing b-jet in pt (pt > 20) (tight WP central)
-
-
-
 
 	///////////////////////////////////////////////////
 	// JECshiftedUp JETS 								 //
@@ -1230,6 +1370,7 @@ private:
     std::string EventType;  /* description of the event, DATA, MC, EMBEDDED, etc. */
     std::string KeyName;    /* description of the sample as given during crab job */
 	std::string DataCard; 	/* the DataCard type for the current sample */
+    int DataCardInt;
     double CrossSection;    /* MC process cross section */
     double FilterEff;       /* gen level filter eff. (needed if any is applied) */
 	bool isSmallTree;       /* was the FlatTuple produced under small tree conditions */
@@ -1291,6 +1432,7 @@ private:
     double P_chi_uncorr; 		/* using uncorrected mvaMET */
     double M_min_uncorr;		/* using uncorrected mvaMET */
 
+    //mvamat variants
 
     double P_chi_responseUP; 		/* using responseUP mvaMET */
     double M_min_responseUP;		/* using responseUP mvaMET */
@@ -1306,6 +1448,14 @@ private:
 
     double P_chi_resolutionDOWN; 		/* using resolutionDOWN mvaMET */
     double M_min_resolutionDOWN;		/* using resolutionDOWN mvaMET */
+    
+    // variants for Pchi
+    
+    double P_chi_pf_UESUp; 	    /* using pfMET */
+    double P_chi_pf_UESDown;	/* using pfMET */
+    
+    double P_chi_pf_JEnUp; 	    /* using pfMET */
+    double P_chi_pf_JEnDown;	/* using pfMET */
 
 
     /////////////////////////
@@ -1313,6 +1463,10 @@ private:
     /////////////////////////
 
     double final_weight; /* final event weight under nominal systematics */
+    
+    double sf_IDISO;
+    double sf_TRIG;
+    double sf_TRACK;
 
     double nominalCrossSection_Weight; /* indluded in final_weight */
     double puWeight_Weight;			   /* indluded in final_weight */	
@@ -1327,6 +1481,7 @@ private:
     double JTF_WeightDown;
     double NLOReWeight_Weight;         /* indluded in final_weight */
     double ScaleFactorsForPair_Weight; /* NOMINAL VERSION indluded in final_weight */
+    double sf_ALD;
     
     double ScaleFactorsForPair_WeightUp;
     double ScaleFactorsForPair_WeightDown;
@@ -1338,7 +1493,6 @@ private:
     double QCDWeightForEleMuChannelNoPZetaCut_WeightDown;
     double highPtTauEff_WeightUp;
     double highPtTauEff_WeightDown;
-
 
     ///////////////
     // 2016 Triggers -- these need to be kept
@@ -1372,7 +1526,6 @@ private:
   	// END LIST OF Ntuple BRANCH-ASSOCIATED VARIABLES //
     ////////////////////////////////////////////////////
   
-
 
 	// member pointers to TTrees & TFiles 
 	
@@ -1464,12 +1617,20 @@ private:
 	*/
 	double getCentralMuonFactor(Double_t, Double_t, bool);
     
-	/* function getKFactor :
+    /* function getKFactor :
 		return a k factor for reweighting DY, W:
                 bool = verbose option
 
 	*/
 	double getKFactor(bool);
+    
+	/* function getKFactorSyst :
+		return a k factor variant for W weight systematic:
+                bool = verbose option
+                bool = down variant
+
+	*/
+	double getKFactorSyst(bool, bool);
     
 	/* function getJetTauFakeFactor:
 		return a factor for reweighting W,ZJ:
@@ -1491,9 +1652,13 @@ private:
 		args are : 
 				bool  = verbose option
 				int   = shift :  only used in tau+tau case, 0 returns nominal, +1 returns 1 sigma up shift, -1 returns down shifted sf 
+                bool  = use muon POG factors
+                bool  = just return ID*ISO factor
+                bool  = just return trigger factor
+                bool = just return tracking factor
 
 	*/
-	double getFinalScaleFactorsForPair(bool, int, bool);
+	double getFinalScaleFactorsForPair(bool, int, bool,bool,bool,bool);
 
 	/* function: getQCDWeightForEleMuChannel(bool)
 		-- returns a size 6 double vector with elements :
@@ -1523,7 +1688,21 @@ private:
 
     std::array <double, 5> Run2_TauTau_legTriggerEff_DataReal;
     std::array <double, 5> Run2_TauTau_legTriggerEff_DataFake;
-
+    
+    std::array <double, 5> Run2_TauTau_legTriggerEff_DataReal_dm0;
+    std::array <double, 5> Run2_TauTau_legTriggerEff_DataReal_dm1;
+    std::array <double, 5> Run2_TauTau_legTriggerEff_DataReal_dm10;
+    std::array <double, 5> Run2_TauTau_legTriggerEff_DataFake_dm0;
+    std::array <double, 5> Run2_TauTau_legTriggerEff_DataFake_dm1;
+    std::array <double, 5> Run2_TauTau_legTriggerEff_DataFake_dm10;
+    
+    std::array <double, 5> Run2_TauTau_legTriggerEff_MCReal_dm0;
+    std::array <double, 5> Run2_TauTau_legTriggerEff_MCReal_dm1;
+    std::array <double, 5> Run2_TauTau_legTriggerEff_MCReal_dm10;
+    std::array <double, 5> Run2_TauTau_legTriggerEff_MCFake_dm0;
+    std::array <double, 5> Run2_TauTau_legTriggerEff_MCFake_dm1;
+    std::array <double, 5> Run2_TauTau_legTriggerEff_MCFake_dm10;
+    
 	std::array <double, 5> Run2_TauTau_legTriggerEff_Data;
 	std::array <double, 5> Run2_TauTau_legTriggerEff_DataUP;
 	std::array <double, 5> Run2_TauTau_legTriggerEff_DataDOWN;
