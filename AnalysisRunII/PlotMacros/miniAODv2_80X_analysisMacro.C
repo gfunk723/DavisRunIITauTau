@@ -78,7 +78,6 @@ double ttjError = 0.;
 double smhError = 0.;
 double qcdError = 0.;
 
-
 /* DATA maximum factor on hists y-axis */
 
 float DATA_MAX = 1.7;
@@ -91,7 +90,7 @@ bool setLog  = 0;
 /* plot signals */
 
 bool shouldIplotSignals = 1;
-bool splitPlotSMH = 0;
+bool splitPlotSMH = 1;
 
 /* for safety blind met (in data) above this value, and m_vis between these */
 double met_blind = 200;
@@ -299,7 +298,7 @@ int miniAODv2_80X_analysisMacro()
         {
             std::cout<<" enter a met cut value: ";
             cin >> metCutVal;
-            std::cout<<" enter a Mt cut value: ";
+            std::cout<<" enter a max m_vis cut value: ";
             cin >> mtCutVal;
             saveName += (("signalRegion_Mt_over_" + mtCutVal + "_").c_str());
         }
@@ -381,7 +380,6 @@ int miniAODv2_80X_analysisMacro()
 	colors["ZHTauTau"] = 50;
 	colors["MONO"] = 4;
     colors["SMH"] = 857;
-
 
 	/* x - axis labels */
 
@@ -478,6 +476,22 @@ int miniAODv2_80X_analysisMacro()
     drCutNameMap[1] = "low";
     drCutNameMap[2] = "high";
     drCutNameMap[3] = "both";
+/*
+    TMVACutMap["ET_600"] = TCut("mvaVar_et_MZP600A0400 > -0.5 && met > 125.0 && m_vis < 125");
+    TMVACutMap["ET_800"] =  TCut("mvaVar_et_MZP800A0400 > -0.5 && met > 125.0 && m_vis < 125");
+    TMVACutMap["ET_1000"] = TCut("mvaVar_et_MZP1000A0400 > -0.5 && met > 125.0 && m_vis < 125");
+    TMVACutMap["ET_1200"] = TCut("mvaVar_et_MZP1200A0400 > -0.5 && met > 125.0 && m_vis < 125");
+    
+    TMVACutMap["MT_600"] = TCut("mvaVar_mt_MZP600A0400 > -0.5 && met > 125.0 && m_vis < 125");
+    TMVACutMap["MT_800"] = TCut("mvaVar_mt_MZP800A0400 > -0.5 && met > 125.0 && m_vis < 125");
+    TMVACutMap["MT_1000"] = TCut("mvaVar_mt_MZP1000A0400 > -0.5 && met > 125.0 && m_vis < 125");
+    TMVACutMap["MT_1200"] = TCut("mvaVar_mt_MZP1200A0400 > -0.5 && met > 125.0 && m_vis < 125");
+    
+    TMVACutMap["TT_600"] = TCut("mvaVar_tt_MZP600A0400 > -0.5 && met > 125.0 && m_vis < 125");
+    TMVACutMap["TT_800"] = TCut("mvaVar_tt_MZP800A0400 > -0.5 && met > 125.0 && m_vis < 125");
+    TMVACutMap["TT_1000"] = TCut("mvaVar_tt_MZP1000A0400 > -0.5 && met > 125.0 && m_vis < 125");
+    TMVACutMap["TT_1200"] = TCut("mvaVar_tt_MZP1200A0400 > -0.5 && met > 125.0 && m_vis < 125");
+*/
 
     TMVACutMap["ET_600"] = TCut("mvaVar_et_MZP600A0400 > -0.5");
     TMVACutMap["ET_800"] =  TCut("mvaVar_et_MZP800A0400 > -0.5");
@@ -512,6 +526,8 @@ int miniAODv2_80X_analysisMacro()
     weightMap["JTFDOWN"] = TCut("JTF_WeightDown");
     weightMap["HPTUP"] = TCut("highPtTauEff_WeightUp");
     weightMap["HPTDOWN"] = TCut("highPtTauEff_WeightDown");
+    weightMap["TTPTUP"] = TCut("weight_ttPtUp");
+    weightMap["TTPTDOWN"] = TCut("weight_ttPtDown");
     
     jetCutMap["NOM"] = TCut("BtagEventSFproduct_or_DataTag_Central");
     jetCutMap["BSFUP"] = TCut("BtagEventSFproduct_or_DataTag_Up");
@@ -665,11 +681,14 @@ void doTauTau()
     TCut cut_weights_TauFakeUp = jetCutMap["NOM"]; cut_weights_TauFakeUp *= weightMap["JTFUP"];
     TCut cut_weights_TauFakeDown = jetCutMap["NOM"]; cut_weights_TauFakeDown *= weightMap["JTFDOWN"];
     
+    TCut cut_weights_ttPtUp = jetCutMap["NOM"]; cut_weights_ttPtUp *= weightMap["TTPTUP"];
+    TCut cut_weights_ttPtDown = jetCutMap["NOM"]; cut_weights_ttPtDown *= weightMap["TTPTDOWN"];
+    
     TCut cut_weights_JECUp = jetCutMap["BSFJECUP"];
     TCut cut_weights_JECDown = jetCutMap["BSFJECDOWN"];
     
-    TCut cut_weights_HPTUp = weightMap["HPTUP"];
-    TCut cut_weights_HPTDown = weightMap["HPTDOWN"];
+    TCut cut_weights_HPTUp = jetCutMap["NOM"]; cut_weights_HPTUp *= weightMap["HPTUP"];
+    TCut cut_weights_HPTDown = jetCutMap["NOM"]; cut_weights_HPTDown *= weightMap["HPTDOWN"];
     
     TCut cut_weights_bTagUp = jetCutMap["BSFUP"];
     TCut cut_weights_bTagDown = jetCutMap["BSFDOWN"];
@@ -802,6 +821,170 @@ void doTauTau()
     qcd_TauTau_mvaVar_tt_MZP1200A0400->Sumw2();
     qcd_TauTau_mvaVar_tt_MZP1200A0400->SetFillColor(colors["QCD"]);
     
+    /*TMVA Systematics*/
+    
+    TH1F * qcd_TauTau_mvaVar_tt_MZP600A0400_UESUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP600A0400_UESUp","qcd_TauTau_mvaVar_tt_MZP600A0400_UESUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP600A0400_UESUp->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP800A0400_UESUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP800A0400_UESUp","qcd_TauTau_mvaVar_tt_MZP800A0400_UESUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP800A0400_UESUp->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1000A0400_UESUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP1000A0400_UESUp","qcd_TauTau_mvaVar_tt_MZP1000A0400_UESUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1000A0400_UESUp->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1200A0400_UESUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP1200A0400_UESUp","qcd_TauTau_mvaVar_tt_MZP1200A0400_UESUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1200A0400_UESUp->Sumw2();
+    
+    TH1F * qcd_TauTau_mvaVar_tt_MZP600A0400_UESDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP600A0400_UESDown","qcd_TauTau_mvaVar_tt_MZP600A0400_UESDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP600A0400_UESDown->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP800A0400_UESDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP800A0400_UESDown","qcd_TauTau_mvaVar_tt_MZP800A0400_UESDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP800A0400_UESDown->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1000A0400_UESDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP1000A0400_UESDown","qcd_TauTau_mvaVar_tt_MZP1000A0400_UESDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1000A0400_UESDown->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1200A0400_UESDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP1200A0400_UESDown","qcd_TauTau_mvaVar_tt_MZP1200A0400_UESDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1200A0400_UESDown->Sumw2();
+    
+    TH1F * qcd_TauTau_mvaVar_tt_MZP600A0400_VPtDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP600A0400_VPtDown","qcd_TauTau_mvaVar_tt_MZP600A0400_VPtDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP600A0400_VPtDown->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP800A0400_VPtDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP800A0400_VPtDown","qcd_TauTau_mvaVar_tt_MZP800A0400_VPtDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP800A0400_VPtDown->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1000A0400_VPtDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP1000A0400_VPtDown","qcd_TauTau_mvaVar_tt_MZP1000A0400_VPtDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1000A0400_VPtDown->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1200A0400_VPtDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP1200A0400_VPtDown","qcd_TauTau_mvaVar_tt_MZP1200A0400_VPtDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1200A0400_VPtDown->Sumw2();
+    
+    TH1F * qcd_TauTau_mvaVar_tt_MZP600A0400_VPtUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP600A0400_VPtUp","qcd_TauTau_mvaVar_tt_MZP600A0400_VPtUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP600A0400_VPtUp->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP800A0400_VPtUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP800A0400_VPtUp","qcd_TauTau_mvaVar_tt_MZP800A0400_VPtUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP800A0400_VPtUp->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1000A0400_VPtUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP1000A0400_VPtUp","qcd_TauTau_mvaVar_tt_MZP1000A0400_VPtUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1000A0400_VPtUp->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1200A0400_VPtUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP1200A0400_VPtUp","qcd_TauTau_mvaVar_tt_MZP1200A0400_VPtUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1200A0400_VPtUp->Sumw2();
+    
+    TH1F * qcd_TauTau_mvaVar_tt_MZP600A0400_VPtWUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP600A0400_VPtWUp","qcd_TauTau_mvaVar_tt_MZP600A0400_VPtWUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP600A0400_VPtWUp->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP800A0400_VPtWUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP800A0400_VPtWUp","qcd_TauTau_mvaVar_tt_MZP800A0400_VPtWUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP800A0400_VPtWUp->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1000A0400_VPtWUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP1000A0400_VPtWUp","qcd_TauTau_mvaVar_tt_MZP1000A0400_VPtWUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1000A0400_VPtWUp->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1200A0400_VPtWUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP1200A0400_VPtWUp","qcd_TauTau_mvaVar_tt_MZP1200A0400_VPtWUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1200A0400_VPtWUp->Sumw2();
+    
+    TH1F * qcd_TauTau_mvaVar_tt_MZP600A0400_VPtWDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP600A0400_VPtWDown","qcd_TauTau_mvaVar_tt_MZP600A0400_VPtWDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP600A0400_VPtWDown->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP800A0400_VPtWDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP800A0400_VPtWDown","qcd_TauTau_mvaVar_tt_MZP800A0400_VPtWDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP800A0400_VPtWDown->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1000A0400_VPtWDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP1000A0400_VPtWDown","qcd_TauTau_mvaVar_tt_MZP1000A0400_VPtWDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1000A0400_VPtWDown->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1200A0400_VPtWDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP1200A0400_VPtWDown","qcd_TauTau_mvaVar_tt_MZP1200A0400_VPtWDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1200A0400_VPtWDown->Sumw2();
+    
+    TH1F * qcd_TauTau_mvaVar_tt_MZP600A0400_TauFakeUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP600A0400_TauFakeUp","qcd_TauTau_mvaVar_tt_MZP600A0400_TauFakeUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP600A0400_TauFakeUp->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP800A0400_TauFakeUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP800A0400_TauFakeUp","qcd_TauTau_mvaVar_tt_MZP800A0400_TauFakeUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP800A0400_TauFakeUp->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1000A0400_TauFakeUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP1000A0400_TauFakeUp","qcd_TauTau_mvaVar_tt_MZP1000A0400_TauFakeUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1000A0400_TauFakeUp->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1200A0400_TauFakeUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP1200A0400_TauFakeUp","qcd_TauTau_mvaVar_tt_MZP1200A0400_TauFakeUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1200A0400_TauFakeUp->Sumw2();
+    
+    TH1F * qcd_TauTau_mvaVar_tt_MZP600A0400_TauFakeDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP600A0400_TauFakeDown","qcd_TauTau_mvaVar_tt_MZP600A0400_TauFakeDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP600A0400_TauFakeDown->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP800A0400_TauFakeDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP800A0400_TauFakeDown","qcd_TauTau_mvaVar_tt_MZP800A0400_TauFakeDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP800A0400_TauFakeDown->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1000A0400_TauFakeDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP1000A0400_TauFakeDown","qcd_TauTau_mvaVar_tt_MZP1000A0400_TauFakeDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1000A0400_TauFakeDown->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1200A0400_TauFakeDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP1200A0400_TauFakeDown","qcd_TauTau_mvaVar_tt_MZP1200A0400_TauFakeDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1200A0400_TauFakeDown->Sumw2();
+    
+    TH1F * qcd_TauTau_mvaVar_tt_MZP600A0400_bTagUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP600A0400_bTagUp","qcd_TauTau_mvaVar_tt_MZP600A0400_bTagUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP600A0400_bTagUp->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP800A0400_bTagUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP800A0400_bTagUp","qcd_TauTau_mvaVar_tt_MZP800A0400_bTagUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP800A0400_bTagUp->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1000A0400_bTagUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP1000A0400_bTagUp","qcd_TauTau_mvaVar_tt_MZP1000A0400_bTagUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1000A0400_bTagUp->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1200A0400_bTagUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP1200A0400_bTagUp","qcd_TauTau_mvaVar_tt_MZP1200A0400_bTagUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1200A0400_bTagUp->Sumw2();
+    
+    TH1F * qcd_TauTau_mvaVar_tt_MZP600A0400_bTagDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP600A0400_bTagDown","qcd_TauTau_mvaVar_tt_MZP600A0400_bTagDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP600A0400_bTagDown->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP800A0400_bTagDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP800A0400_bTagDown","qcd_TauTau_mvaVar_tt_MZP800A0400_bTagDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP800A0400_bTagDown->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1000A0400_bTagDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP1000A0400_bTagDown","qcd_TauTau_mvaVar_tt_MZP1000A0400_bTagDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1000A0400_bTagDown->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1200A0400_bTagDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP1200A0400_bTagDown","qcd_TauTau_mvaVar_tt_MZP1200A0400_bTagDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1200A0400_bTagDown->Sumw2();
+    
+    TH1F * qcd_TauTau_mvaVar_tt_MZP600A0400_JECUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP600A0400_JECUp","qcd_TauTau_mvaVar_tt_MZP600A0400_JECUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP600A0400_JECUp->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP800A0400_JECUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP800A0400_JECUp","qcd_TauTau_mvaVar_tt_MZP800A0400_JECUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP800A0400_JECUp->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1000A0400_JECUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP1000A0400_JECUp","qcd_TauTau_mvaVar_tt_MZP1000A0400_JECUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1000A0400_JECUp->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1200A0400_JECUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP1200A0400_JECUp","qcd_TauTau_mvaVar_tt_MZP1200A0400_JECUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1200A0400_JECUp->Sumw2();
+    
+    TH1F * qcd_TauTau_mvaVar_tt_MZP600A0400_JECDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP600A0400_JECDown","qcd_TauTau_mvaVar_tt_MZP600A0400_JECDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP600A0400_JECDown->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP800A0400_JECDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP800A0400_JECDown","qcd_TauTau_mvaVar_tt_MZP800A0400_JECDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP800A0400_JECDown->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1000A0400_JECDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP1000A0400_JECDown","qcd_TauTau_mvaVar_tt_MZP1000A0400_JECDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1000A0400_JECDown->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1200A0400_JECDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP1200A0400_JECDown","qcd_TauTau_mvaVar_tt_MZP1200A0400_JECDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1200A0400_JECDown->Sumw2();
+    
+    TH1F * qcd_TauTau_mvaVar_tt_MZP600A0400_HPTUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP600A0400_HPTUp","qcd_TauTau_mvaVar_tt_MZP600A0400_HPTUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP600A0400_HPTUp->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP800A0400_HPTUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP800A0400_HPTUp","qcd_TauTau_mvaVar_tt_MZP800A0400_HPTUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP800A0400_HPTUp->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1000A0400_HPTUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP1000A0400_HPTUp","qcd_TauTau_mvaVar_tt_MZP1000A0400_HPTUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1000A0400_HPTUp->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1200A0400_HPTUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP1200A0400_HPTUp","qcd_TauTau_mvaVar_tt_MZP1200A0400_HPTUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1200A0400_HPTUp->Sumw2();
+    
+    TH1F * qcd_TauTau_mvaVar_tt_MZP600A0400_HPTDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP600A0400_HPTDown","qcd_TauTau_mvaVar_tt_MZP600A0400_HPTDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP600A0400_HPTDown->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP800A0400_HPTDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP800A0400_HPTDown","qcd_TauTau_mvaVar_tt_MZP800A0400_HPTDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP800A0400_HPTDown->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1000A0400_HPTDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP1000A0400_HPTDown","qcd_TauTau_mvaVar_tt_MZP1000A0400_HPTDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1000A0400_HPTDown->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1200A0400_HPTDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP1200A0400_HPTDown","qcd_TauTau_mvaVar_tt_MZP1200A0400_HPTDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1200A0400_HPTDown->Sumw2();
+    
+    TH1F * qcd_TauTau_mvaVar_tt_MZP600A0400_ttPtUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP600A0400_ttPtUp","qcd_TauTau_mvaVar_tt_MZP600A0400_ttPtUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP600A0400_ttPtUp->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP800A0400_ttPtUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP800A0400_ttPtUp","qcd_TauTau_mvaVar_tt_MZP800A0400_ttPtUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP800A0400_ttPtUp->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1000A0400_ttPtUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP1000A0400_ttPtUp","qcd_TauTau_mvaVar_tt_MZP1000A0400_ttPtUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1000A0400_ttPtUp->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1200A0400_ttPtUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP1200A0400_ttPtUp","qcd_TauTau_mvaVar_tt_MZP1200A0400_ttPtUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1200A0400_ttPtUp->Sumw2();
+    
+    TH1F * qcd_TauTau_mvaVar_tt_MZP600A0400_ttPtDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP600A0400_ttPtDown","qcd_TauTau_mvaVar_tt_MZP600A0400_ttPtDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP600A0400_ttPtDown->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP800A0400_ttPtDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP800A0400_ttPtDown","qcd_TauTau_mvaVar_tt_MZP800A0400_ttPtDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP800A0400_ttPtDown->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1000A0400_ttPtDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP1000A0400_ttPtDown","qcd_TauTau_mvaVar_tt_MZP1000A0400_ttPtDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1000A0400_ttPtDown->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1200A0400_ttPtDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP1200A0400_ttPtDown","qcd_TauTau_mvaVar_tt_MZP1200A0400_ttPtDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1200A0400_ttPtDown->Sumw2();
+    
+    TH1F * qcd_TauTau_mvaVar_tt_MZP600A0400_TESUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP600A0400_TESUp","qcd_TauTau_mvaVar_tt_MZP600A0400_TESUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP600A0400_TESUp->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP800A0400_TESUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP800A0400_TESUp","qcd_TauTau_mvaVar_tt_MZP800A0400_TESUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP800A0400_TESUp->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1000A0400_TESUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP1000A0400_TESUp","qcd_TauTau_mvaVar_tt_MZP1000A0400_TESUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1000A0400_TESUp->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1200A0400_TESUp = new TH1F("qcd_TauTau_mvaVar_tt_MZP1200A0400_TESUp","qcd_TauTau_mvaVar_tt_MZP1200A0400_TESUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1200A0400_TESUp->Sumw2();
+    
+    TH1F * qcd_TauTau_mvaVar_tt_MZP600A0400_TESDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP600A0400_TESDown","qcd_TauTau_mvaVar_tt_MZP600A0400_TESDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP600A0400_TESDown->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP800A0400_TESDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP800A0400_TESDown","qcd_TauTau_mvaVar_tt_MZP800A0400_TESDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP800A0400_TESDown->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1000A0400_TESDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP1000A0400_TESDown","qcd_TauTau_mvaVar_tt_MZP1000A0400_TESDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1000A0400_TESDown->Sumw2();
+    TH1F * qcd_TauTau_mvaVar_tt_MZP1200A0400_TESDown = new TH1F("qcd_TauTau_mvaVar_tt_MZP1200A0400_TESDown","qcd_TauTau_mvaVar_tt_MZP1200A0400_TESDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_TauTau_mvaVar_tt_MZP1200A0400_TESDown->Sumw2();
+    
     //ExpertMVA
     TH1F * qcd_TauTau_mvaVar_tt_EXP1 = new TH1F("qcd_TauTau_mvaVar_tt_EXP1","qcd_TauTau_mvaVar_tt_EXP1",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
     qcd_TauTau_mvaVar_tt_EXP1->Sumw2();
@@ -871,6 +1054,14 @@ void doTauTau()
     qcd_TauTau_mt_tot_CMS_xtt_highTauEffi_13TeVDown->Sumw2();
     qcd_TauTau_mt_tot_CMS_xtt_highTauEffi_13TeVDown->SetFillColor(colors["QCD"]);
     
+    TH1F * qcd_TauTau_mt_tot_CMS_scale_tt_trigger_eff_13TeVUp = new TH1F("qcd_TauTau_mt_tot_CMS_scale_tt_trigger_eff_13TeVUp","qcd_TauTau_mt_tot_CMS_scale_tt_trigger_eff_13TeVUp",binnum_mt_tot, mt_totVarBinning);
+    qcd_TauTau_mt_tot_CMS_scale_tt_trigger_eff_13TeVUp->Sumw2();
+    qcd_TauTau_mt_tot_CMS_scale_tt_trigger_eff_13TeVUp->SetFillColor(colors["QCD"]);
+    
+    TH1F * qcd_TauTau_mt_tot_CMS_scale_tt_trigger_eff_13TeVDown = new TH1F("qcd_TauTau_mt_tot_CMS_scale_tt_trigger_eff_13TeVDown","qcd_TauTau_mt_tot_CMS_scale_tt_trigger_eff_13TeVDown",binnum_mt_tot, mt_totVarBinning);
+    qcd_TauTau_mt_tot_CMS_scale_tt_trigger_eff_13TeVDown->Sumw2();
+    qcd_TauTau_mt_tot_CMS_scale_tt_trigger_eff_13TeVDown->SetFillColor(colors["QCD"]);
+    
     TH1F * qcd_TauTau_mt_tot_bTagUp = new TH1F("qcd_TauTau_mt_tot_bTagUp","qcd_TauTau_mt_tot_bTagUp",binnum_mt_tot, mt_totVarBinning);
     qcd_TauTau_mt_tot_bTagUp->Sumw2();
     qcd_TauTau_mt_tot_bTagUp->SetFillColor(colors["QCD"]);
@@ -902,15 +1093,221 @@ void doTauTau()
     {
         
         global_title = "QCD (Same Sign) Estimate Region";
-        fillQCD_Shape((SScut_TauTau_base + cut_options_nom * TMVACutMap["TT_600"])*cut_weights_nom * TMVACutMap["TT_600"], (SScut_TauTau_base_RelTauIso + cut_options_nom * TMVACutMap["TT_600"])*cut_weights_nom * TMVACutMap["TT_600"], wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400,"mvaVar_tt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
-        fillQCD_Shape((SScut_TauTau_base + cut_options_nom * TMVACutMap["TT_800"])*cut_weights_nom * TMVACutMap["TT_800"], (SScut_TauTau_base_RelTauIso + cut_options_nom * TMVACutMap["TT_800"])*cut_weights_nom * TMVACutMap["TT_800"], wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400,"mvaVar_tt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
-        fillQCD_Shape((SScut_TauTau_base + cut_options_nom * TMVACutMap["TT_1000"])*cut_weights_nom * TMVACutMap["TT_1000"], (SScut_TauTau_base_RelTauIso + cut_options_nom * TMVACutMap["TT_1000"])*cut_weights_nom * TMVACutMap["TT_1000"], wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400,"mvaVar_tt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
-        fillQCD_Shape((SScut_TauTau_base + cut_options_nom * TMVACutMap["TT_1200"])*cut_weights_nom * TMVACutMap["TT_1200"], (SScut_TauTau_base_RelTauIso + cut_options_nom * TMVACutMap["TT_1200"])*cut_weights_nom * TMVACutMap["TT_1200"], wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400,"mvaVar_tt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+        fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_600"])*cut_weights_nom, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_600"])*cut_weights_nom, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400,"mvaVar_tt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+        fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_800"])*cut_weights_nom, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_800"])*cut_weights_nom, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400,"mvaVar_tt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+        fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1000"])*cut_weights_nom, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1000"])*cut_weights_nom, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400,"mvaVar_tt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+        fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1200"])*cut_weights_nom, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1200"])*cut_weights_nom, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400,"mvaVar_tt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
         
-        drawSignalRegion(signalCut_base * cut_options_nom * TMVACutMap["TT_600"], signalCut_base * cut_options_nom * TMVACutMap["TT_600"], wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400, "mvaVar_tt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "600", 1, 1);
-        drawSignalRegion(signalCut_base * cut_options_nom * TMVACutMap["TT_800"], signalCut_base * cut_options_nom * TMVACutMap["TT_800"], wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400, "mvaVar_tt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "800", 1, 1);
-        drawSignalRegion(signalCut_base * cut_options_nom * TMVACutMap["TT_1000"], signalCut_base * cut_options_nom * TMVACutMap["TT_1000"], wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400, "mvaVar_tt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1000", 1, 1);
-        drawSignalRegion(signalCut_base * cut_options_nom * TMVACutMap["TT_1200"], signalCut_base * cut_options_nom * TMVACutMap["TT_1200"], wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400, "mvaVar_tt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1200", 1, 1);
+        drawSignalRegion((signalCut_base + TMVACutMap["TT_600"])*cut_weights_nom, (signalCut_base + TMVACutMap["TT_600"])*cut_weights_nom, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400, "mvaVar_tt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "600", 1, 1);
+        drawSignalRegion((signalCut_base + TMVACutMap["TT_800"])*cut_weights_nom, (signalCut_base + TMVACutMap["TT_800"])*cut_weights_nom, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400, "mvaVar_tt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "800", 1, 1);
+        drawSignalRegion((signalCut_base + TMVACutMap["TT_1000"])*cut_weights_nom, (signalCut_base + TMVACutMap["TT_1000"])*cut_weights_nom, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400, "mvaVar_tt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1000", 1, 1);
+        drawSignalRegion((signalCut_base + TMVACutMap["TT_1200"])*cut_weights_nom, (signalCut_base + TMVACutMap["TT_1200"])*cut_weights_nom, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400, "mvaVar_tt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1200", 1, 1);
+        reset_files();
+        
+        if (doSyst)
+        {
+            std::cout << "syst for tt started" << std::endl;
+            global_title = "QCD (Same Sign) Estimate Region";
+            
+            
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_600"])*cut_weights_UESUp, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_600"])*cut_weights_UESUp, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_UESUp,"mvaVar_tt_MZP600A0400_UESUp", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_800"])*cut_weights_UESUp, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_800"])*cut_weights_UESUp, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_UESUp,"mvaVar_tt_MZP800A0400_UESUp", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1000"])*cut_weights_UESUp, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1000"])*cut_weights_UESUp, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_UESUp,"mvaVar_tt_MZP1000A0400_UESUp", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1200"])*cut_weights_UESUp, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1200"])*cut_weights_UESUp, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_UESUp,"mvaVar_tt_MZP1200A0400_UESUp", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_600"])*cut_weights_UESUp, (w_signalCut_base + TMVACutMap["TT_600"])*cut_weights_UESUp, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_UESUp, "mvaVar_tt_MZP600A0400_UESUp", tmvaBinning, "sig region Function TMVA variable", "tt", "600_CMS_scale_m_tt_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_800"])*cut_weights_UESUp, (w_signalCut_base + TMVACutMap["TT_800"])*cut_weights_UESUp, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_UESUp, "mvaVar_tt_MZP800A0400_UESUp", tmvaBinning, "sig region Function TMVA variable", "tt", "800_CMS_scale_m_tt_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1000"])*cut_weights_UESUp, (w_signalCut_base + TMVACutMap["TT_1000"])*cut_weights_UESUp, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_UESUp, "mvaVar_tt_MZP1000A0400_UESUp", tmvaBinning, "sig region Function TMVA variable", "tt", "1000_CMS_scale_m_tt_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1200"])*cut_weights_UESUp, (w_signalCut_base + TMVACutMap["TT_1200"])*cut_weights_UESUp, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_UESUp, "mvaVar_tt_MZP1200A0400_UESUp", tmvaBinning, "sig region Function TMVA variable", "tt", "1200_CMS_scale_m_tt_13TeVUp", 0, 1);
+            
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_600"])*cut_weights_UESDown, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_600"])*cut_weights_UESDown, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_UESDown,"mvaVar_tt_MZP600A0400_UESDown", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_800"])*cut_weights_UESDown, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_800"])*cut_weights_UESDown, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_UESDown,"mvaVar_tt_MZP800A0400_UESDown", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1000"])*cut_weights_UESDown, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1000"])*cut_weights_UESDown, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_UESDown,"mvaVar_tt_MZP1000A0400_UESDown", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1200"])*cut_weights_UESDown, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1200"])*cut_weights_UESDown, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_UESDown,"mvaVar_tt_MZP1200A0400_UESDown", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_600"])*cut_weights_UESDown, (w_signalCut_base + TMVACutMap["TT_600"])*cut_weights_UESDown, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_UESDown, "mvaVar_tt_MZP600A0400_UESDown", tmvaBinning, "sig region Function TMVA variable", "tt", "600_CMS_scale_m_tt_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_800"])*cut_weights_UESDown, (w_signalCut_base + TMVACutMap["TT_800"])*cut_weights_UESDown, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_UESDown, "mvaVar_tt_MZP800A0400_UESDown", tmvaBinning, "sig region Function TMVA variable", "tt", "800_CMS_scale_m_tt_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1000"])*cut_weights_UESDown, (w_signalCut_base + TMVACutMap["TT_1000"])*cut_weights_UESDown, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_UESDown, "mvaVar_tt_MZP1000A0400_UESDown", tmvaBinning, "sig region Function TMVA variable", "tt", "1000_CMS_scale_m_tt_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1200"])*cut_weights_UESDown, (w_signalCut_base + TMVACutMap["TT_1200"])*cut_weights_UESDown, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_UESDown, "mvaVar_tt_MZP1200A0400_UESDown", tmvaBinning, "sig region Function TMVA variable", "tt", "1200_CMS_scale_m_tt_13TeVDown", 0, 1);
+            
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_600"])*cut_weights_VPtUp, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_600"])*cut_weights_VPtUp, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_VPtUp,"mvaVar_tt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_800"])*cut_weights_VPtUp, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_800"])*cut_weights_VPtUp, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_VPtUp,"mvaVar_tt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1000"])*cut_weights_VPtUp, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1000"])*cut_weights_VPtUp, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_VPtUp,"mvaVar_tt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1200"])*cut_weights_VPtUp, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1200"])*cut_weights_VPtUp, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_VPtUp,"mvaVar_tt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_600"])*cut_weights_VPtUp, (w_signalCut_base + TMVACutMap["TT_600"])*cut_weights_VPtUp, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_VPtUp, "mvaVar_tt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "600_CMS_xtt_dyShape_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_800"])*cut_weights_VPtUp, (w_signalCut_base + TMVACutMap["TT_800"])*cut_weights_VPtUp, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_VPtUp, "mvaVar_tt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "800_CMS_xtt_dyShape_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1000"])*cut_weights_VPtUp, (w_signalCut_base + TMVACutMap["TT_1000"])*cut_weights_VPtUp, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_VPtUp, "mvaVar_tt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1000_CMS_xtt_dyShape_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1200"])*cut_weights_VPtUp, (w_signalCut_base + TMVACutMap["TT_1200"])*cut_weights_VPtUp, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_VPtUp, "mvaVar_tt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1200_CMS_xtt_dyShape_13TeVUp", 0, 1);
+            
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_600"])*cut_weights_VPtDown, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_600"])*cut_weights_VPtDown, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_VPtDown,"mvaVar_tt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_800"])*cut_weights_VPtDown, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_800"])*cut_weights_VPtDown, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_VPtDown,"mvaVar_tt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1000"])*cut_weights_VPtDown, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1000"])*cut_weights_VPtDown, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_VPtDown,"mvaVar_tt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1200"])*cut_weights_VPtDown, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1200"])*cut_weights_VPtDown, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_VPtDown,"mvaVar_tt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_600"])*cut_weights_VPtDown, (w_signalCut_base + TMVACutMap["TT_600"])*cut_weights_VPtDown, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_VPtDown, "mvaVar_tt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "600_CMS_xtt_dyShape_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_800"])*cut_weights_VPtDown, (w_signalCut_base + TMVACutMap["TT_800"])*cut_weights_VPtDown, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_VPtDown, "mvaVar_tt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "800_CMS_xtt_dyShape_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1000"])*cut_weights_VPtDown, (w_signalCut_base + TMVACutMap["TT_1000"])*cut_weights_VPtDown, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_VPtDown, "mvaVar_tt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1000_CMS_xtt_dyShape_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1200"])*cut_weights_VPtDown, (w_signalCut_base + TMVACutMap["TT_1200"])*cut_weights_VPtDown, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_VPtDown, "mvaVar_tt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1200_CMS_xtt_dyShape_13TeVDown", 0, 1);
+            
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_600"])*cut_weights_VPtUp, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_600"])*cut_weights_VPtUp, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_VPtWUp,"mvaVar_tt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_800"])*cut_weights_VPtUp, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_800"])*cut_weights_VPtUp, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_VPtWUp,"mvaVar_tt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1000"])*cut_weights_VPtUp, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1000"])*cut_weights_VPtUp, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_VPtWUp,"mvaVar_tt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1200"])*cut_weights_VPtUp, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1200"])*cut_weights_VPtUp, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_VPtWUp,"mvaVar_tt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_600"])*cut_weights_VPtUp, (w_signalCut_base + TMVACutMap["TT_600"])*cut_weights_VPtUp, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_VPtWUp, "mvaVar_tt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "600_CMS_xtt_wShape_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_800"])*cut_weights_VPtUp, (w_signalCut_base + TMVACutMap["TT_800"])*cut_weights_VPtUp, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_VPtWUp, "mvaVar_tt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "800_CMS_xtt_wShape_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1000"])*cut_weights_VPtUp, (w_signalCut_base + TMVACutMap["TT_1000"])*cut_weights_VPtUp, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_VPtWUp, "mvaVar_tt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1000_CMS_xtt_wShape_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1200"])*cut_weights_VPtUp, (w_signalCut_base + TMVACutMap["TT_1200"])*cut_weights_VPtUp, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_VPtWUp, "mvaVar_tt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1200_CMS_xtt_wShape_13TeVUp", 0, 1);
+            
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_600"])*cut_weights_VPtDown, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_600"])*cut_weights_VPtDown, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_VPtWDown,"mvaVar_tt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_800"])*cut_weights_VPtDown, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_800"])*cut_weights_VPtDown, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_VPtWDown,"mvaVar_tt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1000"])*cut_weights_VPtDown, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1000"])*cut_weights_VPtDown, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_VPtWDown,"mvaVar_tt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1200"])*cut_weights_VPtDown, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1200"])*cut_weights_VPtDown, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_VPtWDown,"mvaVar_tt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_600"])*cut_weights_VPtDown, (w_signalCut_base + TMVACutMap["TT_600"])*cut_weights_VPtDown, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_VPtWDown, "mvaVar_tt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "600_CMS_xtt_wShape_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_800"])*cut_weights_VPtDown, (w_signalCut_base + TMVACutMap["TT_800"])*cut_weights_VPtDown, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_VPtWDown, "mvaVar_tt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "800_CMS_xtt_wShape_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1000"])*cut_weights_VPtDown, (w_signalCut_base + TMVACutMap["TT_1000"])*cut_weights_VPtDown, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_VPtWDown, "mvaVar_tt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1000_CMS_xtt_wShape_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1200"])*cut_weights_VPtDown, (w_signalCut_base + TMVACutMap["TT_1200"])*cut_weights_VPtDown, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_VPtWDown, "mvaVar_tt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1200_CMS_xtt_wShape_13TeVDown", 0, 1);
+            
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_600"])*cut_weights_TauFakeUp, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_600"])*cut_weights_TauFakeUp, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_TauFakeUp,"mvaVar_tt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_800"])*cut_weights_TauFakeUp, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_800"])*cut_weights_TauFakeUp, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_TauFakeUp,"mvaVar_tt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1000"])*cut_weights_TauFakeUp, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1000"])*cut_weights_TauFakeUp, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_TauFakeUp,"mvaVar_tt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1200"])*cut_weights_TauFakeUp, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1200"])*cut_weights_TauFakeUp, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_TauFakeUp,"mvaVar_tt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_600"])*cut_weights_TauFakeUp, (w_signalCut_base + TMVACutMap["TT_600"])*cut_weights_TauFakeUp, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_TauFakeUp, "mvaVar_tt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "600_CMS_xtt_jetToTauFake_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_800"])*cut_weights_TauFakeUp, (w_signalCut_base + TMVACutMap["TT_800"])*cut_weights_TauFakeUp, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_TauFakeUp, "mvaVar_tt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "800_CMS_xtt_jetToTauFake_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1000"])*cut_weights_TauFakeUp, (w_signalCut_base + TMVACutMap["TT_1000"])*cut_weights_TauFakeUp, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_TauFakeUp, "mvaVar_tt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1000_CMS_xtt_jetToTauFake_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1200"])*cut_weights_TauFakeUp, (w_signalCut_base + TMVACutMap["TT_1200"])*cut_weights_TauFakeUp, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_TauFakeUp, "mvaVar_tt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1200_CMS_xtt_jetToTauFake_13TeVUp", 0, 1);
+            
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_600"])*cut_weights_TauFakeDown, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_600"])*cut_weights_TauFakeDown, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_TauFakeDown,"mvaVar_tt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_800"])*cut_weights_TauFakeDown, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_800"])*cut_weights_TauFakeDown, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_TauFakeDown,"mvaVar_tt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1000"])*cut_weights_TauFakeDown, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1000"])*cut_weights_TauFakeDown, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_TauFakeDown,"mvaVar_tt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1200"])*cut_weights_TauFakeDown, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1200"])*cut_weights_TauFakeDown, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_TauFakeDown,"mvaVar_tt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_600"])*cut_weights_TauFakeDown, (w_signalCut_base + TMVACutMap["TT_600"])*cut_weights_TauFakeDown, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_TauFakeDown, "mvaVar_tt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "600_CMS_xtt_jetToTauFake_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_800"])*cut_weights_TauFakeDown, (w_signalCut_base + TMVACutMap["TT_800"])*cut_weights_TauFakeDown, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_TauFakeDown, "mvaVar_tt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "800_CMS_xtt_jetToTauFake_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1000"])*cut_weights_TauFakeDown, (w_signalCut_base + TMVACutMap["TT_1000"])*cut_weights_TauFakeDown, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_TauFakeDown, "mvaVar_tt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1000_CMS_xtt_jetToTauFake_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1200"])*cut_weights_TauFakeDown, (w_signalCut_base + TMVACutMap["TT_1200"])*cut_weights_TauFakeDown, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_TauFakeDown, "mvaVar_tt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1200_CMS_xtt_jetToTauFake_13TeVDown", 0, 1);
+            
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_600"])*cut_weights_bTagUp, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_600"])*cut_weights_bTagUp, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_bTagUp,"mvaVar_tt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_800"])*cut_weights_bTagUp, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_800"])*cut_weights_bTagUp, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_bTagUp,"mvaVar_tt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1000"])*cut_weights_bTagUp, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1000"])*cut_weights_bTagUp, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_bTagUp,"mvaVar_tt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1200"])*cut_weights_bTagUp, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1200"])*cut_weights_bTagUp, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_bTagUp,"mvaVar_tt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_600"])*cut_weights_bTagUp, (w_signalCut_base + TMVACutMap["TT_600"])*cut_weights_bTagUp, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_bTagUp, "mvaVar_tt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "600_CMS_xtt_bTag_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_800"])*cut_weights_bTagUp, (w_signalCut_base + TMVACutMap["TT_800"])*cut_weights_bTagUp, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_bTagUp, "mvaVar_tt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "800_CMS_xtt_bTag_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1000"])*cut_weights_bTagUp, (w_signalCut_base + TMVACutMap["TT_1000"])*cut_weights_bTagUp, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_bTagUp, "mvaVar_tt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1000_CMS_xtt_bTag_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1200"])*cut_weights_bTagUp, (w_signalCut_base + TMVACutMap["TT_1200"])*cut_weights_bTagUp, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_bTagUp, "mvaVar_tt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1200_CMS_xtt_bTag_13TeVUp", 0, 1);
+            
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_600"])*cut_weights_bTagDown, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_600"])*cut_weights_bTagDown, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_bTagDown,"mvaVar_tt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_800"])*cut_weights_bTagDown, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_800"])*cut_weights_bTagDown, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_bTagDown,"mvaVar_tt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1000"])*cut_weights_bTagDown, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1000"])*cut_weights_bTagDown, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_bTagDown,"mvaVar_tt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1200"])*cut_weights_bTagDown, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1200"])*cut_weights_bTagDown, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_bTagDown,"mvaVar_tt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_600"])*cut_weights_bTagDown, (w_signalCut_base + TMVACutMap["TT_600"])*cut_weights_bTagDown, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_bTagDown, "mvaVar_tt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "600_CMS_xtt_bTag_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_800"])*cut_weights_bTagDown, (w_signalCut_base + TMVACutMap["TT_800"])*cut_weights_bTagDown, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_bTagDown, "mvaVar_tt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "800_CMS_xtt_bTag_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1000"])*cut_weights_bTagDown, (w_signalCut_base + TMVACutMap["TT_1000"])*cut_weights_bTagDown, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_bTagDown, "mvaVar_tt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1000_CMS_xtt_bTag_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1200"])*cut_weights_bTagDown, (w_signalCut_base + TMVACutMap["TT_1200"])*cut_weights_bTagDown, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_bTagDown, "mvaVar_tt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1200_CMS_xtt_bTag_13TeVDown", 0, 1);
+            
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_600"])*cut_weights_JECUp, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_600"])*cut_weights_JECUp, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_JECUp,"mvaVar_tt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_800"])*cut_weights_JECUp, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_800"])*cut_weights_JECUp, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_JECUp,"mvaVar_tt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1000"])*cut_weights_JECUp, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1000"])*cut_weights_JECUp, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_JECUp,"mvaVar_tt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1200"])*cut_weights_JECUp, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1200"])*cut_weights_JECUp, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_JECUp,"mvaVar_tt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_600"])*cut_weights_JECUp, (w_signalCut_base + TMVACutMap["TT_600"])*cut_weights_JECUp, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_JECUp, "mvaVar_tt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "600_CMS_scale_j_tt_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_800"])*cut_weights_JECUp, (w_signalCut_base + TMVACutMap["TT_800"])*cut_weights_JECUp, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_JECUp, "mvaVar_tt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "800_CMS_scale_j_tt_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1000"])*cut_weights_JECUp, (w_signalCut_base + TMVACutMap["TT_1000"])*cut_weights_JECUp, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_JECUp, "mvaVar_tt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1000_CMS_scale_j_tt_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1200"])*cut_weights_JECUp, (w_signalCut_base + TMVACutMap["TT_1200"])*cut_weights_JECUp, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_JECUp, "mvaVar_tt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1200_CMS_scale_j_tt_13TeVUp", 0, 1);
+            
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_600"])*cut_weights_JECDown, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_600"])*cut_weights_JECDown, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_JECDown,"mvaVar_tt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_800"])*cut_weights_JECDown, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_800"])*cut_weights_JECDown, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_JECDown,"mvaVar_tt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1000"])*cut_weights_JECDown, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1000"])*cut_weights_JECDown, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_JECDown,"mvaVar_tt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1200"])*cut_weights_JECDown, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1200"])*cut_weights_JECDown, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_JECDown,"mvaVar_tt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_600"])*cut_weights_JECDown, (w_signalCut_base + TMVACutMap["TT_600"])*cut_weights_JECDown, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_JECDown, "mvaVar_tt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "600_CMS_scale_j_tt_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_800"])*cut_weights_JECDown, (w_signalCut_base + TMVACutMap["TT_800"])*cut_weights_JECDown, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_JECDown, "mvaVar_tt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "800_CMS_scale_j_tt_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1000"])*cut_weights_JECDown, (w_signalCut_base + TMVACutMap["TT_1000"])*cut_weights_JECDown, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_JECDown, "mvaVar_tt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1000_CMS_scale_j_tt_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1200"])*cut_weights_JECDown, (w_signalCut_base + TMVACutMap["TT_1200"])*cut_weights_JECDown, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_JECDown, "mvaVar_tt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1200_CMS_scale_j_tt_13TeVDown", 0, 1);
+            
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_600"])*cut_weights_HPTUp, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_600"])*cut_weights_HPTUp, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_HPTUp,"mvaVar_tt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_800"])*cut_weights_HPTUp, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_800"])*cut_weights_HPTUp, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_HPTUp,"mvaVar_tt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1000"])*cut_weights_HPTUp, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1000"])*cut_weights_HPTUp, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_HPTUp,"mvaVar_tt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1200"])*cut_weights_HPTUp, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1200"])*cut_weights_HPTUp, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_HPTUp,"mvaVar_tt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_600"])*cut_weights_HPTUp, (w_signalCut_base + TMVACutMap["TT_600"])*cut_weights_HPTUp, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_HPTUp, "mvaVar_tt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "600_CMS_xtt_highTauEffi_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_800"])*cut_weights_HPTUp, (w_signalCut_base + TMVACutMap["TT_800"])*cut_weights_HPTUp, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_HPTUp, "mvaVar_tt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "800_CMS_xtt_highTauEffi_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1000"])*cut_weights_HPTUp, (w_signalCut_base + TMVACutMap["TT_1000"])*cut_weights_HPTUp, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_HPTUp, "mvaVar_tt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1000_CMS_xtt_highTauEffi_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1200"])*cut_weights_HPTUp, (w_signalCut_base + TMVACutMap["TT_1200"])*cut_weights_HPTUp, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_HPTUp, "mvaVar_tt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1200_CMS_xtt_highTauEffi_13TeVUp", 0, 1);
+            
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_600"])*cut_weights_HPTDown, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_600"])*cut_weights_HPTDown, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_HPTDown,"mvaVar_tt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_800"])*cut_weights_HPTDown, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_800"])*cut_weights_HPTDown, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_HPTDown,"mvaVar_tt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1000"])*cut_weights_HPTDown, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1000"])*cut_weights_HPTDown, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_HPTDown,"mvaVar_tt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1200"])*cut_weights_HPTDown, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1200"])*cut_weights_HPTDown, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_HPTDown,"mvaVar_tt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_600"])*cut_weights_HPTDown, (w_signalCut_base + TMVACutMap["TT_600"])*cut_weights_HPTDown, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_HPTDown, "mvaVar_tt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "600_CMS_xtt_highTauEffi_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_800"])*cut_weights_HPTDown, (w_signalCut_base + TMVACutMap["TT_800"])*cut_weights_HPTDown, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_HPTDown, "mvaVar_tt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "800_CMS_xtt_highTauEffi_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1000"])*cut_weights_HPTDown, (w_signalCut_base + TMVACutMap["TT_1000"])*cut_weights_HPTDown, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_HPTDown, "mvaVar_tt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1000_CMS_xtt_highTauEffi_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1200"])*cut_weights_HPTDown, (w_signalCut_base + TMVACutMap["TT_1200"])*cut_weights_HPTDown, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_HPTDown, "mvaVar_tt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1200_CMS_xtt_highTauEffi_13TeVDown", 0, 1);
+            
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_600"])*cut_weights_ttPtUp, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_600"])*cut_weights_ttPtUp, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_ttPtUp,"mvaVar_tt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_800"])*cut_weights_ttPtUp, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_800"])*cut_weights_ttPtUp, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_ttPtUp,"mvaVar_tt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1000"])*cut_weights_ttPtUp, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1000"])*cut_weights_ttPtUp, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_ttPtUp,"mvaVar_tt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1200"])*cut_weights_ttPtUp, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1200"])*cut_weights_ttPtUp, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_ttPtUp,"mvaVar_tt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_600"])*cut_weights_ttPtUp, (w_signalCut_base + TMVACutMap["TT_600"])*cut_weights_ttPtUp, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_ttPtUp, "mvaVar_tt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "600_CMS_scale_tt_trigger_eff_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_800"])*cut_weights_ttPtUp, (w_signalCut_base + TMVACutMap["TT_800"])*cut_weights_ttPtUp, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_ttPtUp, "mvaVar_tt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "800_CMS_scale_tt_trigger_eff_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1000"])*cut_weights_ttPtUp, (w_signalCut_base + TMVACutMap["TT_1000"])*cut_weights_ttPtUp, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_ttPtUp, "mvaVar_tt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1000_CMS_scale_tt_trigger_eff_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1200"])*cut_weights_ttPtUp, (w_signalCut_base + TMVACutMap["TT_1200"])*cut_weights_ttPtUp, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_ttPtUp, "mvaVar_tt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1200_CMS_scale_tt_trigger_eff_13TeVUp", 0, 1);
+            
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_600"])*cut_weights_ttPtDown, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_600"])*cut_weights_ttPtDown, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_ttPtDown,"mvaVar_tt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_800"])*cut_weights_ttPtDown, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_800"])*cut_weights_ttPtDown, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_ttPtDown,"mvaVar_tt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1000"])*cut_weights_ttPtDown, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1000"])*cut_weights_ttPtDown, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_ttPtDown,"mvaVar_tt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1200"])*cut_weights_ttPtDown, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1200"])*cut_weights_ttPtDown, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_ttPtDown,"mvaVar_tt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_600"])*cut_weights_ttPtDown, (w_signalCut_base + TMVACutMap["TT_600"])*cut_weights_ttPtDown, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_ttPtDown, "mvaVar_tt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "600_CMS_scale_tt_trigger_eff_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_800"])*cut_weights_ttPtDown, (w_signalCut_base + TMVACutMap["TT_800"])*cut_weights_ttPtDown, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_ttPtDown, "mvaVar_tt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "800_CMS_scale_tt_trigger_eff_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1000"])*cut_weights_ttPtDown, (w_signalCut_base + TMVACutMap["TT_1000"])*cut_weights_ttPtDown, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_ttPtDown, "mvaVar_tt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1000_CMS_scale_tt_trigger_eff_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1200"])*cut_weights_ttPtDown, (w_signalCut_base + TMVACutMap["TT_1200"])*cut_weights_ttPtDown, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_ttPtDown, "mvaVar_tt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1200_CMS_scale_tt_trigger_eff_13TeVDown", 0, 1);
+            
+            reset_files();
+            
+            if(printSyst)
+            {
+                std::cout << "no print count yet" << std::endl;
+            }
+            
+            reset_files();
+            setup_upTau_files_TauTau();
+            
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_600"])*cut_weights_nom, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_600"])*cut_weights_nom, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_TESUp,"mvaVar_tt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_800"])*cut_weights_nom, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_800"])*cut_weights_nom, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_TESUp,"mvaVar_tt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1000"])*cut_weights_nom, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1000"])*cut_weights_nom, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_TESUp,"mvaVar_tt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1200"])*cut_weights_nom, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1200"])*cut_weights_nom, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_TESUp,"mvaVar_tt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_600"])*cut_weights_nom, (signalCut_base + TMVACutMap["TT_600"])*cut_weights_nom, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_TESUp, "mvaVar_tt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "600_CMS_scale_t_tt_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_800"])*cut_weights_nom, (signalCut_base + TMVACutMap["TT_800"])*cut_weights_nom, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_TESUp, "mvaVar_tt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "800_CMS_scale_t_tt_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1000"])*cut_weights_nom, (signalCut_base + TMVACutMap["TT_1000"])*cut_weights_nom, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_TESUp, "mvaVar_tt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1000_CMS_scale_t_tt_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1200"])*cut_weights_nom, (signalCut_base + TMVACutMap["TT_1200"])*cut_weights_nom, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_TESUp, "mvaVar_tt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1200_CMS_scale_t_tt_13TeVUp", 0, 1);
+            
+
+            if (printSyst) std::cout << "no print yet" << std::endl;
+            
+            reset_files();
+            setup_downTau_files_TauTau();
+            
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_600"])*cut_weights_nom, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_600"])*cut_weights_nom, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_TESDown,"mvaVar_tt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_800"])*cut_weights_nom, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_800"])*cut_weights_nom, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_TESDown,"mvaVar_tt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1000"])*cut_weights_nom, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1000"])*cut_weights_nom, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_TESDown,"mvaVar_tt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1200"])*cut_weights_nom, (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1200"])*cut_weights_nom, wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_TESDown,"mvaVar_tt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_600"])*cut_weights_nom, (signalCut_base + TMVACutMap["TT_600"])*cut_weights_nom, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400_TESDown, "mvaVar_tt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "600_CMS_scale_t_tt_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_800"])*cut_weights_nom, (signalCut_base + TMVACutMap["TT_800"])*cut_weights_nom, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400_TESDown, "mvaVar_tt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "800_CMS_scale_t_tt_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1000"])*cut_weights_nom, (signalCut_base + TMVACutMap["TT_1000"])*cut_weights_nom, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400_TESDown, "mvaVar_tt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1000_CMS_scale_t_tt_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["TT_1200"])*cut_weights_nom, (signalCut_base + TMVACutMap["TT_1200"])*cut_weights_nom, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400_TESDown, "mvaVar_tt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "1200_CMS_scale_t_tt_13TeVDown", 0, 1);
+            
+            if (printSyst) std::cout << "no print yet" << std::endl;
+        }
         reset_files();
         
     }
@@ -940,7 +1337,9 @@ void doTauTau()
             fillQCD_ShapeVarBin((SScut_TauTau_base + cut_options_JECDown)*cut_weights_JECDown, (SScut_TauTau_base_RelTauIso + cut_options_JECDown)*cut_weights_JECDown, wSF_SS_TauTau, qcd_TauTau_mt_tot_CMS_scale_j_tt_13TeVDown, "mt_tot_JEnDown", mt_totVarBinning,  "QCD met shape ext. in SS side band (TauTau)", "tt", 0);
             fillQCD_ShapeVarBin((SScut_TauTau_base + cut_options_HPTUp)*cut_weights_HPTUp, (SScut_TauTau_base_RelTauIso + cut_options_HPTUp)*cut_weights_HPTUp, wSF_SS_TauTau, qcd_TauTau_mt_tot_CMS_xtt_highTauEffi_13TeVUp, "mt_tot", mt_totVarBinning,  "QCD met shape ext. in SS side band (TauTau)", "tt", 0);
             fillQCD_ShapeVarBin((SScut_TauTau_base + cut_options_HPTDown)*cut_weights_HPTDown, (SScut_TauTau_base_RelTauIso + cut_options_HPTDown)*cut_weights_HPTDown, wSF_SS_TauTau, qcd_TauTau_mt_tot_CMS_xtt_highTauEffi_13TeVDown, "mt_tot", mt_totVarBinning,  "QCD met shape ext. in SS side band (TauTau)", "tt", 0);
-
+            fillQCD_ShapeVarBin((SScut_TauTau_base + cut_options_nom)*cut_weights_ttPtUp, (SScut_TauTau_base_RelTauIso + cut_options_nom)*cut_weights_ttPtUp, wSF_SS_TauTau, qcd_TauTau_mt_tot_CMS_scale_tt_trigger_eff_13TeVUp, "mt_tot", mt_totVarBinning,  "QCD met shape ext. in SS side band (TauTau)", "tt", 0);
+            fillQCD_ShapeVarBin((SScut_TauTau_base + cut_options_nom)*cut_weights_ttPtDown, (SScut_TauTau_base_RelTauIso + cut_options_nom)*cut_weights_ttPtDown, wSF_SS_TauTau, qcd_TauTau_mt_tot_CMS_scale_tt_trigger_eff_13TeVDown, "mt_tot", mt_totVarBinning,  "QCD met shape ext. in SS side band (TauTau)", "tt", 0);
+            
             std::cout << "QCD Shapes for tt syst filled" << std::endl;
             
             drawSignalRegionVarBin((signalCut_base + cut_options_UESUp)*cut_weights_UESUp, (w_signalCut_base + cut_options_UESUp)*cut_weights_UESUp, (signalCut_base + cut_options_nom)*cut_weights_nom, (w_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_TauTau, qcd_TauTau_mt_tot_CMS_scale_m_tt_13TeVUp, "mt_tot_UESUp", mt_totVarBinning,  "", "tt", "_CMS_scale_m_tt_13TeVUp", 0, 1);
@@ -957,7 +1356,8 @@ void doTauTau()
             drawSignalRegionVarBin((signalCut_base + cut_options_JECDown)*cut_weights_JECDown, (w_signalCut_base + cut_options_JECDown)*cut_weights_JECDown, (signalCut_base + cut_options_nom)*cut_weights_nom, (w_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_TauTau, qcd_TauTau_mt_tot_CMS_scale_j_tt_13TeVDown, "mt_tot_JEnDown", mt_totVarBinning,  "", "tt","_CMS_scale_j_tt_13TeVDown", 0, 1);
             drawSignalRegionVarBin((signalCut_base + cut_options_HPTUp)*cut_weights_HPTUp, (w_signalCut_base + cut_options_HPTUp)*cut_weights_HPTUp, (signalCut_base + cut_options_nom)*cut_weights_nom, (w_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_TauTau, qcd_TauTau_mt_tot_CMS_xtt_highTauEffi_13TeVUp, "mt_tot", mt_totVarBinning,  "", "tt", "_CMS_xtt_highTauEffi_13TeVUp", 0, 1);
             drawSignalRegionVarBin((signalCut_base + cut_options_HPTDown)*cut_weights_HPTDown, (w_signalCut_base + cut_options_HPTDown)*cut_weights_HPTDown, (signalCut_base + cut_options_nom)*cut_weights_nom, (w_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_TauTau, qcd_TauTau_mt_tot_CMS_xtt_highTauEffi_13TeVDown, "mt_tot", mt_totVarBinning,  "", "tt", "_CMS_xtt_highTauEffi_13TeVDown", 0, 1);
-            
+            drawSignalRegionVarBin((signalCut_base + cut_options_nom)*cut_weights_ttPtUp, (w_signalCut_base + cut_options_nom)*cut_weights_ttPtUp, (signalCut_base + cut_options_nom)*cut_weights_nom, (w_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_TauTau, qcd_TauTau_mt_tot_CMS_scale_tt_trigger_eff_13TeVUp, "mt_tot", mt_totVarBinning,  "", "tt", "_CMS_scale_tt_trigger_eff_13TeVUp", 0, 1);
+            drawSignalRegionVarBin((signalCut_base + cut_options_nom)*cut_weights_ttPtDown, (w_signalCut_base + cut_options_HPTDown)*cut_weights_ttPtDown, (signalCut_base + cut_options_nom)*cut_weights_nom, (w_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_TauTau, qcd_TauTau_mt_tot_CMS_scale_tt_trigger_eff_13TeVDown, "mt_tot", mt_totVarBinning,  "", "tt", "_CMS_scale_tt_trigger_eff_13TeVDown", 0, 1);
             
             if(printSyst)
             {
@@ -976,6 +1376,8 @@ void doTauTau()
                 countTotalsVarBin((signalCut_base + cut_options_JECDown)*cut_weights_JECDown, (w_signalCut_base + cut_options_JECDown)*cut_weights_JECDown, wSF_OS_TauTau, qcd_TauTau_mt_tot_CMS_scale_j_tt_13TeVDown, "mt_tot_JEnDown", mt_totVarBinning, "Mt_total", "tt", "_CMS_scale_j_tt_13TeVDown");
                 countTotalsVarBin((signalCut_base + cut_options_HPTUp)*cut_weights_HPTUp, (w_signalCut_base + cut_options_HPTUp)*cut_weights_HPTUp, wSF_OS_TauTau, qcd_TauTau_mt_tot_CMS_xtt_highTauEffi_13TeVUp, "mt_tot", mt_totVarBinning, "Mt_total", "tt", "_CMS_xtt_highTauEffi_13TeVUp");
                 countTotalsVarBin((signalCut_base + cut_options_HPTDown)*cut_weights_HPTDown, (w_signalCut_base + cut_options_HPTDown)*cut_weights_HPTDown, wSF_OS_TauTau, qcd_TauTau_mt_tot_CMS_xtt_highTauEffi_13TeVDown, "mt_tot", mt_totVarBinning, "Mt_total", "tt", "_CMS_xtt_highTauEffi_13TeVDown");
+                countTotalsVarBin((signalCut_base + cut_options_nom)*cut_weights_ttPtUp, (w_signalCut_base + cut_options_nom)*cut_weights_ttPtUp, wSF_OS_TauTau, qcd_TauTau_mt_tot_CMS_scale_tt_trigger_eff_13TeVUp, "mt_tot", mt_totVarBinning, "Mt_total", "tt", "_CMS_scale_tt_trigger_eff_13TeVUp");
+                countTotalsVarBin((signalCut_base + cut_options_HPTDown)*cut_weights_ttPtDown, (w_signalCut_base + cut_options_HPTDown)*cut_weights_ttPtDown, wSF_OS_TauTau, qcd_TauTau_mt_tot_CMS_scale_tt_trigger_eff_13TeVDown, "mt_tot", mt_totVarBinning, "Mt_total", "tt", "_CMS_scale_tt_trigger_eff_13TeVDown");
             }
             
             reset_files();
@@ -1009,16 +1411,16 @@ void doTauTau()
                 drawSignalRegion((signalCut_base + cut_options_nom)*cut_weights_nom, (w_signalCut_base + cut_options_nom)*cut_weights_nom, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_EXP3, "mvaVar_tt_EXP3", tmvaBinning, "sig region Function TMVA variable", "tt", "", 1, 0);
             
                 global_title = "QCD (Same Sign) Estimate Region";
-                fillQCD_Shape((SScut_TauTau_base + cut_options_nom * TMVACutMap["TT_600"])*cut_weights_nom * TMVACutMap["TT_600"], (SScut_TauTau_base_RelTauIso + cut_options_nom * TMVACutMap["TT_600"])*cut_weights_nom * TMVACutMap["TT_600"], wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400,"mvaVar_tt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
-                fillQCD_Shape((SScut_TauTau_base + cut_options_nom * TMVACutMap["TT_800"])*cut_weights_nom * TMVACutMap["TT_800"], (SScut_TauTau_base_RelTauIso + cut_options_nom * TMVACutMap["TT_800"])*cut_weights_nom * TMVACutMap["TT_800"], wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400,"mvaVar_tt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
-                fillQCD_Shape((SScut_TauTau_base + cut_options_nom * TMVACutMap["TT_1000"])*cut_weights_nom * TMVACutMap["TT_1000"], (SScut_TauTau_base_RelTauIso + cut_options_nom * TMVACutMap["TT_1000"])*cut_weights_nom * TMVACutMap["TT_1000"], wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400,"mvaVar_tt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
-                fillQCD_Shape((SScut_TauTau_base + cut_options_nom * TMVACutMap["TT_1200"])*cut_weights_nom * TMVACutMap["TT_1200"], (SScut_TauTau_base_RelTauIso + cut_options_nom * TMVACutMap["TT_1200"])*cut_weights_nom * TMVACutMap["TT_1200"], wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400,"mvaVar_tt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+                fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_600"])*cut_weights_nom * TMVACutMap["TT_600"], (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_600"])*cut_weights_nom * TMVACutMap["TT_600"], wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400,"mvaVar_tt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+                fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_800"])*cut_weights_nom * TMVACutMap["TT_800"], (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_800"])*cut_weights_nom * TMVACutMap["TT_800"], wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP800A0400,"mvaVar_tt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+                fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1000"])*cut_weights_nom * TMVACutMap["TT_1000"], (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1000"])*cut_weights_nom * TMVACutMap["TT_1000"], wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400,"mvaVar_tt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
+                fillQCD_Shape((SScut_TauTau_base + TMVACutMap["TT_1200"])*cut_weights_nom * TMVACutMap["TT_1200"], (SScut_TauTau_base_RelTauIso + TMVACutMap["TT_1200"])*cut_weights_nom * TMVACutMap["TT_1200"], wSF_SS_TauTau, qcd_TauTau_mvaVar_tt_MZP1200A0400,"mvaVar_tt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (TauTau)", "tt", 1);
             
                 global_title = "MET > " + control_met_cutoff + " GeV";
-                drawSignalRegion(signalCut_base * cut_options_nom * TMVACutMap["TT_600"], signalCut_base * cut_options_nom * TMVACutMap["TT_600"], wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400, "mvaVar_tt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "", 1, 0);
-                drawSignalRegion(signalCut_base * cut_options_nom * TMVACutMap["TT_800"], signalCut_base * cut_options_nom * TMVACutMap["TT_800"], wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400, "mvaVar_tt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "", 1, 0);
-                drawSignalRegion(signalCut_base * cut_options_nom * TMVACutMap["TT_1000"], signalCut_base * cut_options_nom * TMVACutMap["TT_1000"], wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400, "mvaVar_tt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "", 1, 0);
-                drawSignalRegion(signalCut_base * cut_options_nom * TMVACutMap["TT_1200"], signalCut_base * cut_options_nom * TMVACutMap["TT_1200"], wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400, "mvaVar_tt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "", 1, 0);
+                drawSignalRegion((signalCut_base + TMVACutMap["TT_600"])*cut_weights_nom, (signalCut_base + TMVACutMap["TT_600"])*cut_weights_nom, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP600A0400, "mvaVar_tt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "", 1, 0);
+                drawSignalRegion((signalCut_base + TMVACutMap["TT_800"])*cut_weights_nom, (signalCut_base + TMVACutMap["TT_800"])*cut_weights_nom, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400, "mvaVar_tt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "", 1, 0);
+                drawSignalRegion((signalCut_base + TMVACutMap["TT_1000"])*cut_weights_nom, (signalCut_base + TMVACutMap["TT_1000"])*cut_weights_nom, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400, "mvaVar_tt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "", 1, 0);
+                drawSignalRegion((signalCut_base + TMVACutMap["TT_1200"])*cut_weights_nom, (signalCut_base + TMVACutMap["TT_1200"])*cut_weights_nom, wSF_OS_TauTau, qcd_TauTau_mvaVar_tt_MZP1000A0400, "mvaVar_tt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "tt", "", 1, 0);
         }
         else
         {
@@ -1028,8 +1430,8 @@ void doTauTau()
         
             global_title = "QCD (Same Sign) Estimate Region";
             fillQCD_Shape((SScut_TauTau_base + cut_options_nom)*cut_weights_nom, (SScut_TauTau_base_RelTauIso + cut_options_nom)*cut_weights_nom, wSF_SS_TauTau, qcd_TauTau_mt, "mt_1", mtBinning, "QCD mt_1 shape ext. in SS side band (TauTau)", "tt", 1);
-            //fillQCD_Shape((SScut_TauTau_base + cut_options_nom)*cut_weights_nom, (SScut_TauTau_base_RelTauIso + cut_options_nom)*cut_weights_nom, wSF_SS_TauTau, qcd_TauTau_m_vis, "m_vis", m_visBinning,  "QCD mvis shape ext. in SS side band (TauTau)", "tt", 1);
-            fillQCD_Shape((SScut_TauTau_base + cut_options_bCon)*cut_weights_bCon, (SScut_TauTau_base_RelTauIso + cut_options_bCon)*cut_weights_bCon, wSF_SS_TauTau, qcd_TauTau_m_vis_ttCon, "m_vis", m_visConBinning,  "QCD mvis shape ext. in b-Tagged side band (TauTau)", "tt", 1);
+            fillQCD_Shape((SScut_TauTau_base + cut_options_nom)*cut_weights_nom, (SScut_TauTau_base_RelTauIso + cut_options_nom)*cut_weights_nom, wSF_SS_TauTau, qcd_TauTau_m_vis, "m_vis", m_visBinning,  "QCD mvis shape ext. in SS side band (TauTau)", "tt", 1);
+            //fillQCD_Shape((SScut_TauTau_base + cut_options_bCon)*cut_weights_bCon, (SScut_TauTau_base_RelTauIso + cut_options_bCon)*cut_weights_bCon, wSF_SS_TauTau, qcd_TauTau_m_vis_ttCon, "m_vis", m_visConBinning,  "QCD mvis shape ext. in b-Tagged side band (TauTau)", "tt", 1);
             fillQCD_Shape((SScut_TauTau_base + cut_options_nom)*cut_weights_nom, (SScut_TauTau_base_RelTauIso + cut_options_nom)*cut_weights_nom, wSF_SS_TauTau, qcd_TauTau_nbtag, "nbtag", nbtagBinning,  "QCD nbtag shape ext. in SS side band (TauTau)", "tt", 1);
             fillQCD_Shape((SScut_TauTau_base + cut_options_nom)*cut_weights_nom, (SScut_TauTau_base_RelTauIso + cut_options_nom)*cut_weights_nom, wSF_SS_TauTau, qcd_TauTau_met, "met", metBinning,  "QCD met shape ext. in SS side band (TauTau)", "tt", 1);
             fillQCD_Shape((SScut_TauTau_base + cut_options_nom)*cut_weights_nom, (SScut_TauTau_base_RelTauIso + cut_options_nom)*cut_weights_nom, wSF_SS_TauTau, qcd_TauTau_pt_1, "pt_1", ptBinning,  "QCD pt_1 shape ext. in SS side band (TauTau)", "tt", 1);
@@ -1048,9 +1450,9 @@ void doTauTau()
             /* now draw the signal region in mt */
             global_title = " Control Variable ";
             drawSignalRegion((signalCut_base + cut_options_nom)*cut_weights_nom, (w_signalCut_base + cut_options_nom)*cut_weights_nom, wSF_OS_TauTau, qcd_TauTau_mt, "mt_1", mtBinning, " (met<100) mt", "tt", "", 1, 0);
-            //drawSignalRegion((signalCut_base + cut_options_nom)*cut_weights_nom, (w_signalCut_base + cut_options_nom)*cut_weights_nom, wSF_OS_TauTau, qcd_TauTau_m_vis, "m_vis", m_visBinning, "Control mvis", "tt", "", 1, 0);
+            drawSignalRegion((signalCut_base + cut_options_nom)*cut_weights_nom, (w_signalCut_base + cut_options_nom)*cut_weights_nom, wSF_OS_TauTau, qcd_TauTau_m_vis, "m_vis", m_visBinning, "Control mvis", "tt", "", 1, 0);
             //drawSignalRegion((w_Control_base + cut_options_wCon)*cut_weights_wCon, (w_Control_base + cut_options_wCon)*cut_weights_wCon, wSF_OS_TauTau, qcd_TauTau_m_vis_wCon, "m_vis", m_visConBinning, "W Control mvis", "tt", "", 1, 0);
-            drawSignalRegion((signalCut_base + cut_options_bCon)*cut_weights_bCon, (w_signalCut_base + cut_options_bCon)*cut_weights_bCon, wSF_OS_TauTau, qcd_TauTau_m_vis_ttCon, "m_vis", m_visConBinning, "TTbar Control mvis", "tt", "", 1, 0);
+            //drawSignalRegion((signalCut_base + cut_options_bCon)*cut_weights_bCon, (w_signalCut_base + cut_options_bCon)*cut_weights_bCon, wSF_OS_TauTau, qcd_TauTau_m_vis_ttCon, "m_vis", m_visConBinning, "TTbar Control mvis", "tt", "", 1, 0);
             drawSignalRegion((signalCut_base + cut_options_nom)*cut_weights_nom, (w_signalCut_base + cut_options_nom)*cut_weights_nom, wSF_OS_TauTau, qcd_TauTau_nbtag, "nbtag", nbtagBinning, "Control nbtag", "tt", "", 1, 0);
             drawSignalRegion((signalCut_base + cut_options_nom)*cut_weights_nom, (w_signalCut_base + cut_options_nom)*cut_weights_nom, wSF_OS_TauTau, qcd_TauTau_met, "met", metBinning, "Control met", "tt", "", 1, 0);
             drawSignalRegion((signalCut_base + cut_options_nom)*cut_weights_nom, (w_signalCut_base + cut_options_nom)*cut_weights_nom, wSF_OS_TauTau, qcd_TauTau_pt_1, "pt_1", ptBinning, "Control pt_1", "tt", "", 1, 0);
@@ -1103,6 +1505,8 @@ void doTauTau()
     delete qcd_TauTau_mt_tot_CMS_scale_j_tt_13TeVDown;
     delete qcd_TauTau_mt_tot_CMS_xtt_highTauEffi_13TeVUp;
     delete qcd_TauTau_mt_tot_CMS_xtt_highTauEffi_13TeVDown;
+    delete qcd_TauTau_mt_tot_CMS_scale_tt_trigger_eff_13TeVUp;
+    delete qcd_TauTau_mt_tot_CMS_scale_tt_trigger_eff_13TeVDown;
     
     delete qcd_TauTau_DeltaR_leg1_leg2;
     delete qcd_TauTau_m_1;
@@ -1458,8 +1862,8 @@ void doEleTau()
     TCut cut_weights_JECUp = jetCutMap["BSFJECUP"];
     TCut cut_weights_JECDown = jetCutMap["BSFJECDOWN"];
     
-    TCut cut_weights_HPTUp = weightMap["HPTUP"];
-    TCut cut_weights_HPTDown = weightMap["HPTDOWN"];
+    TCut cut_weights_HPTUp = jetCutMap["NOM"]; cut_weights_HPTUp *= weightMap["HPTUP"];
+    TCut cut_weights_HPTDown = jetCutMap["NOM"]; cut_weights_HPTDown *= weightMap["HPTDOWN"];
     
     TCut cut_weights_bTagUp = jetCutMap["BSFUP"];
     TCut cut_weights_bTagDown = jetCutMap["BSFDOWN"];
@@ -1602,6 +2006,152 @@ void doEleTau()
     qcd_eleTau_mvaVar_et_MZP1200A0400->Sumw2();
     qcd_eleTau_mvaVar_et_MZP1200A0400->SetFillColor(colors["QCD"]);
     
+/*TMVA Systematics*/
+    
+    TH1F * qcd_eleTau_mvaVar_et_MZP600A0400_UESUp = new TH1F("qcd_eleTau_mvaVar_et_MZP600A0400_UESUp","qcd_eleTau_mvaVar_et_MZP600A0400_UESUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP600A0400_UESUp->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP800A0400_UESUp = new TH1F("qcd_eleTau_mvaVar_et_MZP800A0400_UESUp","qcd_eleTau_mvaVar_et_MZP800A0400_UESUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP800A0400_UESUp->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP1000A0400_UESUp = new TH1F("qcd_eleTau_mvaVar_et_MZP1000A0400_UESUp","qcd_eleTau_mvaVar_et_MZP1000A0400_UESUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP1000A0400_UESUp->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP1200A0400_UESUp = new TH1F("qcd_eleTau_mvaVar_et_MZP1200A0400_UESUp","qcd_eleTau_mvaVar_et_MZP1200A0400_UESUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP1200A0400_UESUp->Sumw2();
+    
+    TH1F * qcd_eleTau_mvaVar_et_MZP600A0400_UESDown = new TH1F("qcd_eleTau_mvaVar_et_MZP600A0400_UESDown","qcd_eleTau_mvaVar_et_MZP600A0400_UESDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP600A0400_UESDown->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP800A0400_UESDown = new TH1F("qcd_eleTau_mvaVar_et_MZP800A0400_UESDown","qcd_eleTau_mvaVar_et_MZP800A0400_UESDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP800A0400_UESDown->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP1000A0400_UESDown = new TH1F("qcd_eleTau_mvaVar_et_MZP1000A0400_UESDown","qcd_eleTau_mvaVar_et_MZP1000A0400_UESDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP1000A0400_UESDown->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP1200A0400_UESDown = new TH1F("qcd_eleTau_mvaVar_et_MZP1200A0400_UESDown","qcd_eleTau_mvaVar_et_MZP1200A0400_UESDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP1200A0400_UESDown->Sumw2();
+    
+    TH1F * qcd_eleTau_mvaVar_et_MZP600A0400_VPtDown = new TH1F("qcd_eleTau_mvaVar_et_MZP600A0400_VPtDown","qcd_eleTau_mvaVar_et_MZP600A0400_VPtDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP600A0400_VPtDown->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP800A0400_VPtDown = new TH1F("qcd_eleTau_mvaVar_et_MZP800A0400_VPtDown","qcd_eleTau_mvaVar_et_MZP800A0400_VPtDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP800A0400_VPtDown->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP1000A0400_VPtDown = new TH1F("qcd_eleTau_mvaVar_et_MZP1000A0400_VPtDown","qcd_eleTau_mvaVar_et_MZP1000A0400_VPtDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP1000A0400_VPtDown->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP1200A0400_VPtDown = new TH1F("qcd_eleTau_mvaVar_et_MZP1200A0400_VPtDown","qcd_eleTau_mvaVar_et_MZP1200A0400_VPtDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP1200A0400_VPtDown->Sumw2();
+    
+    TH1F * qcd_eleTau_mvaVar_et_MZP600A0400_VPtUp = new TH1F("qcd_eleTau_mvaVar_et_MZP600A0400_VPtUp","qcd_eleTau_mvaVar_et_MZP600A0400_VPtUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP600A0400_VPtUp->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP800A0400_VPtUp = new TH1F("qcd_eleTau_mvaVar_et_MZP800A0400_VPtUp","qcd_eleTau_mvaVar_et_MZP800A0400_VPtUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP800A0400_VPtUp->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP1000A0400_VPtUp = new TH1F("qcd_eleTau_mvaVar_et_MZP1000A0400_VPtUp","qcd_eleTau_mvaVar_et_MZP1000A0400_VPtUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP1000A0400_VPtUp->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP1200A0400_VPtUp = new TH1F("qcd_eleTau_mvaVar_et_MZP1200A0400_VPtUp","qcd_eleTau_mvaVar_et_MZP1200A0400_VPtUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP1200A0400_VPtUp->Sumw2();
+    
+    TH1F * qcd_eleTau_mvaVar_et_MZP600A0400_VPtWUp = new TH1F("qcd_eleTau_mvaVar_et_MZP600A0400_VPtWUp","qcd_eleTau_mvaVar_et_MZP600A0400_VPtWUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP600A0400_VPtWUp->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP800A0400_VPtWUp = new TH1F("qcd_eleTau_mvaVar_et_MZP800A0400_VPtWUp","qcd_eleTau_mvaVar_et_MZP800A0400_VPtWUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP800A0400_VPtWUp->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP1000A0400_VPtWUp = new TH1F("qcd_eleTau_mvaVar_et_MZP1000A0400_VPtWUp","qcd_eleTau_mvaVar_et_MZP1000A0400_VPtWUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP1000A0400_VPtWUp->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP1200A0400_VPtWUp = new TH1F("qcd_eleTau_mvaVar_et_MZP1200A0400_VPtWUp","qcd_eleTau_mvaVar_et_MZP1200A0400_VPtWUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP1200A0400_VPtWUp->Sumw2();
+    
+    TH1F * qcd_eleTau_mvaVar_et_MZP600A0400_VPtWDown = new TH1F("qcd_eleTau_mvaVar_et_MZP600A0400_VPtWDown","qcd_eleTau_mvaVar_et_MZP600A0400_VPtWDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP600A0400_VPtWDown->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP800A0400_VPtWDown = new TH1F("qcd_eleTau_mvaVar_et_MZP800A0400_VPtWDown","qcd_eleTau_mvaVar_et_MZP800A0400_VPtWDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP800A0400_VPtWDown->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP1000A0400_VPtWDown = new TH1F("qcd_eleTau_mvaVar_et_MZP1000A0400_VPtWDown","qcd_eleTau_mvaVar_et_MZP1000A0400_VPtWDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP1000A0400_VPtWDown->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP1200A0400_VPtWDown = new TH1F("qcd_eleTau_mvaVar_et_MZP1200A0400_VPtWDown","qcd_eleTau_mvaVar_et_MZP1200A0400_VPtWDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP1200A0400_VPtWDown->Sumw2();
+    
+    TH1F * qcd_eleTau_mvaVar_et_MZP600A0400_TauFakeUp = new TH1F("qcd_eleTau_mvaVar_et_MZP600A0400_TauFakeUp","qcd_eleTau_mvaVar_et_MZP600A0400_TauFakeUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP600A0400_TauFakeUp->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP800A0400_TauFakeUp = new TH1F("qcd_eleTau_mvaVar_et_MZP800A0400_TauFakeUp","qcd_eleTau_mvaVar_et_MZP800A0400_TauFakeUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP800A0400_TauFakeUp->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP1000A0400_TauFakeUp = new TH1F("qcd_eleTau_mvaVar_et_MZP1000A0400_TauFakeUp","qcd_eleTau_mvaVar_et_MZP1000A0400_TauFakeUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP1000A0400_TauFakeUp->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP1200A0400_TauFakeUp = new TH1F("qcd_eleTau_mvaVar_et_MZP1200A0400_TauFakeUp","qcd_eleTau_mvaVar_et_MZP1200A0400_TauFakeUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP1200A0400_TauFakeUp->Sumw2();
+    
+    TH1F * qcd_eleTau_mvaVar_et_MZP600A0400_TauFakeDown = new TH1F("qcd_eleTau_mvaVar_et_MZP600A0400_TauFakeDown","qcd_eleTau_mvaVar_et_MZP600A0400_TauFakeDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP600A0400_TauFakeDown->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP800A0400_TauFakeDown = new TH1F("qcd_eleTau_mvaVar_et_MZP800A0400_TauFakeDown","qcd_eleTau_mvaVar_et_MZP800A0400_TauFakeDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP800A0400_TauFakeDown->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP1000A0400_TauFakeDown = new TH1F("qcd_eleTau_mvaVar_et_MZP1000A0400_TauFakeDown","qcd_eleTau_mvaVar_et_MZP1000A0400_TauFakeDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP1000A0400_TauFakeDown->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP1200A0400_TauFakeDown = new TH1F("qcd_eleTau_mvaVar_et_MZP1200A0400_TauFakeDown","qcd_eleTau_mvaVar_et_MZP1200A0400_TauFakeDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP1200A0400_TauFakeDown->Sumw2();
+    
+    TH1F * qcd_eleTau_mvaVar_et_MZP600A0400_bTagUp = new TH1F("qcd_eleTau_mvaVar_et_MZP600A0400_bTagUp","qcd_eleTau_mvaVar_et_MZP600A0400_bTagUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP600A0400_bTagUp->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP800A0400_bTagUp = new TH1F("qcd_eleTau_mvaVar_et_MZP800A0400_bTagUp","qcd_eleTau_mvaVar_et_MZP800A0400_bTagUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP800A0400_bTagUp->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP1000A0400_bTagUp = new TH1F("qcd_eleTau_mvaVar_et_MZP1000A0400_bTagUp","qcd_eleTau_mvaVar_et_MZP1000A0400_bTagUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP1000A0400_bTagUp->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP1200A0400_bTagUp = new TH1F("qcd_eleTau_mvaVar_et_MZP1200A0400_bTagUp","qcd_eleTau_mvaVar_et_MZP1200A0400_bTagUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP1200A0400_bTagUp->Sumw2();
+    
+    TH1F * qcd_eleTau_mvaVar_et_MZP600A0400_bTagDown = new TH1F("qcd_eleTau_mvaVar_et_MZP600A0400_bTagDown","qcd_eleTau_mvaVar_et_MZP600A0400_bTagDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP600A0400_bTagDown->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP800A0400_bTagDown = new TH1F("qcd_eleTau_mvaVar_et_MZP800A0400_bTagDown","qcd_eleTau_mvaVar_et_MZP800A0400_bTagDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP800A0400_bTagDown->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP1000A0400_bTagDown = new TH1F("qcd_eleTau_mvaVar_et_MZP1000A0400_bTagDown","qcd_eleTau_mvaVar_et_MZP1000A0400_bTagDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP1000A0400_bTagDown->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP1200A0400_bTagDown = new TH1F("qcd_eleTau_mvaVar_et_MZP1200A0400_bTagDown","qcd_eleTau_mvaVar_et_MZP1200A0400_bTagDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP1200A0400_bTagDown->Sumw2();
+    
+    TH1F * qcd_eleTau_mvaVar_et_MZP600A0400_JECUp = new TH1F("qcd_eleTau_mvaVar_et_MZP600A0400_JECUp","qcd_eleTau_mvaVar_et_MZP600A0400_JECUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP600A0400_JECUp->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP800A0400_JECUp = new TH1F("qcd_eleTau_mvaVar_et_MZP800A0400_JECUp","qcd_eleTau_mvaVar_et_MZP800A0400_JECUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP800A0400_JECUp->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP1000A0400_JECUp = new TH1F("qcd_eleTau_mvaVar_et_MZP1000A0400_JECUp","qcd_eleTau_mvaVar_et_MZP1000A0400_JECUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP1000A0400_JECUp->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP1200A0400_JECUp = new TH1F("qcd_eleTau_mvaVar_et_MZP1200A0400_JECUp","qcd_eleTau_mvaVar_et_MZP1200A0400_JECUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP1200A0400_JECUp->Sumw2();
+    
+    TH1F * qcd_eleTau_mvaVar_et_MZP600A0400_JECDown = new TH1F("qcd_eleTau_mvaVar_et_MZP600A0400_JECDown","qcd_eleTau_mvaVar_et_MZP600A0400_JECDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP600A0400_JECDown->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP800A0400_JECDown = new TH1F("qcd_eleTau_mvaVar_et_MZP800A0400_JECDown","qcd_eleTau_mvaVar_et_MZP800A0400_JECDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP800A0400_JECDown->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP1000A0400_JECDown = new TH1F("qcd_eleTau_mvaVar_et_MZP1000A0400_JECDown","qcd_eleTau_mvaVar_et_MZP1000A0400_JECDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP1000A0400_JECDown->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP1200A0400_JECDown = new TH1F("qcd_eleTau_mvaVar_et_MZP1200A0400_JECDown","qcd_eleTau_mvaVar_et_MZP1200A0400_JECDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP1200A0400_JECDown->Sumw2();
+    
+    TH1F * qcd_eleTau_mvaVar_et_MZP600A0400_HPTUp = new TH1F("qcd_eleTau_mvaVar_et_MZP600A0400_HPTUp","qcd_eleTau_mvaVar_et_MZP600A0400_HPTUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP600A0400_HPTUp->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP800A0400_HPTUp = new TH1F("qcd_eleTau_mvaVar_et_MZP800A0400_HPTUp","qcd_eleTau_mvaVar_et_MZP800A0400_HPTUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP800A0400_HPTUp->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP1000A0400_HPTUp = new TH1F("qcd_eleTau_mvaVar_et_MZP1000A0400_HPTUp","qcd_eleTau_mvaVar_et_MZP1000A0400_HPTUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP1000A0400_HPTUp->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP1200A0400_HPTUp = new TH1F("qcd_eleTau_mvaVar_et_MZP1200A0400_HPTUp","qcd_eleTau_mvaVar_et_MZP1200A0400_HPTUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP1200A0400_HPTUp->Sumw2();
+    
+    TH1F * qcd_eleTau_mvaVar_et_MZP600A0400_HPTDown = new TH1F("qcd_eleTau_mvaVar_et_MZP600A0400_HPTDown","qcd_eleTau_mvaVar_et_MZP600A0400_HPTDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP600A0400_HPTDown->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP800A0400_HPTDown = new TH1F("qcd_eleTau_mvaVar_et_MZP800A0400_HPTDown","qcd_eleTau_mvaVar_et_MZP800A0400_HPTDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP800A0400_HPTDown->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP1000A0400_HPTDown = new TH1F("qcd_eleTau_mvaVar_et_MZP1000A0400_HPTDown","qcd_eleTau_mvaVar_et_MZP1000A0400_HPTDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP1000A0400_HPTDown->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP1200A0400_HPTDown = new TH1F("qcd_eleTau_mvaVar_et_MZP1200A0400_HPTDown","qcd_eleTau_mvaVar_et_MZP1200A0400_HPTDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP1200A0400_HPTDown->Sumw2();
+    
+    TH1F * qcd_eleTau_mvaVar_et_MZP600A0400_TESUp = new TH1F("qcd_eleTau_mvaVar_et_MZP600A0400_TESUp","qcd_eleTau_mvaVar_et_MZP600A0400_TESUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP600A0400_TESUp->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP800A0400_TESUp = new TH1F("qcd_eleTau_mvaVar_et_MZP800A0400_TESUp","qcd_eleTau_mvaVar_et_MZP800A0400_TESUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP800A0400_TESUp->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP1000A0400_TESUp = new TH1F("qcd_eleTau_mvaVar_et_MZP1000A0400_TESUp","qcd_eleTau_mvaVar_et_MZP1000A0400_TESUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP1000A0400_TESUp->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP1200A0400_TESUp = new TH1F("qcd_eleTau_mvaVar_et_MZP1200A0400_TESUp","qcd_eleTau_mvaVar_et_MZP1200A0400_TESUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP1200A0400_TESUp->Sumw2();
+    
+    TH1F * qcd_eleTau_mvaVar_et_MZP600A0400_TESDown = new TH1F("qcd_eleTau_mvaVar_et_MZP600A0400_TESDown","qcd_eleTau_mvaVar_et_MZP600A0400_TESDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP600A0400_TESDown->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP800A0400_TESDown = new TH1F("qcd_eleTau_mvaVar_et_MZP800A0400_TESDown","qcd_eleTau_mvaVar_et_MZP800A0400_TESDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP800A0400_TESDown->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP1000A0400_TESDown = new TH1F("qcd_eleTau_mvaVar_et_MZP1000A0400_TESDown","qcd_eleTau_mvaVar_et_MZP1000A0400_TESDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP1000A0400_TESDown->Sumw2();
+    TH1F * qcd_eleTau_mvaVar_et_MZP1200A0400_TESDown = new TH1F("qcd_eleTau_mvaVar_et_MZP1200A0400_TESDown","qcd_eleTau_mvaVar_et_MZP1200A0400_TESDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_eleTau_mvaVar_et_MZP1200A0400_TESDown->Sumw2();
+    
     //Expert
     TH1F * qcd_eleTau_mvaVar_et_EXP1 = new TH1F("qcd_eleTau_mvaVar_et_EXP1","qcd_eleTau_mvaVar_et_EXP1",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
     qcd_eleTau_mvaVar_et_EXP1->Sumw2();
@@ -1699,8 +2249,8 @@ void doEleTau()
     {
         
         global_title = "QCD (Same Sign) Estimate Region";
+        
         fillQCD_Shape((SScut_eleTau_base + cut_options_nom)*cut_weights_nom, (SScut_eleTau_base_RelTauIso + cut_options_nom)*cut_weights_nom, wSF_SS_eleTau, qcd_eleTau_met, "met", metBinning,  "QCD met shape ext. in SS side band (eleTau)", "et", 1);
-        global_title = "MET > " + control_met_cutoff + " GeV";
         drawSignalRegion((signalCut_base + cut_options_nom)*cut_weights_nom, (w_signalCut_base + cut_options_nom)*cut_weights_nom, wSF_OS_eleTau, qcd_eleTau_met, "met", metBinning, "sig region met", "et", "", 1, 1);
         reset_files();
     }
@@ -1708,16 +2258,200 @@ void doEleTau()
     {
 
         global_title = "QCD (Same Sign) Estimate Region";
-        fillQCD_Shape((SScut_eleTau_base + cut_options_nom * TMVACutMap["ET_600"])*cut_weights_nom * TMVACutMap["ET_600"], (SScut_eleTau_base_RelTauIso + cut_options_nom * TMVACutMap["ET_600"])*cut_weights_nom * TMVACutMap["ET_600"], wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400,"mvaVar_et_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
-        fillQCD_Shape((SScut_eleTau_base + cut_options_nom * TMVACutMap["ET_800"])*cut_weights_nom * TMVACutMap["ET_800"], (SScut_eleTau_base_RelTauIso + cut_options_nom * TMVACutMap["ET_800"])*cut_weights_nom * TMVACutMap["ET_800"], wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400,"mvaVar_et_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
-        fillQCD_Shape((SScut_eleTau_base + cut_options_nom * TMVACutMap["ET_1000"])*cut_weights_nom * TMVACutMap["ET_1000"], (SScut_eleTau_base_RelTauIso + cut_options_nom * TMVACutMap["ET_1000"])*cut_weights_nom * TMVACutMap["ET_1000"], wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400,"mvaVar_et_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
-        fillQCD_Shape((SScut_eleTau_base + cut_options_nom * TMVACutMap["ET_1200"])*cut_weights_nom * TMVACutMap["ET_1200"], (SScut_eleTau_base_RelTauIso + cut_options_nom * TMVACutMap["ET_1200"])*cut_weights_nom * TMVACutMap["ET_1200"], wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400,"mvaVar_et_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+        fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_600"])*cut_weights_nom, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_600"])*cut_weights_nom, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400,"mvaVar_et_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+        fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_800"])*cut_weights_nom, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_800"])*cut_weights_nom, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400,"mvaVar_et_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+        fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1000"])*cut_weights_nom, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1000"])*cut_weights_nom, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400,"mvaVar_et_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+        fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1200"])*cut_weights_nom, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1200"])*cut_weights_nom, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400,"mvaVar_et_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
         
-        drawSignalRegion(signalCut_base * cut_options_nom * TMVACutMap["ET_600"], signalCut_base * cut_options_nom * TMVACutMap["ET_600"], wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400, "mvaVar_et_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "et", "600", 1, 1);
-        drawSignalRegion(signalCut_base * cut_options_nom * TMVACutMap["ET_800"], signalCut_base * cut_options_nom * TMVACutMap["ET_800"], wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400, "mvaVar_et_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "et", "800", 1, 1);
-        drawSignalRegion(signalCut_base * cut_options_nom * TMVACutMap["ET_1000"], signalCut_base * cut_options_nom * TMVACutMap["ET_1000"], wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400, "mvaVar_et_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "et", "1000", 1, 1);
-        drawSignalRegion(signalCut_base * cut_options_nom * TMVACutMap["ET_1200"], signalCut_base * cut_options_nom * TMVACutMap["ET_1200"], wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400, "mvaVar_et_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "et", "1200", 1, 1);
-        reset_files();
+        drawSignalRegion((signalCut_base + TMVACutMap["ET_600"])*cut_weights_nom, (signalCut_base + TMVACutMap["ET_600"])*cut_weights_nom, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400, "mvaVar_et_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "et", "600", 1, 1);
+        drawSignalRegion((signalCut_base + TMVACutMap["ET_800"])*cut_weights_nom, (signalCut_base + TMVACutMap["ET_800"])*cut_weights_nom, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400, "mvaVar_et_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "et", "800", 1, 1);
+        drawSignalRegion((signalCut_base + TMVACutMap["ET_1000"])*cut_weights_nom, (signalCut_base + TMVACutMap["ET_1000"])*cut_weights_nom, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400, "mvaVar_et_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "et", "1000", 1, 1);
+        drawSignalRegion((signalCut_base + TMVACutMap["ET_1200"])*cut_weights_nom, (signalCut_base + TMVACutMap["ET_1200"])*cut_weights_nom, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400, "mvaVar_et_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "et", "1200", 1, 1);
+        
+        if (doSyst)
+        {
+            std::cout << "syst for tt started" << std::endl;
+            
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_600"])*cut_weights_UESUp, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_600"])*cut_weights_UESUp, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400_UESUp,"mvaVar_et_MZP600A0400_UESUp", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_800"])*cut_weights_UESUp, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_800"])*cut_weights_UESUp, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400_UESUp,"mvaVar_et_MZP800A0400_UESUp", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1000"])*cut_weights_UESUp, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1000"])*cut_weights_UESUp, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400_UESUp,"mvaVar_et_MZP1000A0400_UESUp", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1200"])*cut_weights_UESUp, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1200"])*cut_weights_UESUp, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400_UESUp,"mvaVar_et_MZP1200A0400_UESUp", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_600"])*cut_weights_UESUp, (w_signalCut_base + TMVACutMap["ET_600"])*cut_weights_UESUp, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400_UESUp, "mvaVar_et_MZP600A0400_UESUp", tmvaBinning, "sig region Function TMVA variable", "et", "600_CMS_scale_m_et_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_800"])*cut_weights_UESUp, (w_signalCut_base + TMVACutMap["ET_800"])*cut_weights_UESUp, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400_UESUp, "mvaVar_et_MZP800A0400_UESUp", tmvaBinning, "sig region Function TMVA variable", "et", "800_CMS_scale_m_et_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_1000"])*cut_weights_UESUp, (w_signalCut_base + TMVACutMap["ET_1000"])*cut_weights_UESUp, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400_UESUp, "mvaVar_et_MZP1000A0400_UESUp", tmvaBinning, "sig region Function TMVA variable", "et", "1000_CMS_scale_m_et_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_1200"])*cut_weights_UESUp, (w_signalCut_base + TMVACutMap["ET_1200"])*cut_weights_UESUp, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400_UESUp, "mvaVar_et_MZP1200A0400_UESUp", tmvaBinning, "sig region Function TMVA variable", "et", "1200_CMS_scale_m_et_13TeVUp", 0, 1);
+            
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_600"])*cut_weights_UESDown, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_600"])*cut_weights_UESDown, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400_UESDown,"mvaVar_et_MZP600A0400_UESDown", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_800"])*cut_weights_UESDown, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_800"])*cut_weights_UESDown, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400_UESDown,"mvaVar_et_MZP800A0400_UESDown", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1000"])*cut_weights_UESDown, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1000"])*cut_weights_UESDown, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400_UESDown,"mvaVar_et_MZP1000A0400_UESDown", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1200"])*cut_weights_UESDown, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1200"])*cut_weights_UESDown, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400_UESDown,"mvaVar_et_MZP1200A0400_UESDown", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_600"])*cut_weights_UESDown, (w_signalCut_base + TMVACutMap["ET_600"])*cut_weights_UESDown, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400_UESDown, "mvaVar_et_MZP600A0400_UESDown", tmvaBinning, "sig region Function TMVA variable", "et", "600_CMS_scale_m_et_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_800"])*cut_weights_UESDown, (w_signalCut_base + TMVACutMap["ET_800"])*cut_weights_UESDown, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400_UESDown, "mvaVar_et_MZP800A0400_UESDown", tmvaBinning, "sig region Function TMVA variable", "et", "800_CMS_scale_m_et_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_1000"])*cut_weights_UESDown, (w_signalCut_base + TMVACutMap["ET_1000"])*cut_weights_UESDown, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400_UESDown, "mvaVar_et_MZP1000A0400_UESDown", tmvaBinning, "sig region Function TMVA variable", "et", "1000_CMS_scale_m_et_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_1200"])*cut_weights_UESDown, (w_signalCut_base + TMVACutMap["ET_1200"])*cut_weights_UESDown, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400_UESDown, "mvaVar_et_MZP1200A0400_UESDown", tmvaBinning, "sig region Function TMVA variable", "et", "1200_CMS_scale_m_et_13TeVDown", 0, 1);
+            
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_600"])*cut_weights_VPtUp, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_600"])*cut_weights_VPtUp, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400_VPtUp,"mvaVar_et_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_800"])*cut_weights_VPtUp, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_800"])*cut_weights_VPtUp, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400_VPtUp,"mvaVar_et_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1000"])*cut_weights_VPtUp, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1000"])*cut_weights_VPtUp, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400_VPtUp,"mvaVar_et_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1200"])*cut_weights_VPtUp, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1200"])*cut_weights_VPtUp, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400_VPtUp,"mvaVar_et_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_600"])*cut_weights_VPtUp, (w_signalCut_base + TMVACutMap["ET_600"])*cut_weights_VPtUp, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400_VPtUp, "mvaVar_et_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "et", "600_CMS_xtt_dyShape_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_800"])*cut_weights_VPtUp, (w_signalCut_base + TMVACutMap["ET_800"])*cut_weights_VPtUp, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400_VPtUp, "mvaVar_et_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "et", "800_CMS_xtt_dyShape_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_1000"])*cut_weights_VPtUp, (w_signalCut_base + TMVACutMap["ET_1000"])*cut_weights_VPtUp, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400_VPtUp, "mvaVar_et_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "et", "1000_CMS_xtt_dyShape_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_1200"])*cut_weights_VPtUp, (w_signalCut_base + TMVACutMap["ET_1200"])*cut_weights_VPtUp, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400_VPtUp, "mvaVar_et_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "et", "1200_CMS_xtt_dyShape_13TeVUp", 0, 1);
+            
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_600"])*cut_weights_VPtDown, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_600"])*cut_weights_VPtDown, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400_VPtDown,"mvaVar_et_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_800"])*cut_weights_VPtDown, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_800"])*cut_weights_VPtDown, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400_VPtDown,"mvaVar_et_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1000"])*cut_weights_VPtDown, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1000"])*cut_weights_VPtDown, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400_VPtDown,"mvaVar_et_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1200"])*cut_weights_VPtDown, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1200"])*cut_weights_VPtDown, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400_VPtDown,"mvaVar_et_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_600"])*cut_weights_VPtDown, (w_signalCut_base + TMVACutMap["ET_600"])*cut_weights_VPtDown, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400_VPtDown, "mvaVar_et_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "et", "600_CMS_xtt_dyShape_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_800"])*cut_weights_VPtDown, (w_signalCut_base + TMVACutMap["ET_800"])*cut_weights_VPtDown, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400_VPtDown, "mvaVar_et_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "et", "800_CMS_xtt_dyShape_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_1000"])*cut_weights_VPtDown, (w_signalCut_base + TMVACutMap["ET_1000"])*cut_weights_VPtDown, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400_VPtDown, "mvaVar_et_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "et", "1000_CMS_xtt_dyShape_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_1200"])*cut_weights_VPtDown, (w_signalCut_base + TMVACutMap["ET_1200"])*cut_weights_VPtDown, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400_VPtDown, "mvaVar_et_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "et", "1200_CMS_xtt_dyShape_13TeVDown", 0, 1);
+            
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_600"])*cut_weights_VPtUp, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_600"])*cut_weights_VPtUp, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400_VPtWUp,"mvaVar_et_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_800"])*cut_weights_VPtUp, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_800"])*cut_weights_VPtUp, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400_VPtWUp,"mvaVar_et_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1000"])*cut_weights_VPtUp, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1000"])*cut_weights_VPtUp, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400_VPtWUp,"mvaVar_et_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1200"])*cut_weights_VPtUp, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1200"])*cut_weights_VPtUp, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400_VPtWUp,"mvaVar_et_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_600"])*cut_weights_VPtUp, (w_signalCut_base + TMVACutMap["ET_600"])*cut_weights_VPtUp, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400_VPtWUp, "mvaVar_et_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "et", "600_CMS_xtt_wShape_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_800"])*cut_weights_VPtUp, (w_signalCut_base + TMVACutMap["ET_800"])*cut_weights_VPtUp, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400_VPtWUp, "mvaVar_et_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "et", "800_CMS_xtt_wShape_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_1000"])*cut_weights_VPtUp, (w_signalCut_base + TMVACutMap["ET_1000"])*cut_weights_VPtUp, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400_VPtWUp, "mvaVar_et_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "et", "1000_CMS_xtt_wShape_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_1200"])*cut_weights_VPtUp, (w_signalCut_base + TMVACutMap["ET_1200"])*cut_weights_VPtUp, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400_VPtWUp, "mvaVar_et_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "et", "1200_CMS_xtt_wShape_13TeVUp", 0, 1);
+            
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_600"])*cut_weights_VPtDown, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_600"])*cut_weights_VPtDown, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400_VPtWDown,"mvaVar_et_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_800"])*cut_weights_VPtDown, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_800"])*cut_weights_VPtDown, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400_VPtWDown,"mvaVar_et_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1000"])*cut_weights_VPtDown, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1000"])*cut_weights_VPtDown, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400_VPtWDown,"mvaVar_et_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1200"])*cut_weights_VPtDown, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1200"])*cut_weights_VPtDown, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400_VPtWDown,"mvaVar_et_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_600"])*cut_weights_VPtDown, (w_signalCut_base + TMVACutMap["ET_600"])*cut_weights_VPtDown, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400_VPtWDown, "mvaVar_et_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "et", "600_CMS_xtt_wShape_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_800"])*cut_weights_VPtDown, (w_signalCut_base + TMVACutMap["ET_800"])*cut_weights_VPtDown, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400_VPtWDown, "mvaVar_et_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "et", "800_CMS_xtt_wShape_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_1000"])*cut_weights_VPtDown, (w_signalCut_base + TMVACutMap["ET_1000"])*cut_weights_VPtDown, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400_VPtWDown, "mvaVar_et_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "et", "1000_CMS_xtt_wShape_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_1200"])*cut_weights_VPtDown, (w_signalCut_base + TMVACutMap["ET_1200"])*cut_weights_VPtDown, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400_VPtWDown, "mvaVar_et_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "et", "1200_CMS_xtt_wShape_13TeVDown", 0, 1);
+            
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_600"])*cut_weights_TauFakeUp, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_600"])*cut_weights_TauFakeUp, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400_TauFakeUp,"mvaVar_et_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_800"])*cut_weights_TauFakeUp, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_800"])*cut_weights_TauFakeUp, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400_TauFakeUp,"mvaVar_et_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1000"])*cut_weights_TauFakeUp, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1000"])*cut_weights_TauFakeUp, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400_TauFakeUp,"mvaVar_et_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1200"])*cut_weights_TauFakeUp, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1200"])*cut_weights_TauFakeUp, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400_TauFakeUp,"mvaVar_et_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_600"])*cut_weights_TauFakeUp, (w_signalCut_base + TMVACutMap["ET_600"])*cut_weights_TauFakeUp, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400_TauFakeUp, "mvaVar_et_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "et", "600_CMS_xtt_jetToTauFake_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_800"])*cut_weights_TauFakeUp, (w_signalCut_base + TMVACutMap["ET_800"])*cut_weights_TauFakeUp, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400_TauFakeUp, "mvaVar_et_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "et", "800_CMS_xtt_jetToTauFake_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_1000"])*cut_weights_TauFakeUp, (w_signalCut_base + TMVACutMap["ET_1000"])*cut_weights_TauFakeUp, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400_TauFakeUp, "mvaVar_et_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "et", "1000_CMS_xtt_jetToTauFake_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_1200"])*cut_weights_TauFakeUp, (w_signalCut_base + TMVACutMap["ET_1200"])*cut_weights_TauFakeUp, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400_TauFakeUp, "mvaVar_et_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "et", "1200_CMS_xtt_jetToTauFake_13TeVUp", 0, 1);
+            
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_600"])*cut_weights_TauFakeDown, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_600"])*cut_weights_TauFakeDown, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400_TauFakeDown,"mvaVar_et_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_800"])*cut_weights_TauFakeDown, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_800"])*cut_weights_TauFakeDown, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400_TauFakeDown,"mvaVar_et_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1000"])*cut_weights_TauFakeDown, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1000"])*cut_weights_TauFakeDown, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400_TauFakeDown,"mvaVar_et_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1200"])*cut_weights_TauFakeDown, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1200"])*cut_weights_TauFakeDown, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400_TauFakeDown,"mvaVar_et_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_600"])*cut_weights_TauFakeDown, (w_signalCut_base + TMVACutMap["ET_600"])*cut_weights_TauFakeDown, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400_TauFakeDown, "mvaVar_et_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "et", "600_CMS_xtt_jetToTauFake_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_800"])*cut_weights_TauFakeDown, (w_signalCut_base + TMVACutMap["ET_800"])*cut_weights_TauFakeDown, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400_TauFakeDown, "mvaVar_et_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "et", "800_CMS_xtt_jetToTauFake_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_1000"])*cut_weights_TauFakeDown, (w_signalCut_base + TMVACutMap["ET_1000"])*cut_weights_TauFakeDown, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400_TauFakeDown, "mvaVar_et_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "et", "1000_CMS_xtt_jetToTauFake_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_1200"])*cut_weights_TauFakeDown, (w_signalCut_base + TMVACutMap["ET_1200"])*cut_weights_TauFakeDown, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400_TauFakeDown, "mvaVar_et_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "et", "1200_CMS_xtt_jetToTauFake_13TeVDown", 0, 1);
+            
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_600"])*cut_weights_bTagUp, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_600"])*cut_weights_bTagUp, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400_bTagUp,"mvaVar_et_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_800"])*cut_weights_bTagUp, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_800"])*cut_weights_bTagUp, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400_bTagUp,"mvaVar_et_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1000"])*cut_weights_bTagUp, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1000"])*cut_weights_bTagUp, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400_bTagUp,"mvaVar_et_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1200"])*cut_weights_bTagUp, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1200"])*cut_weights_bTagUp, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400_bTagUp,"mvaVar_et_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_600"])*cut_weights_bTagUp, (w_signalCut_base + TMVACutMap["ET_600"])*cut_weights_bTagUp, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400_bTagUp, "mvaVar_et_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "et", "600_CMS_xtt_bTag_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_800"])*cut_weights_bTagUp, (w_signalCut_base + TMVACutMap["ET_800"])*cut_weights_bTagUp, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400_bTagUp, "mvaVar_et_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "et", "800_CMS_xtt_bTag_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_1000"])*cut_weights_bTagUp, (w_signalCut_base + TMVACutMap["ET_1000"])*cut_weights_bTagUp, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400_bTagUp, "mvaVar_et_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "et", "1000_CMS_xtt_bTag_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_1200"])*cut_weights_bTagUp, (w_signalCut_base + TMVACutMap["ET_1200"])*cut_weights_bTagUp, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400_bTagUp, "mvaVar_et_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "et", "1200_CMS_xtt_bTag_13TeVUp", 0, 1);
+            
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_600"])*cut_weights_bTagDown, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_600"])*cut_weights_bTagDown, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400_bTagDown,"mvaVar_et_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_800"])*cut_weights_bTagDown, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_800"])*cut_weights_bTagDown, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400_bTagDown,"mvaVar_et_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1000"])*cut_weights_bTagDown, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1000"])*cut_weights_bTagDown, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400_bTagDown,"mvaVar_et_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1200"])*cut_weights_bTagDown, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1200"])*cut_weights_bTagDown, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400_bTagDown,"mvaVar_et_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_600"])*cut_weights_bTagDown, (w_signalCut_base + TMVACutMap["ET_600"])*cut_weights_bTagDown, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400_bTagDown, "mvaVar_et_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "et", "600_CMS_xtt_bTag_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_800"])*cut_weights_bTagDown, (w_signalCut_base + TMVACutMap["ET_800"])*cut_weights_bTagDown, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400_bTagDown, "mvaVar_et_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "et", "800_CMS_xtt_bTag_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_1000"])*cut_weights_bTagDown, (w_signalCut_base + TMVACutMap["ET_1000"])*cut_weights_bTagDown, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400_bTagDown, "mvaVar_et_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "et", "1000_CMS_xtt_bTag_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_1200"])*cut_weights_bTagDown, (w_signalCut_base + TMVACutMap["ET_1200"])*cut_weights_bTagDown, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400_bTagDown, "mvaVar_et_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "et", "1200_CMS_xtt_bTag_13TeVDown", 0, 1);
+            
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_600"])*cut_weights_JECUp, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_600"])*cut_weights_JECUp, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400_JECUp,"mvaVar_et_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_800"])*cut_weights_JECUp, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_800"])*cut_weights_JECUp, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400_JECUp,"mvaVar_et_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1000"])*cut_weights_JECUp, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1000"])*cut_weights_JECUp, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400_JECUp,"mvaVar_et_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1200"])*cut_weights_JECUp, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1200"])*cut_weights_JECUp, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400_JECUp,"mvaVar_et_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_600"])*cut_weights_JECUp, (w_signalCut_base + TMVACutMap["ET_600"])*cut_weights_JECUp, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400_JECUp, "mvaVar_et_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "et", "600_CMS_scale_j_et_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_800"])*cut_weights_JECUp, (w_signalCut_base + TMVACutMap["ET_800"])*cut_weights_JECUp, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400_JECUp, "mvaVar_et_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "et", "800_CMS_scale_j_et_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_1000"])*cut_weights_JECUp, (w_signalCut_base + TMVACutMap["ET_1000"])*cut_weights_JECUp, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400_JECUp, "mvaVar_et_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "et", "1000_CMS_scale_j_et_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_1200"])*cut_weights_JECUp, (w_signalCut_base + TMVACutMap["ET_1200"])*cut_weights_JECUp, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400_JECUp, "mvaVar_et_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "et", "1200_CMS_scale_j_et_13TeVUp", 0, 1);
+            
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_600"])*cut_weights_JECDown, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_600"])*cut_weights_JECDown, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400_JECDown,"mvaVar_et_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_800"])*cut_weights_JECDown, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_800"])*cut_weights_JECDown, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400_JECDown,"mvaVar_et_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1000"])*cut_weights_JECDown, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1000"])*cut_weights_JECDown, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400_JECDown,"mvaVar_et_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1200"])*cut_weights_JECDown, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1200"])*cut_weights_JECDown, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400_JECDown,"mvaVar_et_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_600"])*cut_weights_JECDown, (w_signalCut_base + TMVACutMap["ET_600"])*cut_weights_JECDown, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400_JECDown, "mvaVar_et_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "et", "600_CMS_scale_j_et_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_800"])*cut_weights_JECDown, (w_signalCut_base + TMVACutMap["ET_800"])*cut_weights_JECDown, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400_JECDown, "mvaVar_et_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "et", "800_CMS_scale_j_et_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_1000"])*cut_weights_JECDown, (w_signalCut_base + TMVACutMap["ET_1000"])*cut_weights_JECDown, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400_JECDown, "mvaVar_et_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "et", "1000_CMS_scale_j_et_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_1200"])*cut_weights_JECDown, (w_signalCut_base + TMVACutMap["ET_1200"])*cut_weights_JECDown, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400_JECDown, "mvaVar_et_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "et", "1200_CMS_scale_j_et_13TeVDown", 0, 1);
+            
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_600"])*cut_weights_HPTUp, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_600"])*cut_weights_HPTUp, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400_HPTUp,"mvaVar_et_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_800"])*cut_weights_HPTUp, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_800"])*cut_weights_HPTUp, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400_HPTUp,"mvaVar_et_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1000"])*cut_weights_HPTUp, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1000"])*cut_weights_HPTUp, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400_HPTUp,"mvaVar_et_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1200"])*cut_weights_HPTUp, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1200"])*cut_weights_HPTUp, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400_HPTUp,"mvaVar_et_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_600"])*cut_weights_HPTUp, (w_signalCut_base + TMVACutMap["ET_600"])*cut_weights_HPTUp, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400_HPTUp, "mvaVar_et_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "et", "600_CMS_xtt_highTauEffi_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_800"])*cut_weights_HPTUp, (w_signalCut_base + TMVACutMap["ET_800"])*cut_weights_HPTUp, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400_HPTUp, "mvaVar_et_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "et", "800_CMS_xtt_highTauEffi_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_1000"])*cut_weights_HPTUp, (w_signalCut_base + TMVACutMap["ET_1000"])*cut_weights_HPTUp, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400_HPTUp, "mvaVar_et_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "et", "1000_CMS_xtt_highTauEffi_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_1200"])*cut_weights_HPTUp, (w_signalCut_base + TMVACutMap["ET_1200"])*cut_weights_HPTUp, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400_HPTUp, "mvaVar_et_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "et", "1200_CMS_xtt_highTauEffi_13TeVUp", 0, 1);
+            
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_600"])*cut_weights_HPTDown, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_600"])*cut_weights_HPTDown, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400_HPTDown,"mvaVar_et_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_800"])*cut_weights_HPTDown, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_800"])*cut_weights_HPTDown, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400_HPTDown,"mvaVar_et_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1000"])*cut_weights_HPTDown, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1000"])*cut_weights_HPTDown, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400_HPTDown,"mvaVar_et_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1200"])*cut_weights_HPTDown, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1200"])*cut_weights_HPTDown, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400_HPTDown,"mvaVar_et_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_600"])*cut_weights_HPTDown, (w_signalCut_base + TMVACutMap["ET_600"])*cut_weights_HPTDown, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400_HPTDown, "mvaVar_et_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "et", "600_CMS_xtt_highTauEffi_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_800"])*cut_weights_HPTDown, (w_signalCut_base + TMVACutMap["ET_800"])*cut_weights_HPTDown, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400_HPTDown, "mvaVar_et_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "et", "800_CMS_xtt_highTauEffi_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_1000"])*cut_weights_HPTDown, (w_signalCut_base + TMVACutMap["ET_1000"])*cut_weights_HPTDown, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400_HPTDown, "mvaVar_et_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "et", "1000_CMS_xtt_highTauEffi_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_1200"])*cut_weights_HPTDown, (w_signalCut_base + TMVACutMap["ET_1200"])*cut_weights_HPTDown, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400_HPTDown, "mvaVar_et_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "et", "1200_CMS_xtt_highTauEffi_13TeVDown", 0, 1);
+            
+            
+            reset_files();
+            
+            if(printSyst)
+            {
+                std::cout << "no print count yet" << std::endl;
+            }
+            
+            reset_files();
+            setup_upTau_files_eleTau();
+            
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_600"])*cut_weights_nom, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_600"])*cut_weights_nom, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400_TESUp,"mvaVar_et_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_800"])*cut_weights_nom, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_800"])*cut_weights_nom, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400_TESUp,"mvaVar_et_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1000"])*cut_weights_nom, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1000"])*cut_weights_nom, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400_TESUp,"mvaVar_et_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1200"])*cut_weights_nom, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1200"])*cut_weights_nom, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400_TESUp,"mvaVar_et_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_600"])*cut_weights_nom, (signalCut_base + TMVACutMap["ET_600"])*cut_weights_nom, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400_TESUp, "mvaVar_et_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "et", "600_CMS_scale_t_et_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_800"])*cut_weights_nom, (signalCut_base + TMVACutMap["ET_800"])*cut_weights_nom, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400_TESUp, "mvaVar_et_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "et", "800_CMS_scale_t_et_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_1000"])*cut_weights_nom, (signalCut_base + TMVACutMap["ET_1000"])*cut_weights_nom, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400_TESUp, "mvaVar_et_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "et", "1000_CMS_scale_t_et_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_1200"])*cut_weights_nom, (signalCut_base + TMVACutMap["ET_1200"])*cut_weights_nom, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400_TESUp, "mvaVar_et_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "et", "1200_CMS_scale_t_et_13TeVUp", 0, 1);
+            
+            if (printSyst) std::cout << "no print yet" << std::endl;
+            
+            reset_files();
+            setup_downTau_files_eleTau();
+            
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_600"])*cut_weights_nom, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_600"])*cut_weights_nom, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400_TESDown,"mvaVar_et_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_800"])*cut_weights_nom, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_800"])*cut_weights_nom, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400_TESDown,"mvaVar_et_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1000"])*cut_weights_nom, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1000"])*cut_weights_nom, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400_TESDown,"mvaVar_et_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            fillQCD_Shape((SScut_eleTau_base + TMVACutMap["ET_1200"])*cut_weights_nom, (SScut_eleTau_base_RelTauIso + TMVACutMap["ET_1200"])*cut_weights_nom, wSF_SS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400_TESDown,"mvaVar_et_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (eleTau)", "et", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_600"])*cut_weights_nom, (signalCut_base + TMVACutMap["ET_600"])*cut_weights_nom, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP600A0400_TESDown, "mvaVar_et_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "et", "600_CMS_scale_t_et_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_800"])*cut_weights_nom, (signalCut_base + TMVACutMap["ET_800"])*cut_weights_nom, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP800A0400_TESDown, "mvaVar_et_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "et", "800_CMS_scale_t_et_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_1000"])*cut_weights_nom, (signalCut_base + TMVACutMap["ET_1000"])*cut_weights_nom, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1000A0400_TESDown, "mvaVar_et_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "et", "1000_CMS_scale_t_et_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["ET_1200"])*cut_weights_nom, (signalCut_base + TMVACutMap["ET_1200"])*cut_weights_nom, wSF_OS_eleTau, qcd_eleTau_mvaVar_et_MZP1200A0400_TESDown, "mvaVar_et_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "et", "1200_CMS_scale_t_et_13TeVDown", 0, 1);
+            
+            if (printSyst) std::cout << "no print yet" << std::endl;
+        }
+
+        
     }
     else if (sigChoice==3)
     {
@@ -1842,7 +2576,7 @@ void doEleTau()
             global_title = "QCD (Same Sign) Estimate Region";
             fillQCD_Shape((SScut_eleTau_base + cut_options_nom)*cut_weights_nom, (SScut_eleTau_base_RelTauIso + cut_options_nom)*cut_weights_nom, wSF_SS_eleTau, qcd_eleTau_mt, "mt_1", mtBinning, "QCD mt shape ext. in SS side band (eleTau)", "et", 1);
             fillQCD_Shape((SScut_eleTau_base + cut_options_nom)*cut_weights_nom, (SScut_eleTau_base_RelTauIso + cut_options_nom)*cut_weights_nom, wSF_SS_eleTau, qcd_eleTau_m_vis, "m_vis", m_visBinning,  "QCD mvis shape ext. in SS side band (eleTau)", "et", 1);
-            fillQCD_Shape((SScut_eleTau_base + cut_options_bCon)*cut_weights_bCon, (SScut_eleTau_base_RelTauIso + cut_options_bCon)*cut_weights_bCon, wSF_SS_eleTau, qcd_eleTau_m_vis_ttCon, "m_vis", m_visConBinning,  "QCD mvis shape ext. in b-Tagged side band (eleTau)", "et", 1);
+            //fillQCD_Shape((SScut_eleTau_base + cut_options_bCon)*cut_weights_bCon, (SScut_eleTau_base_RelTauIso + cut_options_bCon)*cut_weights_bCon, wSF_SS_eleTau, qcd_eleTau_m_vis_ttCon, "m_vis", m_visConBinning,  "QCD mvis shape ext. in b-Tagged side band (eleTau)", "et", 1);
             fillQCD_Shape((SScut_eleTau_base + cut_options_nom)*cut_weights_nom, (SScut_eleTau_base_RelTauIso + cut_options_nom)*cut_weights_nom, wSF_SS_eleTau, qcd_eleTau_nbtag, "nbtag", nbtagBinning,  "QCD nbtag shape ext. in SS side band (eleTau)", "et", 1);
             fillQCD_Shape((SScut_eleTau_base + cut_options_nom)*cut_weights_nom, (SScut_eleTau_base_RelTauIso + cut_options_nom)*cut_weights_nom, wSF_SS_eleTau, qcd_eleTau_met, "met", metBinning,  "QCD met shape ext. in SS side band (eleTau)", "et", 1);
             fillQCD_Shape((SScut_eleTau_base + cut_options_nom)*cut_weights_nom, (SScut_eleTau_base_RelTauIso + cut_options_nom)*cut_weights_nom, wSF_SS_eleTau, qcd_eleTau_pt_1, "pt_1", ptBinning,  "QCD pt_1 shape ext. in SS side band (eleTau)", "et", 1);
@@ -1862,7 +2596,7 @@ void doEleTau()
             drawSignalRegion((signalCut_base + cut_options_nom)*cut_weights_nom, (w_signalCut_base + cut_options_nom)*cut_weights_nom, wSF_OS_eleTau, qcd_eleTau_mt, "mt_1", mtBinning, "Control mt", "et", "", 1, 0);
             drawSignalRegion((signalCut_base + cut_options_nom)*cut_weights_nom, (w_signalCut_base + cut_options_nom)*cut_weights_nom, wSF_OS_eleTau, qcd_eleTau_m_vis, "m_vis", m_visBinning, "Control mvis", "et", "", 1, 0);
             //drawSignalRegion((w_Control_base + cut_options_wCon)*cut_weights_wCon, (w_Control_base + cut_options_wCon)*cut_weights_wCon, wSF_OS_eleTau, qcd_eleTau_m_vis_wCon, "1.0*m_vis", m_visConBinning, "W Control Ele-Tau mvis", "et", "", 1, 0);
-            drawSignalRegion((signalCut_base + cut_options_bCon)*cut_weights_bCon, (w_signalCut_base + cut_options_bCon)*cut_weights_bCon, wSF_OS_eleTau, qcd_eleTau_m_vis_ttCon, "1.0*m_vis", m_visConBinning, "TTbar Control mvis", "et", "", 1, 0);
+            //drawSignalRegion((signalCut_base + cut_options_bCon)*cut_weights_bCon, (w_signalCut_base + cut_options_bCon)*cut_weights_bCon, wSF_OS_eleTau, qcd_eleTau_m_vis_ttCon, "1.0*m_vis", m_visConBinning, "TTbar Control mvis", "et", "", 1, 0);
             drawSignalRegion((signalCut_base + cut_options_nom)*cut_weights_nom, (w_signalCut_base + cut_options_nom)*cut_weights_nom, wSF_OS_eleTau, qcd_eleTau_nbtag, "nbtag", nbtagBinning, "Control nbtag", "et", "", 1, 0);
             drawSignalRegion((signalCut_base + cut_options_nom)*cut_weights_nom, (w_signalCut_base + cut_options_nom)*cut_weights_nom, wSF_OS_eleTau, qcd_eleTau_met, "met", metBinning, "Control met", "et", "", 1, 0);
             drawSignalRegion((signalCut_base + cut_options_nom)*cut_weights_nom, (w_signalCut_base + cut_options_nom)*cut_weights_nom, wSF_OS_eleTau, qcd_eleTau_pt_1, "pt_1", ptBinning, "Control pt_1", "et", "", 1, 0);
@@ -1998,8 +2732,8 @@ void doMuTau()
     TCut cut_weights_JECUp = jetCutMap["BSFJECUP"];
     TCut cut_weights_JECDown = jetCutMap["BSFJECDOWN"];
     
-    TCut cut_weights_HPTUp = weightMap["HPTUP"];
-    TCut cut_weights_HPTDown = weightMap["HPTDOWN"];
+    TCut cut_weights_HPTUp = jetCutMap["NOM"]; cut_weights_HPTUp *= weightMap["HPTUP"];
+    TCut cut_weights_HPTDown = jetCutMap["NOM"]; cut_weights_HPTDown *= weightMap["HPTDOWN"];
     
     TCut cut_weights_bTagUp = jetCutMap["BSFUP"];
     TCut cut_weights_bTagDown = jetCutMap["BSFDOWN"];
@@ -2142,6 +2876,152 @@ void doMuTau()
     qcd_muTau_mvaVar_mt_MZP1200A0400->Sumw2();
     qcd_muTau_mvaVar_mt_MZP1200A0400->SetFillColor(colors["QCD"]);
     
+    /*TMVA Systematics*/
+    
+    TH1F * qcd_muTau_mvaVar_mt_MZP600A0400_UESUp = new TH1F("qcd_muTau_mvaVar_mt_MZP600A0400_UESUp","qcd_muTau_mvaVar_mt_MZP600A0400_UESUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP600A0400_UESUp->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP800A0400_UESUp = new TH1F("qcd_muTau_mvaVar_mt_MZP800A0400_UESUp","qcd_muTau_mvaVar_mt_MZP800A0400_UESUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP800A0400_UESUp->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP1000A0400_UESUp = new TH1F("qcd_muTau_mvaVar_mt_MZP1000A0400_UESUp","qcd_muTau_mvaVar_mt_MZP1000A0400_UESUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP1000A0400_UESUp->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP1200A0400_UESUp = new TH1F("qcd_muTau_mvaVar_mt_MZP1200A0400_UESUp","qcd_muTau_mvaVar_mt_MZP1200A0400_UESUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP1200A0400_UESUp->Sumw2();
+    
+    TH1F * qcd_muTau_mvaVar_mt_MZP600A0400_UESDown = new TH1F("qcd_muTau_mvaVar_mt_MZP600A0400_UESDown","qcd_muTau_mvaVar_mt_MZP600A0400_UESDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP600A0400_UESDown->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP800A0400_UESDown = new TH1F("qcd_muTau_mvaVar_mt_MZP800A0400_UESDown","qcd_muTau_mvaVar_mt_MZP800A0400_UESDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP800A0400_UESDown->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP1000A0400_UESDown = new TH1F("qcd_muTau_mvaVar_mt_MZP1000A0400_UESDown","qcd_muTau_mvaVar_mt_MZP1000A0400_UESDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP1000A0400_UESDown->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP1200A0400_UESDown = new TH1F("qcd_muTau_mvaVar_mt_MZP1200A0400_UESDown","qcd_muTau_mvaVar_mt_MZP1200A0400_UESDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP1200A0400_UESDown->Sumw2();
+    
+    TH1F * qcd_muTau_mvaVar_mt_MZP600A0400_VPtDown = new TH1F("qcd_muTau_mvaVar_mt_MZP600A0400_VPtDown","qcd_muTau_mvaVar_mt_MZP600A0400_VPtDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP600A0400_VPtDown->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP800A0400_VPtDown = new TH1F("qcd_muTau_mvaVar_mt_MZP800A0400_VPtDown","qcd_muTau_mvaVar_mt_MZP800A0400_VPtDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP800A0400_VPtDown->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP1000A0400_VPtDown = new TH1F("qcd_muTau_mvaVar_mt_MZP1000A0400_VPtDown","qcd_muTau_mvaVar_mt_MZP1000A0400_VPtDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP1000A0400_VPtDown->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP1200A0400_VPtDown = new TH1F("qcd_muTau_mvaVar_mt_MZP1200A0400_VPtDown","qcd_muTau_mvaVar_mt_MZP1200A0400_VPtDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP1200A0400_VPtDown->Sumw2();
+    
+    TH1F * qcd_muTau_mvaVar_mt_MZP600A0400_VPtUp = new TH1F("qcd_muTau_mvaVar_mt_MZP600A0400_VPtUp","qcd_muTau_mvaVar_mt_MZP600A0400_VPtUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP600A0400_VPtUp->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP800A0400_VPtUp = new TH1F("qcd_muTau_mvaVar_mt_MZP800A0400_VPtUp","qcd_muTau_mvaVar_mt_MZP800A0400_VPtUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP800A0400_VPtUp->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP1000A0400_VPtUp = new TH1F("qcd_muTau_mvaVar_mt_MZP1000A0400_VPtUp","qcd_muTau_mvaVar_mt_MZP1000A0400_VPtUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP1000A0400_VPtUp->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP1200A0400_VPtUp = new TH1F("qcd_muTau_mvaVar_mt_MZP1200A0400_VPtUp","qcd_muTau_mvaVar_mt_MZP1200A0400_VPtUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP1200A0400_VPtUp->Sumw2();
+    
+    TH1F * qcd_muTau_mvaVar_mt_MZP600A0400_VPtWUp = new TH1F("qcd_muTau_mvaVar_mt_MZP600A0400_VPtWUp","qcd_muTau_mvaVar_mt_MZP600A0400_VPtWUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP600A0400_VPtWUp->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP800A0400_VPtWUp = new TH1F("qcd_muTau_mvaVar_mt_MZP800A0400_VPtWUp","qcd_muTau_mvaVar_mt_MZP800A0400_VPtWUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP800A0400_VPtWUp->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP1000A0400_VPtWUp = new TH1F("qcd_muTau_mvaVar_mt_MZP1000A0400_VPtWUp","qcd_muTau_mvaVar_mt_MZP1000A0400_VPtWUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP1000A0400_VPtWUp->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP1200A0400_VPtWUp = new TH1F("qcd_muTau_mvaVar_mt_MZP1200A0400_VPtWUp","qcd_muTau_mvaVar_mt_MZP1200A0400_VPtWUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP1200A0400_VPtWUp->Sumw2();
+    
+    TH1F * qcd_muTau_mvaVar_mt_MZP600A0400_VPtWDown = new TH1F("qcd_muTau_mvaVar_mt_MZP600A0400_VPtWDown","qcd_muTau_mvaVar_mt_MZP600A0400_VPtWDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP600A0400_VPtWDown->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP800A0400_VPtWDown = new TH1F("qcd_muTau_mvaVar_mt_MZP800A0400_VPtWDown","qcd_muTau_mvaVar_mt_MZP800A0400_VPtWDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP800A0400_VPtWDown->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP1000A0400_VPtWDown = new TH1F("qcd_muTau_mvaVar_mt_MZP1000A0400_VPtWDown","qcd_muTau_mvaVar_mt_MZP1000A0400_VPtWDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP1000A0400_VPtWDown->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP1200A0400_VPtWDown = new TH1F("qcd_muTau_mvaVar_mt_MZP1200A0400_VPtWDown","qcd_muTau_mvaVar_mt_MZP1200A0400_VPtWDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP1200A0400_VPtWDown->Sumw2();
+    
+    TH1F * qcd_muTau_mvaVar_mt_MZP600A0400_TauFakeUp = new TH1F("qcd_muTau_mvaVar_mt_MZP600A0400_TauFakeUp","qcd_muTau_mvaVar_mt_MZP600A0400_TauFakeUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP600A0400_TauFakeUp->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP800A0400_TauFakeUp = new TH1F("qcd_muTau_mvaVar_mt_MZP800A0400_TauFakeUp","qcd_muTau_mvaVar_mt_MZP800A0400_TauFakeUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP800A0400_TauFakeUp->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP1000A0400_TauFakeUp = new TH1F("qcd_muTau_mvaVar_mt_MZP1000A0400_TauFakeUp","qcd_muTau_mvaVar_mt_MZP1000A0400_TauFakeUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP1000A0400_TauFakeUp->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP1200A0400_TauFakeUp = new TH1F("qcd_muTau_mvaVar_mt_MZP1200A0400_TauFakeUp","qcd_muTau_mvaVar_mt_MZP1200A0400_TauFakeUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP1200A0400_TauFakeUp->Sumw2();
+    
+    TH1F * qcd_muTau_mvaVar_mt_MZP600A0400_TauFakeDown = new TH1F("qcd_muTau_mvaVar_mt_MZP600A0400_TauFakeDown","qcd_muTau_mvaVar_mt_MZP600A0400_TauFakeDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP600A0400_TauFakeDown->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP800A0400_TauFakeDown = new TH1F("qcd_muTau_mvaVar_mt_MZP800A0400_TauFakeDown","qcd_muTau_mvaVar_mt_MZP800A0400_TauFakeDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP800A0400_TauFakeDown->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP1000A0400_TauFakeDown = new TH1F("qcd_muTau_mvaVar_mt_MZP1000A0400_TauFakeDown","qcd_muTau_mvaVar_mt_MZP1000A0400_TauFakeDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP1000A0400_TauFakeDown->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP1200A0400_TauFakeDown = new TH1F("qcd_muTau_mvaVar_mt_MZP1200A0400_TauFakeDown","qcd_muTau_mvaVar_mt_MZP1200A0400_TauFakeDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP1200A0400_TauFakeDown->Sumw2();
+    
+    TH1F * qcd_muTau_mvaVar_mt_MZP600A0400_bTagUp = new TH1F("qcd_muTau_mvaVar_mt_MZP600A0400_bTagUp","qcd_muTau_mvaVar_mt_MZP600A0400_bTagUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP600A0400_bTagUp->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP800A0400_bTagUp = new TH1F("qcd_muTau_mvaVar_mt_MZP800A0400_bTagUp","qcd_muTau_mvaVar_mt_MZP800A0400_bTagUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP800A0400_bTagUp->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP1000A0400_bTagUp = new TH1F("qcd_muTau_mvaVar_mt_MZP1000A0400_bTagUp","qcd_muTau_mvaVar_mt_MZP1000A0400_bTagUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP1000A0400_bTagUp->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP1200A0400_bTagUp = new TH1F("qcd_muTau_mvaVar_mt_MZP1200A0400_bTagUp","qcd_muTau_mvaVar_mt_MZP1200A0400_bTagUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP1200A0400_bTagUp->Sumw2();
+    
+    TH1F * qcd_muTau_mvaVar_mt_MZP600A0400_bTagDown = new TH1F("qcd_muTau_mvaVar_mt_MZP600A0400_bTagDown","qcd_muTau_mvaVar_mt_MZP600A0400_bTagDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP600A0400_bTagDown->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP800A0400_bTagDown = new TH1F("qcd_muTau_mvaVar_mt_MZP800A0400_bTagDown","qcd_muTau_mvaVar_mt_MZP800A0400_bTagDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP800A0400_bTagDown->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP1000A0400_bTagDown = new TH1F("qcd_muTau_mvaVar_mt_MZP1000A0400_bTagDown","qcd_muTau_mvaVar_mt_MZP1000A0400_bTagDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP1000A0400_bTagDown->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP1200A0400_bTagDown = new TH1F("qcd_muTau_mvaVar_mt_MZP1200A0400_bTagDown","qcd_muTau_mvaVar_mt_MZP1200A0400_bTagDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP1200A0400_bTagDown->Sumw2();
+    
+    TH1F * qcd_muTau_mvaVar_mt_MZP600A0400_JECUp = new TH1F("qcd_muTau_mvaVar_mt_MZP600A0400_JECUp","qcd_muTau_mvaVar_mt_MZP600A0400_JECUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP600A0400_JECUp->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP800A0400_JECUp = new TH1F("qcd_muTau_mvaVar_mt_MZP800A0400_JECUp","qcd_muTau_mvaVar_mt_MZP800A0400_JECUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP800A0400_JECUp->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP1000A0400_JECUp = new TH1F("qcd_muTau_mvaVar_mt_MZP1000A0400_JECUp","qcd_muTau_mvaVar_mt_MZP1000A0400_JECUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP1000A0400_JECUp->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP1200A0400_JECUp = new TH1F("qcd_muTau_mvaVar_mt_MZP1200A0400_JECUp","qcd_muTau_mvaVar_mt_MZP1200A0400_JECUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP1200A0400_JECUp->Sumw2();
+    
+    TH1F * qcd_muTau_mvaVar_mt_MZP600A0400_JECDown = new TH1F("qcd_muTau_mvaVar_mt_MZP600A0400_JECDown","qcd_muTau_mvaVar_mt_MZP600A0400_JECDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP600A0400_JECDown->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP800A0400_JECDown = new TH1F("qcd_muTau_mvaVar_mt_MZP800A0400_JECDown","qcd_muTau_mvaVar_mt_MZP800A0400_JECDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP800A0400_JECDown->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP1000A0400_JECDown = new TH1F("qcd_muTau_mvaVar_mt_MZP1000A0400_JECDown","qcd_muTau_mvaVar_mt_MZP1000A0400_JECDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP1000A0400_JECDown->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP1200A0400_JECDown = new TH1F("qcd_muTau_mvaVar_mt_MZP1200A0400_JECDown","qcd_muTau_mvaVar_mt_MZP1200A0400_JECDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP1200A0400_JECDown->Sumw2();
+    
+    TH1F * qcd_muTau_mvaVar_mt_MZP600A0400_HPTUp = new TH1F("qcd_muTau_mvaVar_mt_MZP600A0400_HPTUp","qcd_muTau_mvaVar_mt_MZP600A0400_HPTUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP600A0400_HPTUp->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP800A0400_HPTUp = new TH1F("qcd_muTau_mvaVar_mt_MZP800A0400_HPTUp","qcd_muTau_mvaVar_mt_MZP800A0400_HPTUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP800A0400_HPTUp->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP1000A0400_HPTUp = new TH1F("qcd_muTau_mvaVar_mt_MZP1000A0400_HPTUp","qcd_muTau_mvaVar_mt_MZP1000A0400_HPTUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP1000A0400_HPTUp->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP1200A0400_HPTUp = new TH1F("qcd_muTau_mvaVar_mt_MZP1200A0400_HPTUp","qcd_muTau_mvaVar_mt_MZP1200A0400_HPTUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP1200A0400_HPTUp->Sumw2();
+    
+    TH1F * qcd_muTau_mvaVar_mt_MZP600A0400_HPTDown = new TH1F("qcd_muTau_mvaVar_mt_MZP600A0400_HPTDown","qcd_muTau_mvaVar_mt_MZP600A0400_HPTDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP600A0400_HPTDown->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP800A0400_HPTDown = new TH1F("qcd_muTau_mvaVar_mt_MZP800A0400_HPTDown","qcd_muTau_mvaVar_mt_MZP800A0400_HPTDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP800A0400_HPTDown->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP1000A0400_HPTDown = new TH1F("qcd_muTau_mvaVar_mt_MZP1000A0400_HPTDown","qcd_muTau_mvaVar_mt_MZP1000A0400_HPTDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP1000A0400_HPTDown->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP1200A0400_HPTDown = new TH1F("qcd_muTau_mvaVar_mt_MZP1200A0400_HPTDown","qcd_muTau_mvaVar_mt_MZP1200A0400_HPTDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP1200A0400_HPTDown->Sumw2();
+    
+    TH1F * qcd_muTau_mvaVar_mt_MZP600A0400_TESUp = new TH1F("qcd_muTau_mvaVar_mt_MZP600A0400_TESUp","qcd_muTau_mvaVar_mt_MZP600A0400_TESUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP600A0400_TESUp->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP800A0400_TESUp = new TH1F("qcd_muTau_mvaVar_mt_MZP800A0400_TESUp","qcd_muTau_mvaVar_mt_MZP800A0400_TESUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP800A0400_TESUp->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP1000A0400_TESUp = new TH1F("qcd_muTau_mvaVar_mt_MZP1000A0400_TESUp","qcd_muTau_mvaVar_mt_MZP1000A0400_TESUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP1000A0400_TESUp->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP1200A0400_TESUp = new TH1F("qcd_muTau_mvaVar_mt_MZP1200A0400_TESUp","qcd_muTau_mvaVar_mt_MZP1200A0400_TESUp",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP1200A0400_TESUp->Sumw2();
+    
+    TH1F * qcd_muTau_mvaVar_mt_MZP600A0400_TESDown = new TH1F("qcd_muTau_mvaVar_mt_MZP600A0400_TESDown","qcd_muTau_mvaVar_mt_MZP600A0400_TESDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP600A0400_TESDown->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP800A0400_TESDown = new TH1F("qcd_muTau_mvaVar_mt_MZP800A0400_TESDown","qcd_muTau_mvaVar_mt_MZP800A0400_TESDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP800A0400_TESDown->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP1000A0400_TESDown = new TH1F("qcd_muTau_mvaVar_mt_MZP1000A0400_TESDown","qcd_muTau_mvaVar_mt_MZP1000A0400_TESDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP1000A0400_TESDown->Sumw2();
+    TH1F * qcd_muTau_mvaVar_mt_MZP1200A0400_TESDown = new TH1F("qcd_muTau_mvaVar_mt_MZP1200A0400_TESDown","qcd_muTau_mvaVar_mt_MZP1200A0400_TESDown",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
+    qcd_muTau_mvaVar_mt_MZP1200A0400_TESDown->Sumw2();
+    
     //Expert
     TH1F * qcd_muTau_mvaVar_mt_EXP1 = new TH1F("qcd_muTau_mvaVar_mt_EXP1","qcd_muTau_mvaVar_mt_EXP1",tmvaBinning[0],tmvaBinning[1],tmvaBinning[2]);
     qcd_muTau_mvaVar_mt_EXP1->Sumw2();
@@ -2245,16 +3125,199 @@ void doMuTau()
     else if (sigChoice==2)
     {
         global_title = "QCD (Same Sign) Estimate Region";
-        fillQCD_Shape((SScut_muTau_base + cut_options_nom * TMVACutMap["MT_600"])*cut_weights_nom * TMVACutMap["MT_600"], (SScut_muTau_base_RelTauIso + cut_options_nom * TMVACutMap["MT_600"])*cut_weights_nom * TMVACutMap["MT_600"], wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400,"mvaVar_mt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
-        fillQCD_Shape((SScut_muTau_base + cut_options_nom * TMVACutMap["MT_800"])*cut_weights_nom * TMVACutMap["MT_800"], (SScut_muTau_base_RelTauIso + cut_options_nom * TMVACutMap["MT_800"])*cut_weights_nom * TMVACutMap["MT_800"], wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400,"mvaVar_mt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
-        fillQCD_Shape((SScut_muTau_base + cut_options_nom * TMVACutMap["MT_1000"])*cut_weights_nom * TMVACutMap["MT_1000"], (SScut_muTau_base_RelTauIso + cut_options_nom * TMVACutMap["MT_1000"])*cut_weights_nom * TMVACutMap["MT_1000"], wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400,"mvaVar_mt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
-        fillQCD_Shape((SScut_muTau_base + cut_options_nom * TMVACutMap["MT_1200"])*cut_weights_nom * TMVACutMap["MT_1200"], (SScut_muTau_base_RelTauIso + cut_options_nom * TMVACutMap["MT_1200"])*cut_weights_nom * TMVACutMap["MT_1200"], wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400,"mvaVar_mt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+        fillQCD_Shape((SScut_muTau_base +  TMVACutMap["MT_600"])*cut_weights_nom, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_600"])*cut_weights_nom, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400,"mvaVar_mt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+        fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_800"])*cut_weights_nom, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_800"])*cut_weights_nom , wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400,"mvaVar_mt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+        fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1000"])*cut_weights_nom, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1000"])*cut_weights_nom, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400,"mvaVar_mt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+        fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1200"])*cut_weights_nom, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1200"])*cut_weights_nom, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400,"mvaVar_mt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
 
-        drawSignalRegion(signalCut_base * cut_options_nom * TMVACutMap["MT_600"], signalCut_base * cut_options_nom * TMVACutMap["MT_600"], wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400, "mvaVar_mt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "600", 1, 1);
-        drawSignalRegion(signalCut_base * cut_options_nom * TMVACutMap["MT_800"], signalCut_base * cut_options_nom * TMVACutMap["MT_800"], wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400, "mvaVar_mt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "800", 1, 1);
-        drawSignalRegion(signalCut_base * cut_options_nom * TMVACutMap["MT_1000"], signalCut_base * cut_options_nom * TMVACutMap["MT_1000"], wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400, "mvaVar_mt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "1000", 1, 1);
-        drawSignalRegion(signalCut_base * cut_options_nom * TMVACutMap["MT_1200"], signalCut_base * cut_options_nom * TMVACutMap["MT_1200"], wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400, "mvaVar_mt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "1200", 1, 1);
-        reset_files();
+        drawSignalRegion((signalCut_base + TMVACutMap["MT_600"])*cut_weights_nom, (signalCut_base + TMVACutMap["MT_600"])*cut_weights_nom, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400, "mvaVar_mt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "600", 1, 1);
+        drawSignalRegion((signalCut_base + TMVACutMap["MT_800"])*cut_weights_nom, (signalCut_base + TMVACutMap["MT_800"])*cut_weights_nom, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400, "mvaVar_mt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "800", 1, 1);
+        drawSignalRegion((signalCut_base + TMVACutMap["MT_1000"])*cut_weights_nom, (signalCut_base + TMVACutMap["MT_1000"])*cut_weights_nom, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400, "mvaVar_mt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "1000", 1, 1);
+        drawSignalRegion((signalCut_base + TMVACutMap["MT_1200"])*cut_weights_nom, (signalCut_base + TMVACutMap["MT_1200"])*cut_weights_nom, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400, "mvaVar_mt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "1200", 1, 1);
+        
+        if (doSyst)
+        {
+            std::cout << "syst for mt started" << std::endl;
+            
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_600"])*cut_weights_UESUp, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_600"])*cut_weights_UESUp, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400_UESUp,"mvaVar_mt_MZP600A0400_UESUp", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_800"])*cut_weights_UESUp, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_800"])*cut_weights_UESUp, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400_UESUp,"mvaVar_mt_MZP800A0400_UESUp", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1000"])*cut_weights_UESUp, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1000"])*cut_weights_UESUp, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400_UESUp,"mvaVar_mt_MZP1000A0400_UESUp", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1200"])*cut_weights_UESUp, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1200"])*cut_weights_UESUp, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400_UESUp,"mvaVar_mt_MZP1200A0400_UESUp", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_600"])*cut_weights_UESUp, (w_signalCut_base + TMVACutMap["MT_600"])*cut_weights_UESUp, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400_UESUp, "mvaVar_mt_MZP600A0400_UESUp", tmvaBinning, "sig region Function TMVA variable", "mt", "600_CMS_scale_m_mt_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_800"])*cut_weights_UESUp, (w_signalCut_base + TMVACutMap["MT_800"])*cut_weights_UESUp, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400_UESUp, "mvaVar_mt_MZP800A0400_UESUp", tmvaBinning, "sig region Function TMVA variable", "mt", "800_CMS_scale_m_mt_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_1000"])*cut_weights_UESUp, (w_signalCut_base + TMVACutMap["MT_1000"])*cut_weights_UESUp, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400_UESUp, "mvaVar_mt_MZP1000A0400_UESUp", tmvaBinning, "sig region Function TMVA variable", "mt", "1000_CMS_scale_m_mt_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_1200"])*cut_weights_UESUp, (w_signalCut_base + TMVACutMap["MT_1200"])*cut_weights_UESUp, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400_UESUp, "mvaVar_mt_MZP1200A0400_UESUp", tmvaBinning, "sig region Function TMVA variable", "mt", "1200_CMS_scale_m_mt_13TeVUp", 0, 1);
+            
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_600"])*cut_weights_UESDown, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_600"])*cut_weights_UESDown, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400_UESDown,"mvaVar_mt_MZP600A0400_UESDown", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_800"])*cut_weights_UESDown, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_800"])*cut_weights_UESDown, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400_UESDown,"mvaVar_mt_MZP800A0400_UESDown", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1000"])*cut_weights_UESDown, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1000"])*cut_weights_UESDown, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400_UESDown,"mvaVar_mt_MZP1000A0400_UESDown", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1200"])*cut_weights_UESDown, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1200"])*cut_weights_UESDown, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400_UESDown,"mvaVar_mt_MZP1200A0400_UESDown", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_600"])*cut_weights_UESDown, (w_signalCut_base + TMVACutMap["MT_600"])*cut_weights_UESDown, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400_UESDown, "mvaVar_mt_MZP600A0400_UESDown", tmvaBinning, "sig region Function TMVA variable", "mt", "600_CMS_scale_m_mt_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_800"])*cut_weights_UESDown, (w_signalCut_base + TMVACutMap["MT_800"])*cut_weights_UESDown, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400_UESDown, "mvaVar_mt_MZP800A0400_UESDown", tmvaBinning, "sig region Function TMVA variable", "mt", "800_CMS_scale_m_mt_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_1000"])*cut_weights_UESDown, (w_signalCut_base + TMVACutMap["MT_1000"])*cut_weights_UESDown, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400_UESDown, "mvaVar_mt_MZP1000A0400_UESDown", tmvaBinning, "sig region Function TMVA variable", "mt", "1000_CMS_scale_m_mt_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_1200"])*cut_weights_UESDown, (w_signalCut_base + TMVACutMap["MT_1200"])*cut_weights_UESDown, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400_UESDown, "mvaVar_mt_MZP1200A0400_UESDown", tmvaBinning, "sig region Function TMVA variable", "mt", "1200_CMS_scale_m_mt_13TeVDown", 0, 1);
+            
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_600"])*cut_weights_VPtUp, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_600"])*cut_weights_VPtUp, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400_VPtUp,"mvaVar_mt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_800"])*cut_weights_VPtUp, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_800"])*cut_weights_VPtUp, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400_VPtUp,"mvaVar_mt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1000"])*cut_weights_VPtUp, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1000"])*cut_weights_VPtUp, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400_VPtUp,"mvaVar_mt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1200"])*cut_weights_VPtUp, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1200"])*cut_weights_VPtUp, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400_VPtUp,"mvaVar_mt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_600"])*cut_weights_VPtUp, (w_signalCut_base + TMVACutMap["MT_600"])*cut_weights_VPtUp, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400_VPtUp, "mvaVar_mt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "600_CMS_xtt_dyShape_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_800"])*cut_weights_VPtUp, (w_signalCut_base + TMVACutMap["MT_800"])*cut_weights_VPtUp, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400_VPtUp, "mvaVar_mt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "800_CMS_xtt_dyShape_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_1000"])*cut_weights_VPtUp, (w_signalCut_base + TMVACutMap["MT_1000"])*cut_weights_VPtUp, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400_VPtUp, "mvaVar_mt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "1000_CMS_xtt_dyShape_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_1200"])*cut_weights_VPtUp, (w_signalCut_base + TMVACutMap["MT_1200"])*cut_weights_VPtUp, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400_VPtUp, "mvaVar_mt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "1200_CMS_xtt_dyShape_13TeVUp", 0, 1);
+            
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_600"])*cut_weights_VPtDown, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_600"])*cut_weights_VPtDown, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400_VPtDown,"mvaVar_mt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_800"])*cut_weights_VPtDown, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_800"])*cut_weights_VPtDown, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400_VPtDown,"mvaVar_mt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1000"])*cut_weights_VPtDown, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1000"])*cut_weights_VPtDown, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400_VPtDown,"mvaVar_mt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1200"])*cut_weights_VPtDown, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1200"])*cut_weights_VPtDown, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400_VPtDown,"mvaVar_mt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_600"])*cut_weights_VPtDown, (w_signalCut_base + TMVACutMap["MT_600"])*cut_weights_VPtDown, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400_VPtDown, "mvaVar_mt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "600_CMS_xtt_dyShape_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_800"])*cut_weights_VPtDown, (w_signalCut_base + TMVACutMap["MT_800"])*cut_weights_VPtDown, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400_VPtDown, "mvaVar_mt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "800_CMS_xtt_dyShape_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_1000"])*cut_weights_VPtDown, (w_signalCut_base + TMVACutMap["MT_1000"])*cut_weights_VPtDown, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400_VPtDown, "mvaVar_mt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "1000_CMS_xtt_dyShape_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_1200"])*cut_weights_VPtDown, (w_signalCut_base + TMVACutMap["MT_1200"])*cut_weights_VPtDown, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400_VPtDown, "mvaVar_mt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "1200_CMS_xtt_dyShape_13TeVDown", 0, 1);
+            
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_600"])*cut_weights_VPtUp, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_600"])*cut_weights_VPtUp, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400_VPtWUp,"mvaVar_mt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_800"])*cut_weights_VPtUp, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_800"])*cut_weights_VPtUp, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400_VPtWUp,"mvaVar_mt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1000"])*cut_weights_VPtUp, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1000"])*cut_weights_VPtUp, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400_VPtWUp,"mvaVar_mt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1200"])*cut_weights_VPtUp, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1200"])*cut_weights_VPtUp, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400_VPtWUp,"mvaVar_mt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_600"])*cut_weights_VPtUp, (w_signalCut_base + TMVACutMap["MT_600"])*cut_weights_VPtUp, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400_VPtWUp, "mvaVar_mt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "600_CMS_xtt_wShape_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_800"])*cut_weights_VPtUp, (w_signalCut_base + TMVACutMap["MT_800"])*cut_weights_VPtUp, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400_VPtWUp, "mvaVar_mt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "800_CMS_xtt_wShape_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_1000"])*cut_weights_VPtUp, (w_signalCut_base + TMVACutMap["MT_1000"])*cut_weights_VPtUp, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400_VPtWUp, "mvaVar_mt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "1000_CMS_xtt_wShape_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_1200"])*cut_weights_VPtUp, (w_signalCut_base + TMVACutMap["MT_1200"])*cut_weights_VPtUp, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400_VPtWUp, "mvaVar_mt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "1200_CMS_xtt_wShape_13TeVUp", 0, 1);
+            
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_600"])*cut_weights_VPtDown, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_600"])*cut_weights_VPtDown, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400_VPtWDown,"mvaVar_mt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_800"])*cut_weights_VPtDown, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_800"])*cut_weights_VPtDown, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400_VPtWDown,"mvaVar_mt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1000"])*cut_weights_VPtDown, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1000"])*cut_weights_VPtDown, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400_VPtWDown,"mvaVar_mt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1200"])*cut_weights_VPtDown, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1200"])*cut_weights_VPtDown, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400_VPtWDown,"mvaVar_mt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_600"])*cut_weights_VPtDown, (w_signalCut_base + TMVACutMap["MT_600"])*cut_weights_VPtDown, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400_VPtWDown, "mvaVar_mt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "600_CMS_xtt_wShape_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_800"])*cut_weights_VPtDown, (w_signalCut_base + TMVACutMap["MT_800"])*cut_weights_VPtDown, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400_VPtWDown, "mvaVar_mt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "800_CMS_xtt_wShape_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_1000"])*cut_weights_VPtDown, (w_signalCut_base + TMVACutMap["MT_1000"])*cut_weights_VPtDown, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400_VPtWDown, "mvaVar_mt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "1000_CMS_xtt_wShape_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_1200"])*cut_weights_VPtDown, (w_signalCut_base + TMVACutMap["MT_1200"])*cut_weights_VPtDown, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400_VPtWDown, "mvaVar_mt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "1200_CMS_xtt_wShape_13TeVDown", 0, 1);
+            
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_600"])*cut_weights_TauFakeUp, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_600"])*cut_weights_TauFakeUp, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400_TauFakeUp,"mvaVar_mt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_800"])*cut_weights_TauFakeUp, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_800"])*cut_weights_TauFakeUp, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400_TauFakeUp,"mvaVar_mt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1000"])*cut_weights_TauFakeUp, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1000"])*cut_weights_TauFakeUp, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400_TauFakeUp,"mvaVar_mt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1200"])*cut_weights_TauFakeUp, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1200"])*cut_weights_TauFakeUp, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400_TauFakeUp,"mvaVar_mt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_600"])*cut_weights_TauFakeUp, (w_signalCut_base + TMVACutMap["MT_600"])*cut_weights_TauFakeUp, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400_TauFakeUp, "mvaVar_mt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "600_CMS_xtt_jetToTauFake_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_800"])*cut_weights_TauFakeUp, (w_signalCut_base + TMVACutMap["MT_800"])*cut_weights_TauFakeUp, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400_TauFakeUp, "mvaVar_mt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "800_CMS_xtt_jetToTauFake_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_1000"])*cut_weights_TauFakeUp, (w_signalCut_base + TMVACutMap["MT_1000"])*cut_weights_TauFakeUp, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400_TauFakeUp, "mvaVar_mt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "1000_CMS_xtt_jetToTauFake_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_1200"])*cut_weights_TauFakeUp, (w_signalCut_base + TMVACutMap["MT_1200"])*cut_weights_TauFakeUp, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400_TauFakeUp, "mvaVar_mt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "1200_CMS_xtt_jetToTauFake_13TeVUp", 0, 1);
+            
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_600"])*cut_weights_TauFakeDown, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_600"])*cut_weights_TauFakeDown, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400_TauFakeDown,"mvaVar_mt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_800"])*cut_weights_TauFakeDown, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_800"])*cut_weights_TauFakeDown, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400_TauFakeDown,"mvaVar_mt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1000"])*cut_weights_TauFakeDown, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1000"])*cut_weights_TauFakeDown, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400_TauFakeDown,"mvaVar_mt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1200"])*cut_weights_TauFakeDown, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1200"])*cut_weights_TauFakeDown, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400_TauFakeDown,"mvaVar_mt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_600"])*cut_weights_TauFakeDown, (w_signalCut_base + TMVACutMap["MT_600"])*cut_weights_TauFakeDown, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400_TauFakeDown, "mvaVar_mt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "600_CMS_xtt_jetToTauFake_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_800"])*cut_weights_TauFakeDown, (w_signalCut_base + TMVACutMap["MT_800"])*cut_weights_TauFakeDown, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400_TauFakeDown, "mvaVar_mt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "800_CMS_xtt_jetToTauFake_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_1000"])*cut_weights_TauFakeDown, (w_signalCut_base + TMVACutMap["MT_1000"])*cut_weights_TauFakeDown, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400_TauFakeDown, "mvaVar_mt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "1000_CMS_xtt_jetToTauFake_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_1200"])*cut_weights_TauFakeDown, (w_signalCut_base + TMVACutMap["MT_1200"])*cut_weights_TauFakeDown, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400_TauFakeDown, "mvaVar_mt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "1200_CMS_xtt_jetToTauFake_13TeVDown", 0, 1);
+            
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_600"])*cut_weights_bTagUp, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_600"])*cut_weights_bTagUp, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400_bTagUp,"mvaVar_mt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_800"])*cut_weights_bTagUp, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_800"])*cut_weights_bTagUp, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400_bTagUp,"mvaVar_mt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1000"])*cut_weights_bTagUp, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1000"])*cut_weights_bTagUp, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400_bTagUp,"mvaVar_mt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1200"])*cut_weights_bTagUp, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1200"])*cut_weights_bTagUp, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400_bTagUp,"mvaVar_mt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_600"])*cut_weights_bTagUp, (w_signalCut_base + TMVACutMap["MT_600"])*cut_weights_bTagUp, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400_bTagUp, "mvaVar_mt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "600_CMS_xtt_bTag_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_800"])*cut_weights_bTagUp, (w_signalCut_base + TMVACutMap["MT_800"])*cut_weights_bTagUp, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400_bTagUp, "mvaVar_mt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "800_CMS_xtt_bTag_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_1000"])*cut_weights_bTagUp, (w_signalCut_base + TMVACutMap["MT_1000"])*cut_weights_bTagUp, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400_bTagUp, "mvaVar_mt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "1000_CMS_xtt_bTag_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_1200"])*cut_weights_bTagUp, (w_signalCut_base + TMVACutMap["MT_1200"])*cut_weights_bTagUp, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400_bTagUp, "mvaVar_mt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "1200_CMS_xtt_bTag_13TeVUp", 0, 1);
+            
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_600"])*cut_weights_bTagDown, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_600"])*cut_weights_bTagDown, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400_bTagDown,"mvaVar_mt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_800"])*cut_weights_bTagDown, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_800"])*cut_weights_bTagDown, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400_bTagDown,"mvaVar_mt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1000"])*cut_weights_bTagDown, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1000"])*cut_weights_bTagDown, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400_bTagDown,"mvaVar_mt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1200"])*cut_weights_bTagDown, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1200"])*cut_weights_bTagDown, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400_bTagDown,"mvaVar_mt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_600"])*cut_weights_bTagDown, (w_signalCut_base + TMVACutMap["MT_600"])*cut_weights_bTagDown, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400_bTagDown, "mvaVar_mt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "600_CMS_xtt_bTag_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_800"])*cut_weights_bTagDown, (w_signalCut_base + TMVACutMap["MT_800"])*cut_weights_bTagDown, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400_bTagDown, "mvaVar_mt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "800_CMS_xtt_bTag_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_1000"])*cut_weights_bTagDown, (w_signalCut_base + TMVACutMap["MT_1000"])*cut_weights_bTagDown, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400_bTagDown, "mvaVar_mt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "1000_CMS_xtt_bTag_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_1200"])*cut_weights_bTagDown, (w_signalCut_base + TMVACutMap["MT_1200"])*cut_weights_bTagDown, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400_bTagDown, "mvaVar_mt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "1200_CMS_xtt_bTag_13TeVDown", 0, 1);
+            
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_600"])*cut_weights_JECUp, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_600"])*cut_weights_JECUp, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400_JECUp,"mvaVar_mt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_800"])*cut_weights_JECUp, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_800"])*cut_weights_JECUp, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400_JECUp,"mvaVar_mt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1000"])*cut_weights_JECUp, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1000"])*cut_weights_JECUp, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400_JECUp,"mvaVar_mt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1200"])*cut_weights_JECUp, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1200"])*cut_weights_JECUp, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400_JECUp,"mvaVar_mt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_600"])*cut_weights_JECUp, (w_signalCut_base + TMVACutMap["MT_600"])*cut_weights_JECUp, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400_JECUp, "mvaVar_mt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "600_CMS_scale_j_mt_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_800"])*cut_weights_JECUp, (w_signalCut_base + TMVACutMap["MT_800"])*cut_weights_JECUp, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400_JECUp, "mvaVar_mt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "800_CMS_scale_j_mt_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_1000"])*cut_weights_JECUp, (w_signalCut_base + TMVACutMap["MT_1000"])*cut_weights_JECUp, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400_JECUp, "mvaVar_mt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "1000_CMS_scale_j_mt_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_1200"])*cut_weights_JECUp, (w_signalCut_base + TMVACutMap["MT_1200"])*cut_weights_JECUp, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400_JECUp, "mvaVar_mt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "1200_CMS_scale_j_mt_13TeVUp", 0, 1);
+            
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_600"])*cut_weights_JECDown, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_600"])*cut_weights_JECDown, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400_JECDown,"mvaVar_mt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_800"])*cut_weights_JECDown, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_800"])*cut_weights_JECDown, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400_JECDown,"mvaVar_mt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1000"])*cut_weights_JECDown, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1000"])*cut_weights_JECDown, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400_JECDown,"mvaVar_mt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1200"])*cut_weights_JECDown, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1200"])*cut_weights_JECDown, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400_JECDown,"mvaVar_mt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_600"])*cut_weights_JECDown, (w_signalCut_base + TMVACutMap["MT_600"])*cut_weights_JECDown, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400_JECDown, "mvaVar_mt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "600_CMS_scale_j_mt_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_800"])*cut_weights_JECDown, (w_signalCut_base + TMVACutMap["MT_800"])*cut_weights_JECDown, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400_JECDown, "mvaVar_mt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "800_CMS_scale_j_mt_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_1000"])*cut_weights_JECDown, (w_signalCut_base + TMVACutMap["MT_1000"])*cut_weights_JECDown, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400_JECDown, "mvaVar_mt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "1000_CMS_scale_j_mt_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_1200"])*cut_weights_JECDown, (w_signalCut_base + TMVACutMap["MT_1200"])*cut_weights_JECDown, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400_JECDown, "mvaVar_mt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "1200_CMS_scale_j_mt_13TeVDown", 0, 1);
+            
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_600"])*cut_weights_HPTUp, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_600"])*cut_weights_HPTUp, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400_HPTUp,"mvaVar_mt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_800"])*cut_weights_HPTUp, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_800"])*cut_weights_HPTUp, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400_HPTUp,"mvaVar_mt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1000"])*cut_weights_HPTUp, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1000"])*cut_weights_HPTUp, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400_HPTUp,"mvaVar_mt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1200"])*cut_weights_HPTUp, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1200"])*cut_weights_HPTUp, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400_HPTUp,"mvaVar_mt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_600"])*cut_weights_HPTUp, (w_signalCut_base + TMVACutMap["MT_600"])*cut_weights_HPTUp, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400_HPTUp, "mvaVar_mt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "600_CMS_xtt_highTauEffi_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_800"])*cut_weights_HPTUp, (w_signalCut_base + TMVACutMap["MT_800"])*cut_weights_HPTUp, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400_HPTUp, "mvaVar_mt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "800_CMS_xtt_highTauEffi_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_1000"])*cut_weights_HPTUp, (w_signalCut_base + TMVACutMap["MT_1000"])*cut_weights_HPTUp, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400_HPTUp, "mvaVar_mt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "1000_CMS_xtt_highTauEffi_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_1200"])*cut_weights_HPTUp, (w_signalCut_base + TMVACutMap["MT_1200"])*cut_weights_HPTUp, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400_HPTUp, "mvaVar_mt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "1200_CMS_xtt_highTauEffi_13TeVUp", 0, 1);
+            
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_600"])*cut_weights_HPTDown, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_600"])*cut_weights_HPTDown, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400_HPTDown,"mvaVar_mt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_800"])*cut_weights_HPTDown, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_800"])*cut_weights_HPTDown, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400_HPTDown,"mvaVar_mt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1000"])*cut_weights_HPTDown, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1000"])*cut_weights_HPTDown, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400_HPTDown,"mvaVar_mt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1200"])*cut_weights_HPTDown, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1200"])*cut_weights_HPTDown, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400_HPTDown,"mvaVar_mt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_600"])*cut_weights_HPTDown, (w_signalCut_base + TMVACutMap["MT_600"])*cut_weights_HPTDown, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400_HPTDown, "mvaVar_mt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "600_CMS_xtt_highTauEffi_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_800"])*cut_weights_HPTDown, (w_signalCut_base + TMVACutMap["MT_800"])*cut_weights_HPTDown, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400_HPTDown, "mvaVar_mt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "800_CMS_xtt_highTauEffi_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_1000"])*cut_weights_HPTDown, (w_signalCut_base + TMVACutMap["MT_1000"])*cut_weights_HPTDown, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400_HPTDown, "mvaVar_mt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "1000_CMS_xtt_highTauEffi_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_1200"])*cut_weights_HPTDown, (w_signalCut_base + TMVACutMap["MT_1200"])*cut_weights_HPTDown, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400_HPTDown, "mvaVar_mt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "1200_CMS_xtt_highTauEffi_13TeVDown", 0, 1);
+            
+            reset_files();
+            
+            if(printSyst)
+            {
+                std::cout << "no print count yet" << std::endl;
+            }
+            
+            reset_files();
+            setup_upTau_files_muTau();
+            
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_600"])*cut_weights_nom, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_600"])*cut_weights_nom, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400_TESUp,"mvaVar_mt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_800"])*cut_weights_nom, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_800"])*cut_weights_nom, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400_TESUp,"mvaVar_mt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1000"])*cut_weights_nom, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1000"])*cut_weights_nom, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400_TESUp,"mvaVar_mt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1200"])*cut_weights_nom, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1200"])*cut_weights_nom, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400_TESUp,"mvaVar_mt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_600"])*cut_weights_nom, (signalCut_base + TMVACutMap["MT_600"])*cut_weights_nom, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400_TESUp, "mvaVar_mt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "600_CMS_scale_t_mt_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_800"])*cut_weights_nom, (signalCut_base + TMVACutMap["MT_800"])*cut_weights_nom, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400_TESUp, "mvaVar_mt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "800_CMS_scale_t_mt_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_1000"])*cut_weights_nom, (signalCut_base + TMVACutMap["MT_1000"])*cut_weights_nom, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400_TESUp, "mvaVar_mt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "1000_CMS_scale_t_mt_13TeVUp", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_1200"])*cut_weights_nom, (signalCut_base + TMVACutMap["MT_1200"])*cut_weights_nom, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400_TESUp, "mvaVar_mt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "1200_CMS_scale_t_mt_13TeVUp", 0, 1);
+            
+
+            if (printSyst) std::cout << "no print yet" << std::endl;
+            
+            reset_files();
+            setup_downTau_files_muTau();
+            
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_600"])*cut_weights_nom, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_600"])*cut_weights_nom, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400_TESDown,"mvaVar_mt_MZP600A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_800"])*cut_weights_nom, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_800"])*cut_weights_nom, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400_TESDown,"mvaVar_mt_MZP800A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1000"])*cut_weights_nom, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1000"])*cut_weights_nom, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400_TESDown,"mvaVar_mt_MZP1000A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            fillQCD_Shape((SScut_muTau_base + TMVACutMap["MT_1200"])*cut_weights_nom, (SScut_muTau_base_RelTauIso + TMVACutMap["MT_1200"])*cut_weights_nom, wSF_SS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400_TESDown,"mvaVar_mt_MZP1200A0400", tmvaBinning, "QCD Function TMVA variable shape ext. in SS side band (muTau)", "mt", 1);
+            
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_600"])*cut_weights_nom, (signalCut_base + TMVACutMap["MT_600"])*cut_weights_nom, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP600A0400_TESDown, "mvaVar_mt_MZP600A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "600_CMS_scale_t_mt_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_800"])*cut_weights_nom, (signalCut_base + TMVACutMap["MT_800"])*cut_weights_nom, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP800A0400_TESDown, "mvaVar_mt_MZP800A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "800_CMS_scale_t_mt_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_1000"])*cut_weights_nom, (signalCut_base + TMVACutMap["MT_1000"])*cut_weights_nom, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1000A0400_TESDown, "mvaVar_mt_MZP1000A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "1000_CMS_scale_t_mt_13TeVDown", 0, 1);
+            drawSignalRegion((signalCut_base + TMVACutMap["MT_1200"])*cut_weights_nom, (signalCut_base + TMVACutMap["MT_1200"])*cut_weights_nom, wSF_OS_muTau, qcd_muTau_mvaVar_mt_MZP1200A0400_TESDown, "mvaVar_mt_MZP1200A0400", tmvaBinning, "sig region Function TMVA variable", "mt", "1200_CMS_scale_t_mt_13TeVDown", 0, 1);
+            
+            if (printSyst) std::cout << "no print yet" << std::endl;
+        }
+
     }
     else if (sigChoice==3)
     {
@@ -2375,7 +3438,7 @@ void doMuTau()
             
             fillQCD_Shape((SScut_muTau_base + cut_options_nom)*cut_weights_nom, (SScut_muTau_base_RelTauIso + cut_options_nom)*cut_weights_nom, wSF_SS_muTau, qcd_muTau_mt, "mt_1", mtBinning, "QCD mt shape ext. in SS side band (muTau)", "mt", 1);
             fillQCD_Shape((SScut_muTau_base + cut_options_nom)*cut_weights_nom, (SScut_muTau_base_RelTauIso + cut_options_nom)*cut_weights_nom, wSF_SS_muTau, qcd_muTau_m_vis, "m_vis", m_visBinning,  "QCD mvis shape ext. in SS side band (muTau)", "mt", 1);
-            fillQCD_Shape((SScut_muTau_base + cut_options_bCon)*cut_weights_bCon, (SScut_muTau_base_RelTauIso + cut_options_bCon)*cut_weights_bCon, wSF_SS_muTau, qcd_muTau_m_vis_ttCon, "m_vis", m_visConBinning,  "QCD mvis shape ext. in b-Tagged side band (muTau)", "mt", 1);
+            //fillQCD_Shape((SScut_muTau_base + cut_options_bCon)*cut_weights_bCon, (SScut_muTau_base_RelTauIso + cut_options_bCon)*cut_weights_bCon, wSF_SS_muTau, qcd_muTau_m_vis_ttCon, "m_vis", m_visConBinning,  "QCD mvis shape ext. in b-Tagged side band (muTau)", "mt", 1);
             fillQCD_Shape((SScut_muTau_base + cut_options_nom)*cut_weights_nom, (SScut_muTau_base_RelTauIso + cut_options_nom)*cut_weights_nom, wSF_SS_muTau, qcd_muTau_nbtag, "nbtag", nbtagBinning,  "QCD nbtag shape ext. in SS side band (muTau)", "mt", 1);
             fillQCD_Shape((SScut_muTau_base + cut_options_nom)*cut_weights_nom, (SScut_muTau_base_RelTauIso + cut_options_nom)*cut_weights_nom, wSF_SS_muTau, qcd_muTau_met, "met", metBinning,  "QCD met shape ext. in SS side band (muTau)", "mt", 1);
             fillQCD_Shape((SScut_muTau_base + cut_options_nom)*cut_weights_nom, (SScut_muTau_base_RelTauIso + cut_options_nom)*cut_weights_nom, wSF_SS_muTau, qcd_muTau_pt_1, "pt_1", ptBinning,  "QCD pt_1 shape ext. in SS side band (muTau)", "mt", 1);
@@ -2395,7 +3458,7 @@ void doMuTau()
             drawSignalRegion((signalCut_base + cut_options_nom)*cut_weights_nom, (w_signalCut_base + cut_options_nom)*cut_weights_nom, wSF_OS_muTau, qcd_muTau_mt, "mt_1", mtBinning, "Control mt", "mt", "", 1, 0);
             drawSignalRegion((signalCut_base + cut_options_nom)*cut_weights_nom, (w_signalCut_base + cut_options_nom)*cut_weights_nom, wSF_OS_muTau, qcd_muTau_m_vis, "m_vis", m_visBinning, "Control mvis", "mt", "", 1, 0);
             //drawSignalRegion((w_Control_base + cut_options_wCon)*cut_weights_wCon, (w_Control_base + cut_options_wCon)*cut_weights_wCon, wSF_OS_muTau, qcd_muTau_m_vis_wCon, "1.0*m_vis", m_visConBinning, "W Control Mu-Tau mvis", "mt", "", 1, 0);
-            drawSignalRegion((signalCut_base + cut_options_bCon)*cut_weights_bCon, (w_signalCut_base + cut_options_bCon)*cut_weights_bCon, wSF_OS_muTau, qcd_muTau_m_vis_ttCon, "1.0*m_vis", m_visConBinning, "TTbar Control Mu-Tau mvis", "mt", "", 1, 0);
+            //drawSignalRegion((signalCut_base + cut_options_bCon)*cut_weights_bCon, (w_signalCut_base + cut_options_bCon)*cut_weights_bCon, wSF_OS_muTau, qcd_muTau_m_vis_ttCon, "1.0*m_vis", m_visConBinning, "TTbar Control Mu-Tau mvis", "mt", "", 1, 0);
             drawSignalRegion((signalCut_base + cut_options_nom)*cut_weights_nom, (w_signalCut_base + cut_options_nom)*cut_weights_nom, wSF_OS_muTau, qcd_muTau_nbtag, "nbtag", nbtagBinning, "Control nbtag", "mt", "", 1, 0);
             drawSignalRegion((signalCut_base + cut_options_nom)*cut_weights_nom, (w_signalCut_base + cut_options_nom)*cut_weights_nom, wSF_OS_muTau, qcd_muTau_met, "met", metBinning, "Control met", "mt", "", 1, 0);
             drawSignalRegion((signalCut_base + cut_options_nom)*cut_weights_nom, (w_signalCut_base + cut_options_nom)*cut_weights_nom, wSF_OS_muTau, qcd_muTau_pt_1, "pt_1", ptBinning, "Control pt_1", "mt", "", 1, 0);
@@ -2777,7 +3840,7 @@ void drawSignalRegion(TCut cut, TCut wCut, double sf, TH1F * QCDshape, std::stri
         {
             global_title = "Signal Region with Blind MET Tail";
         }
-        if(choice2==1 && sigChoice==2 && (chan=="mt"||chan=="et"))
+        if(choice2==1 && sigChoice==2 && (chan=="mt"||chan=="et" ||chan=="tt"))
         {
             global_title = "Signal Region in TMVA (blinded above 0.5)";
         }
@@ -2849,29 +3912,97 @@ void drawSignalRegion(TCut cut, TCut wCut, double sf, TH1F * QCDshape, std::stri
 	vbfhtautau_->Sumw2();
     vbfhtautau_->SetFillColor(colors["VBFHTauTau"]);
     
-	TH1F * zp600a300_ = new TH1F("zp600a300_","zp600a300_",bin[0],bin[1],bin[2]); 
-	zp600a300_->Sumw2(); 
+	TH1F * zp600a300_ = new TH1F("zp600a300_","zp600a300_",bin[0],bin[1],bin[2]);
+	zp600a300_->Sumw2();
+    TH1F * zp600a400_ = new TH1F("zp600a400_","zp600a400_",bin[0],bin[1],bin[2]);
+	zp600a400_->Sumw2();
 
-	TH1F * zp800a300_ = new TH1F("zp800a300_","zp800a300_",bin[0],bin[1],bin[2]); 
-	zp800a300_->Sumw2(); 
+	TH1F * zp800a300_ = new TH1F("zp800a300_","zp800a300_",bin[0],bin[1],bin[2]);
+	zp800a300_->Sumw2();
+    TH1F * zp800a400_ = new TH1F("zp800a400_","zp800a400_",bin[0],bin[1],bin[2]);
+	zp800a400_->Sumw2();
+    TH1F * zp800a500_ = new TH1F("zp800a500_","zp800a500_",bin[0],bin[1],bin[2]);
+	zp800a500_->Sumw2();
+    TH1F * zp800a600_ = new TH1F("zp800a600_","zp800a600_",bin[0],bin[1],bin[2]);
+	zp800a600_->Sumw2();
 
-	TH1F * zp1000a300_ = new TH1F("zp1000a300_","zp1000a300_",bin[0],bin[1],bin[2]); 
-	zp1000a300_->Sumw2(); 
-
-	TH1F * zp1200a300_ = new TH1F("zp1200a300_","zp1200a300_",bin[0],bin[1],bin[2]); 
+	TH1F * zp1000a300_ = new TH1F("zp1000a300_","zp1000a300_",bin[0],bin[1],bin[2]);
+	zp1000a300_->Sumw2();
+    TH1F * zp1000a400_ = new TH1F("zp1000a400_","zp1000a400_",bin[0],bin[1],bin[2]);
+	zp1000a400_->Sumw2();
+    TH1F * zp1000a500_ = new TH1F("zp1000a500_","zp1000a500_",bin[0],bin[1],bin[2]);
+	zp1000a500_->Sumw2();
+    TH1F * zp1000a600_ = new TH1F("zp1000a600_","zp1000a600_",bin[0],bin[1],bin[2]);
+	zp1000a600_->Sumw2();
+	TH1F * zp1000a700_ = new TH1F("zp1000a700_","zp1000a700_",bin[0],bin[1],bin[2]);
+	zp1000a700_->Sumw2();
+    TH1F * zp1000a800_ = new TH1F("zp1000a800_","zp1000a800_",bin[0],bin[1],bin[2]);
+	zp1000a800_->Sumw2();
+    
+    TH1F * zp1200a300_ = new TH1F("zp1200a300_","zp1200a300_",bin[0],bin[1],bin[2]);
 	zp1200a300_->Sumw2();
+    TH1F * zp1200a400_ = new TH1F("zp1200a400_","zp1200a400_",bin[0],bin[1],bin[2]);
+	zp1200a400_->Sumw2();
+    TH1F * zp1200a500_ = new TH1F("zp1200a500_","zp1200a500_",bin[0],bin[1],bin[2]);
+	zp1200a500_->Sumw2();
+    TH1F * zp1200a600_ = new TH1F("zp1200a600_","zp1200a600_",bin[0],bin[1],bin[2]);
+	zp1200a600_->Sumw2();
+	TH1F * zp1200a700_ = new TH1F("zp1200a700_","zp1200a700_",bin[0],bin[1],bin[2]);
+	zp1200a700_->Sumw2();
+    TH1F * zp1200a800_ = new TH1F("zp1200a800_","zp1200a800_",bin[0],bin[1],bin[2]);
+	zp1200a800_->Sumw2();
     
     TH1F * zp1400a300_ = new TH1F("zp1400a300_","zp1400a300_",bin[0],bin[1],bin[2]);
 	zp1400a300_->Sumw2();
+    TH1F * zp1400a400_ = new TH1F("zp1400a400_","zp1400a400_",bin[0],bin[1],bin[2]);
+	zp1400a400_->Sumw2();
+    TH1F * zp1400a500_ = new TH1F("zp1400a500_","zp1400a500_",bin[0],bin[1],bin[2]);
+	zp1400a500_->Sumw2();
+    TH1F * zp1400a600_ = new TH1F("zp1400a600_","zp1400a600_",bin[0],bin[1],bin[2]);
+	zp1400a600_->Sumw2();
+	TH1F * zp1400a700_ = new TH1F("zp1400a700_","zp1400a700_",bin[0],bin[1],bin[2]);
+	zp1400a700_->Sumw2();
+    TH1F * zp1400a800_ = new TH1F("zp1400a800_","zp1400a800_",bin[0],bin[1],bin[2]);
+	zp1400a800_->Sumw2();
     
     TH1F * zp1700a300_ = new TH1F("zp1700a300_","zp1700a300_",bin[0],bin[1],bin[2]);
 	zp1700a300_->Sumw2();
+    TH1F * zp1700a400_ = new TH1F("zp1700a400_","zp1700a400_",bin[0],bin[1],bin[2]);
+	zp1700a400_->Sumw2();
+    TH1F * zp1700a500_ = new TH1F("zp1700a500_","zp1700a500_",bin[0],bin[1],bin[2]);
+	zp1700a500_->Sumw2();
+    TH1F * zp1700a600_ = new TH1F("zp1700a600_","zp1700a600_",bin[0],bin[1],bin[2]);
+	zp1700a600_->Sumw2();
+	TH1F * zp1700a700_ = new TH1F("zp1700a700_","zp1700a700_",bin[0],bin[1],bin[2]);
+	zp1700a700_->Sumw2();
+    TH1F * zp1700a800_ = new TH1F("zp1700a800_","zp1700a800_",bin[0],bin[1],bin[2]);
+	zp1700a800_->Sumw2();
     
     TH1F * zp2000a300_ = new TH1F("zp2000a300_","zp2000a300_",bin[0],bin[1],bin[2]);
 	zp2000a300_->Sumw2();
+    TH1F * zp2000a400_ = new TH1F("zp2000a400_","zp2000a400_",bin[0],bin[1],bin[2]);
+	zp2000a400_->Sumw2();
+    TH1F * zp2000a500_ = new TH1F("zp2000a500_","zp2000a500_",bin[0],bin[1],bin[2]);
+	zp2000a500_->Sumw2();
+    TH1F * zp2000a600_ = new TH1F("zp2000a600_","zp2000a600_",bin[0],bin[1],bin[2]);
+	zp2000a600_->Sumw2();
+	TH1F * zp2000a700_ = new TH1F("zp2000a700_","zp2000a700_",bin[0],bin[1],bin[2]);
+	zp2000a700_->Sumw2();
+    TH1F * zp2000a800_ = new TH1F("zp2000a800_","zp2000a800_",bin[0],bin[1],bin[2]);
+	zp2000a800_->Sumw2();
     
     TH1F * zp2500a300_ = new TH1F("zp2500a300_","zp2500a300_",bin[0],bin[1],bin[2]);
 	zp2500a300_->Sumw2();
+    TH1F * zp2500a400_ = new TH1F("zp2500a400_","zp2500a400_",bin[0],bin[1],bin[2]);
+	zp2500a400_->Sumw2();
+    TH1F * zp2500a500_ = new TH1F("zp2500a500_","zp2500a500_",bin[0],bin[1],bin[2]);
+	zp2500a500_->Sumw2();
+    TH1F * zp2500a600_ = new TH1F("zp2500a600_","zp2500a600_",bin[0],bin[1],bin[2]);
+	zp2500a600_->Sumw2();
+	TH1F * zp2500a700_ = new TH1F("zp2500a700_","zp2500a700_",bin[0],bin[1],bin[2]);
+	zp2500a700_->Sumw2();
+    TH1F * zp2500a800_ = new TH1F("zp2500a800_","zp2500a800_",bin[0],bin[1],bin[2]);
+	zp2500a800_->Sumw2();
 
 	/* sum of all bks */
 	TH1F * comb_ = new TH1F("comb_","comb_",bin[0],bin[1],bin[2]); 
@@ -2880,7 +4011,6 @@ void drawSignalRegion(TCut cut, TCut wCut, double sf, TH1F * QCDshape, std::stri
 	TH1F * smh_ = new TH1F("smh_","smh_",bin[0],bin[1],bin[2]);
 	smh_->Sumw2();
     smh_->SetFillColor(colors["SMH"]);
-    
     
 	/* fill the hists */
 	if (plot) {Signal_region->cd(1);}
@@ -2906,13 +4036,54 @@ void drawSignalRegion(TCut cut, TCut wCut, double sf, TH1F * QCDshape, std::stri
     smh_->Add(vbfhtautau_);
     
 	MZP600_MA0300->Draw((parameter+">>zp600a300_").c_str(),cut*weights["MONO"].c_str());
+    MZP600_MA0400->Draw((parameter+">>zp600a400_").c_str(),cut*weights["MONO"].c_str());
+    
 	MZP800_MA0300->Draw((parameter+">>zp800a300_").c_str(),cut*weights["MONO"].c_str());
+    MZP800_MA0400->Draw((parameter+">>zp800a400_").c_str(),cut*weights["MONO"].c_str());
+    MZP800_MA0500->Draw((parameter+">>zp800a500_").c_str(),cut*weights["MONO"].c_str());
+    MZP800_MA0600->Draw((parameter+">>zp800a600_").c_str(),cut*weights["MONO"].c_str());
+    
 	MZP1000_MA0300->Draw((parameter+">>zp1000a300_").c_str(),cut*weights["MONO"].c_str());
-	MZP1200_MA0300->Draw((parameter+">>zp1200a300_").c_str(),cut*weights["MONO"].c_str());
-    MZP1400_MA0300->Draw((parameter+">>zp1400a300_").c_str(),cut*weights["MONO"].c_str());
+    MZP1000_MA0400->Draw((parameter+">>zp1000a400_").c_str(),cut*weights["MONO"].c_str());
+    MZP1000_MA0500->Draw((parameter+">>zp1000a500_").c_str(),cut*weights["MONO"].c_str());
+    MZP1000_MA0600->Draw((parameter+">>zp1000a600_").c_str(),cut*weights["MONO"].c_str());
+    MZP1000_MA0700->Draw((parameter+">>zp1000a700_").c_str(),cut*weights["MONO"].c_str());
+    MZP1000_MA0800->Draw((parameter+">>zp1000a800_").c_str(),cut*weights["MONO"].c_str());
+    
+    MZP1200_MA0300->Draw((parameter+">>zp1200a300_").c_str(),cut*weights["MONO"].c_str());
+    MZP1200_MA0400->Draw((parameter+">>zp1200a400_").c_str(),cut*weights["MONO"].c_str());
+    MZP1200_MA0500->Draw((parameter+">>zp1200a500_").c_str(),cut*weights["MONO"].c_str());
+    MZP1200_MA0600->Draw((parameter+">>zp1200a600_").c_str(),cut*weights["MONO"].c_str());
+    MZP1200_MA0700->Draw((parameter+">>zp1200a700_").c_str(),cut*weights["MONO"].c_str());
+    MZP1200_MA0800->Draw((parameter+">>zp1200a800_").c_str(),cut*weights["MONO"].c_str());
+
+	MZP1400_MA0300->Draw((parameter+">>zp1400a300_").c_str(),cut*weights["MONO"].c_str());
+    MZP1400_MA0400->Draw((parameter+">>zp1400a400_").c_str(),cut*weights["MONO"].c_str());
+    MZP1400_MA0500->Draw((parameter+">>zp1400a500_").c_str(),cut*weights["MONO"].c_str());
+    MZP1400_MA0600->Draw((parameter+">>zp1400a600_").c_str(),cut*weights["MONO"].c_str());
+    MZP1400_MA0700->Draw((parameter+">>zp1400a700_").c_str(),cut*weights["MONO"].c_str());
+    MZP1400_MA0800->Draw((parameter+">>zp1400a800_").c_str(),cut*weights["MONO"].c_str());
+    
 	MZP1700_MA0300->Draw((parameter+">>zp1700a300_").c_str(),cut*weights["MONO"].c_str());
+    MZP1700_MA0400->Draw((parameter+">>zp1700a400_").c_str(),cut*weights["MONO"].c_str());
+    MZP1700_MA0500->Draw((parameter+">>zp1700a500_").c_str(),cut*weights["MONO"].c_str());
+    MZP1700_MA0600->Draw((parameter+">>zp1700a600_").c_str(),cut*weights["MONO"].c_str());
+    MZP1700_MA0700->Draw((parameter+">>zp1700a700_").c_str(),cut*weights["MONO"].c_str());
+    MZP1700_MA0800->Draw((parameter+">>zp1700a800_").c_str(),cut*weights["MONO"].c_str());
+    
 	MZP2000_MA0300->Draw((parameter+">>zp2000a300_").c_str(),cut*weights["MONO"].c_str());
+    MZP2000_MA0400->Draw((parameter+">>zp2000a400_").c_str(),cut*weights["MONO"].c_str());
+    MZP2000_MA0500->Draw((parameter+">>zp2000a500_").c_str(),cut*weights["MONO"].c_str());
+    MZP2000_MA0600->Draw((parameter+">>zp2000a600_").c_str(),cut*weights["MONO"].c_str());
+    MZP2000_MA0700->Draw((parameter+">>zp2000a700_").c_str(),cut*weights["MONO"].c_str());
+    MZP2000_MA0800->Draw((parameter+">>zp2000a800_").c_str(),cut*weights["MONO"].c_str());
+    
 	MZP2500_MA0300->Draw((parameter+">>zp2500a300_").c_str(),cut*weights["MONO"].c_str());
+    MZP2500_MA0400->Draw((parameter+">>zp2500a400_").c_str(),cut*weights["MONO"].c_str());
+    MZP2500_MA0500->Draw((parameter+">>zp2500a500_").c_str(),cut*weights["MONO"].c_str());
+    MZP2500_MA0600->Draw((parameter+">>zp2500a600_").c_str(),cut*weights["MONO"].c_str());
+    MZP2500_MA0700->Draw((parameter+">>zp2500a700_").c_str(),cut*weights["MONO"].c_str());
+    MZP2500_MA0800->Draw((parameter+">>zp2500a800_").c_str(),cut*weights["MONO"].c_str());
     
 	qcd_->Add(QCDshape);
 	qcd_->Scale(qcdOStoSS);
@@ -2937,13 +4108,47 @@ void drawSignalRegion(TCut cut, TCut wCut, double sf, TH1F * QCDshape, std::stri
     vbfhtautau_->Scale(lumi_sf);
     smh_->Scale(lumi_sf);
 	zp600a300_->Scale(lumi_sf);
+    zp600a400_->Scale(lumi_sf);
 	zp800a300_->Scale(lumi_sf);
+    zp800a400_->Scale(lumi_sf);
+    zp800a500_->Scale(lumi_sf);
+    zp800a600_->Scale(lumi_sf);
 	zp1000a300_->Scale(lumi_sf);
+    zp1000a400_->Scale(lumi_sf);
+    zp1000a500_->Scale(lumi_sf);
+    zp1000a600_->Scale(lumi_sf);
+    zp1000a700_->Scale(lumi_sf);
+    zp1000a800_->Scale(lumi_sf);
 	zp1200a300_->Scale(lumi_sf);
+    zp1200a400_->Scale(lumi_sf);
+    zp1200a500_->Scale(lumi_sf);
+    zp1200a600_->Scale(lumi_sf);
+    zp1200a700_->Scale(lumi_sf);
+    zp1200a800_->Scale(lumi_sf);
     zp1400a300_->Scale(lumi_sf);
+    zp1400a400_->Scale(lumi_sf);
+    zp1400a500_->Scale(lumi_sf);
+    zp1400a600_->Scale(lumi_sf);
+    zp1400a700_->Scale(lumi_sf);
+    zp1400a800_->Scale(lumi_sf);
 	zp1700a300_->Scale(lumi_sf);
+    zp1700a400_->Scale(lumi_sf);
+    zp1700a500_->Scale(lumi_sf);
+    zp1700a600_->Scale(lumi_sf);
+    zp1700a700_->Scale(lumi_sf);
+    zp1700a800_->Scale(lumi_sf);
 	zp2000a300_->Scale(lumi_sf);
+    zp2000a400_->Scale(lumi_sf);
+    zp2000a500_->Scale(lumi_sf);
+    zp2000a600_->Scale(lumi_sf);
+    zp2000a700_->Scale(lumi_sf);
+    zp2000a800_->Scale(lumi_sf);
 	zp2500a300_->Scale(lumi_sf);
+    zp2500a400_->Scale(lumi_sf);
+    zp2500a500_->Scale(lumi_sf);
+    zp2500a600_->Scale(lumi_sf);
+    zp2500a700_->Scale(lumi_sf);
+    zp2500a800_->Scale(lumi_sf);
     
    //Set BKG Bin errors for ratio plot
     for(int i=1;i<vvt_->GetNbinsX()+1;i++)
@@ -3040,12 +4245,13 @@ void drawSignalRegion(TCut cut, TCut wCut, double sf, TH1F * QCDshape, std::stri
 		/* create a file to help with S/sqrt(S+B) cut opt */
         
         std::string paramName;
-        if (parameter=="met" || parameter=="mvamet") {paramName = "met";}
-        else if (parameter=="mt_tot" || parameter=="m_vis") {paramName = "mt";}
+        if (parameter=="met" || parameter=="mvamet") {paramName = "mt";}
         else if (parameter.substr(0,6)=="mvaVar") {paramName = "mva";}
+        else {paramName = "mt";}
         
-        std::string catName = chan + "_" + drCutNameMap[drCut];
-		std::string optName = "xtt_" + chan + ".inputs-13TeV-" + paramName + ".root";
+        
+        std::string catName = chan + "_inclusive";
+		std::string optName = "xtt_" + chan + "_inputs-13TeV-" + paramName + ".root";
 		TFile sbOp(optName.c_str(),"UPDATE");
         
         TDirectory * catdir = sbOp.GetDirectory(catName.c_str());
@@ -3076,36 +4282,108 @@ void drawSignalRegion(TCut cut, TCut wCut, double sf, TH1F * QCDshape, std::stri
         const char *Wsave = Wname.c_str();
         std::string QCDname = "QCD" + syst;
         const char *QCDsave = QCDname.c_str();
-        std::string zhtautauname = "zhtautau" + syst;
-        const char *zhtautausave = zhtautauname.c_str();
         std::string SMHname = "SMH" + syst;
         const char *SMHsave = SMHname.c_str();
-        std::string glugluhtautauname = "glugluhtautau" + syst;
-        const char *glugluhtautausave = glugluhtautauname.c_str();
-        std::string vbfhtautauname = "vbfhtautau" + syst;
-        const char *vbfhtautausave = vbfhtautauname.c_str();
+        std::string ZHname = "ZH" + syst;
+        const char *ZHsave = ZHname.c_str();
+        
         std::string combname = "comb" + syst;
         const char *combsave = combname.c_str();
         
-        std::string ZprimeA400Zname = "ZprimeA400Z" + syst;
-        const char *ZprimeA400Zsave = ZprimeA400Zname.c_str();
+        std::string ZprimeA300Zname = "Zprime" + syst + "A300";
+        const char *ZprimeA300Zsave = ZprimeA300Zname.c_str();
         
-        std::string ZprimeA400Z600name = "ZprimeA400Z600" + syst;
-        const char *ZprimeA400Z600save = ZprimeA400Z600name.c_str();
-        std::string ZprimeA400Z800name = "ZprimeA400Z800" + syst;
-        const char *ZprimeA400Z800save = ZprimeA400Z800name.c_str();
-        std::string ZprimeA400Z1000name = "ZprimeA400Z1000" + syst;
-        const char *ZprimeA400Z1000save = ZprimeA400Z1000name.c_str();
-        std::string ZprimeA400Z1200name = "ZprimeA400Z1200" + syst;
-        const char *ZprimeA400Z1200save = ZprimeA400Z1200name.c_str();
-        std::string ZprimeA400Z1400name = "ZprimeA400Z1400" + syst;
-        const char *ZprimeA400Z1400save = ZprimeA400Z1400name.c_str();
-        std::string ZprimeA400Z1700name = "ZprimeA400Z1700" + syst;
-        const char *ZprimeA400Z1700save = ZprimeA400Z1700name.c_str();
-        std::string ZprimeA400Z2000name = "ZprimeA400Z2000" + syst;
-        const char *ZprimeA400Z2000save = ZprimeA400Z2000name.c_str();
-        std::string ZprimeA400Z2500name = "ZprimeA400Z2500" + syst;
-        const char *ZprimeA400Z2500save = ZprimeA400Z2500name.c_str();
+        std::string Zprime600A300name = "Zprime600A300" + syst;
+        const char *Zprime600A300save = Zprime600A300name.c_str();
+        std::string Zprime600A400name = "Zprime600A400" + syst;
+        const char *Zprime600A400save = Zprime600A400name.c_str();
+        
+        std::string Zprime800A300name = "Zprime800A300" + syst;
+        const char *Zprime800A300save = Zprime800A300name.c_str();
+        std::string Zprime800A400name = "Zprime800A400" + syst;
+        const char *Zprime800A400save = Zprime800A400name.c_str();
+        std::string Zprime800A500name = "Zprime800A500" + syst;
+        const char *Zprime800A500save = Zprime800A500name.c_str();
+        std::string Zprime800A600name = "Zprime800A600" + syst;
+        const char *Zprime800A600save = Zprime800A600name.c_str();
+        
+        std::string Zprime1000A300name = "Zprime1000A300" + syst;
+        const char *Zprime1000A300save = Zprime1000A300name.c_str();
+        std::string Zprime1000A400name = "Zprime1000A400" + syst;
+        const char *Zprime1000A400save = Zprime1000A400name.c_str();
+        std::string Zprime1000A500name = "Zprime1000A500" + syst;
+        const char *Zprime1000A500save = Zprime1000A500name.c_str();
+        std::string Zprime1000A600name = "Zprime1000A600" + syst;
+        const char *Zprime1000A600save = Zprime1000A600name.c_str();
+        std::string Zprime1000A700name = "Zprime1000A700" + syst;
+        const char *Zprime1000A700save = Zprime1000A700name.c_str();
+        std::string Zprime1000A800name = "Zprime1000A800" + syst;
+        const char *Zprime1000A800save = Zprime1000A800name.c_str();
+        
+        std::string Zprime1200A300name = "Zprime1200A300" + syst;
+        const char *Zprime1200A300save = Zprime1200A300name.c_str();
+        std::string Zprime1200A400name = "Zprime1200A400" + syst;
+        const char *Zprime1200A400save = Zprime1200A400name.c_str();
+        std::string Zprime1200A500name = "Zprime1200A500" + syst;
+        const char *Zprime1200A500save = Zprime1200A500name.c_str();
+        std::string Zprime1200A600name = "Zprime1200A600" + syst;
+        const char *Zprime1200A600save = Zprime1200A600name.c_str();
+        std::string Zprime1200A700name = "Zprime1200A700" + syst;
+        const char *Zprime1200A700save = Zprime1200A700name.c_str();
+        std::string Zprime1200A800name = "Zprime1200A800" + syst;
+        const char *Zprime1200A800save = Zprime1200A800name.c_str();
+        
+        std::string Zprime1400A300name = "Zprime1400A300" + syst;
+        const char *Zprime1400A300save = Zprime1400A300name.c_str();
+        std::string Zprime1400A400name = "Zprime1400A400" + syst;
+        const char *Zprime1400A400save = Zprime1400A400name.c_str();
+        std::string Zprime1400A500name = "Zprime1400A500" + syst;
+        const char *Zprime1400A500save = Zprime1400A500name.c_str();
+        std::string Zprime1400A600name = "Zprime1400A600" + syst;
+        const char *Zprime1400A600save = Zprime1400A600name.c_str();
+        std::string Zprime1400A700name = "Zprime1400A700" + syst;
+        const char *Zprime1400A700save = Zprime1400A700name.c_str();
+        std::string Zprime1400A800name = "Zprime1400A800" + syst;
+        const char *Zprime1400A800save = Zprime1400A800name.c_str();
+        
+        std::string Zprime1700A300name = "Zprime1700A300" + syst;
+        const char *Zprime1700A300save = Zprime1700A300name.c_str();
+        std::string Zprime1700A400name = "Zprime1700A400" + syst;
+        const char *Zprime1700A400save = Zprime1700A400name.c_str();
+        std::string Zprime1700A500name = "Zprime1700A500" + syst;
+        const char *Zprime1700A500save = Zprime1700A500name.c_str();
+        std::string Zprime1700A600name = "Zprime1700A600" + syst;
+        const char *Zprime1700A600save = Zprime1700A600name.c_str();
+        std::string Zprime1700A700name = "Zprime1700A700" + syst;
+        const char *Zprime1700A700save = Zprime1700A700name.c_str();
+        std::string Zprime1700A800name = "Zprime1700A800" + syst;
+        const char *Zprime1700A800save = Zprime1700A800name.c_str();
+        
+        std::string Zprime2000A300name = "Zprime2000A300" + syst;
+        const char *Zprime2000A300save = Zprime2000A300name.c_str();
+        std::string Zprime2000A400name = "Zprime2000A400" + syst;
+        const char *Zprime2000A400save = Zprime2000A400name.c_str();
+        std::string Zprime2000A500name = "Zprime2000A500" + syst;
+        const char *Zprime2000A500save = Zprime2000A500name.c_str();
+        std::string Zprime2000A600name = "Zprime2000A600" + syst;
+        const char *Zprime2000A600save = Zprime2000A600name.c_str();
+        std::string Zprime2000A700name = "Zprime2000A700" + syst;
+        const char *Zprime2000A700save = Zprime2000A700name.c_str();
+        std::string Zprime2000A800name = "Zprime2000A800" + syst;
+        const char *Zprime2000A800save = Zprime2000A800name.c_str();
+        
+        std::string Zprime2500A300name = "Zprime2500A300" + syst;
+        const char *Zprime2500A300save = Zprime2500A300name.c_str();
+        std::string Zprime2500A400name = "Zprime2500A400" + syst;
+        const char *Zprime2500A400save = Zprime2500A400name.c_str();
+        std::string Zprime2500A500name = "Zprime2500A500" + syst;
+        const char *Zprime2500A500save = Zprime2500A500name.c_str();
+        std::string Zprime2500A600name = "Zprime2500A600" + syst;
+        const char *Zprime2500A600save = Zprime2500A600name.c_str();
+        std::string Zprime2500A700name = "Zprime2500A700" + syst;
+        const char *Zprime2500A700save = Zprime2500A700name.c_str();
+        std::string Zprime2500A800name = "Zprime2500A800" + syst;
+        const char *Zprime2500A800save = Zprime2500A800name.c_str();
 
         data_->Write(DATAsave);
         
@@ -3120,33 +4398,75 @@ void drawSignalRegion(TCut cut, TCut wCut, double sf, TH1F * QCDshape, std::stri
         zj_->Write(ZJsave);
         w_->Write(Wsave);
         qcd_->Write(QCDsave);
-        zhtautau_->Write(zhtautausave);
         
+        zhtautau_->Write(ZHsave);
         smh_->Write(SMHsave);
         
-        glugluhtautau_->Write(glugluhtautausave);
-        vbfhtautau_->Write(vbfhtautausave);
 		comb_->Write(combsave);
 
-        if (syst == "600"){zp600a300_->Write(ZprimeA400Zsave);}
-        else if (syst == "800"){zp800a300_->Write(ZprimeA400Zsave);}
-        else if (syst == "1000"){zp1000a300_->Write(ZprimeA400Zsave);}
-        else if (syst == "1200"){zp1200a300_->Write(ZprimeA400Zsave);}
+        if (syst == "600"){zp600a300_->Write(ZprimeA300Zsave);}
+        else if (syst == "800"){zp800a300_->Write(ZprimeA300Zsave);}
+        else if (syst == "1000"){zp1000a300_->Write(ZprimeA300Zsave);}
+        else if (syst == "1200"){zp1200a300_->Write(ZprimeA300Zsave);}
         else
         {
-            zp600a300_->Write(ZprimeA400Z600save);
-            zp800a300_->Write(ZprimeA400Z800save);
-            zp1000a300_->Write(ZprimeA400Z1000save);
-            zp1200a300_->Write(ZprimeA400Z1200save);
-            zp1400a300_->Write(ZprimeA400Z1400save);
-            zp1700a300_->Write(ZprimeA400Z1700save);
-            zp2000a300_->Write(ZprimeA400Z2000save);
-            zp2500a300_->Write(ZprimeA400Z2500save);
+            zp600a300_->Write(Zprime600A300save);
+            zp600a400_->Write(Zprime600A400save);
+            
+            zp800a300_->Write(Zprime800A300save);
+            zp800a400_->Write(Zprime800A400save);
+            zp800a500_->Write(Zprime800A500save);
+            zp800a600_->Write(Zprime800A600save);
+            
+            zp1000a300_->Write(Zprime1000A300save);
+            zp1000a400_->Write(Zprime1000A400save);
+            zp1000a500_->Write(Zprime1000A500save);
+            zp1000a600_->Write(Zprime1000A600save);
+            zp1000a700_->Write(Zprime1000A700save);
+            zp1000a800_->Write(Zprime1000A800save);
+            
+            zp1200a300_->Write(Zprime1200A300save);
+            zp1200a400_->Write(Zprime1200A400save);
+            zp1200a500_->Write(Zprime1200A500save);
+            zp1200a600_->Write(Zprime1200A600save);
+            zp1200a700_->Write(Zprime1200A700save);
+            zp1200a800_->Write(Zprime1200A800save);
+            
+            zp1400a300_->Write(Zprime1400A300save);
+            zp1400a400_->Write(Zprime1400A400save);
+            zp1400a500_->Write(Zprime1400A500save);
+            zp1400a600_->Write(Zprime1400A600save);
+            zp1400a700_->Write(Zprime1400A700save);
+            zp1400a800_->Write(Zprime1400A800save);
+            
+            zp1700a300_->Write(Zprime1700A300save);
+            zp1700a400_->Write(Zprime1700A400save);
+            zp1700a500_->Write(Zprime1700A500save);
+            zp1700a600_->Write(Zprime1700A600save);
+            zp1700a700_->Write(Zprime1700A700save);
+            zp1700a800_->Write(Zprime1700A800save);
+            
+            zp2000a300_->Write(Zprime2000A300save);
+            zp2000a400_->Write(Zprime2000A400save);
+            zp2000a500_->Write(Zprime2000A500save);
+            zp2000a600_->Write(Zprime2000A600save);
+            zp2000a700_->Write(Zprime2000A700save);
+            zp2000a800_->Write(Zprime2000A800save);
+            
+            zp2500a300_->Write(Zprime2500A300save);
+            zp2500a400_->Write(Zprime2500A400save);
+            zp2500a500_->Write(Zprime2500A500save);
+            zp2500a600_->Write(Zprime2500A600save);
+            zp2500a700_->Write(Zprime2500A700save);
+            zp2500a800_->Write(Zprime2500A800save);
+
         }
 
         sbOp.cd();
 		sbOp.Close();
 	}
+    std::cout << "FINISHED editing shape file" << std::endl;
+
     
     THStack * sigMTstack  = new THStack();
     
@@ -3222,16 +4542,16 @@ void drawSignalRegion(TCut cut, TCut wCut, double sf, TH1F * QCDshape, std::stri
 
         if(parameter.substr(0,6)=="mvaVar")
         {
-            if (syst=="600"){zp600a300_->SetLineStyle(3); zp600a300_->SetLineWidth(3); zp600a300_->SetLineColor(50); std::cout << "DRAWING" << std::endl; zp600a300_->DrawCopy("hist sames");}
-            else if (syst=="800"){zp800a300_->SetLineStyle(3); zp800a300_->SetLineWidth(3); zp800a300_->SetLineColor(60); std::cout << "DRAWING" << std::endl; zp800a300_->DrawCopy("hist sames");}
-            else if (syst=="1000"){zp1000a300_->SetLineStyle(3); zp1000a300_->SetLineWidth(3); zp1000a300_->SetLineColor(70); std::cout << "DRAWING" << std::endl; zp1000a300_->DrawCopy("hist sames");}
-            else if (syst=="1200"){zp1200a300_->SetLineStyle(3); zp1200a300_->SetLineWidth(3); zp1200a300_->SetLineColor(80); std::cout << "DRAWING" << std::endl; zp1200a300_->DrawCopy("hist sames");}
+            if (syst=="600"){zp600a400_->SetLineStyle(3); zp600a400_->SetLineWidth(3); zp600a400_->SetLineColor(50); std::cout << "DRAWING" << std::endl; zp600a400_->DrawCopy("hist sames");}
+            else if (syst=="800"){zp800a400_->SetLineStyle(3); zp800a400_->SetLineWidth(3); zp800a400_->SetLineColor(60); std::cout << "DRAWING" << std::endl; zp800a400_->DrawCopy("hist sames");}
+            else if (syst=="1000"){zp1000a400_->SetLineStyle(3); zp1000a400_->SetLineWidth(3); zp1000a400_->SetLineColor(70); std::cout << "DRAWING" << std::endl; zp1000a400_->DrawCopy("hist sames");}
+            else if (syst=="1200"){zp1200a400_->SetLineStyle(3); zp1200a400_->SetLineWidth(3); zp1200a400_->SetLineColor(80); std::cout << "DRAWING" << std::endl; zp1200a400_->DrawCopy("hist sames");}
             else
             {
-                zp600a300_->SetLineStyle(2); zp600a300_->SetLineWidth(3); zp600a300_->SetLineColor(50); std::cout << "DRAWING" << std::endl; zp600a300_->DrawCopy("hist sames");
-                zp800a300_->SetLineStyle(2); zp800a300_->SetLineWidth(3); zp800a300_->SetLineColor(60); std::cout << "DRAWING" << std::endl; zp800a300_->DrawCopy("hist sames");
-                zp1000a300_->SetLineStyle(2); zp1000a300_->SetLineWidth(3); zp1000a300_->SetLineColor(70); std::cout << "DRAWING" << std::endl; zp1000a300_->DrawCopy("hist sames");
-                zp1200a300_->SetLineStyle(2); zp1200a300_->SetLineWidth(3); zp1200a300_->SetLineColor(80); std::cout << "DRAWING" << std::endl; zp1200a300_->DrawCopy("hist sames");
+                zp600a400_->SetLineStyle(2); zp600a400_->SetLineWidth(3); zp600a400_->SetLineColor(50); std::cout << "DRAWING" << std::endl; zp600a400_->DrawCopy("hist sames");
+                zp800a400_->SetLineStyle(2); zp800a400_->SetLineWidth(3); zp800a400_->SetLineColor(60); std::cout << "DRAWING" << std::endl; zp800a400_->DrawCopy("hist sames");
+                zp1000a400_->SetLineStyle(2); zp1000a400_->SetLineWidth(3); zp1000a400_->SetLineColor(70); std::cout << "DRAWING" << std::endl; zp1000a400_->DrawCopy("hist sames");
+                zp1200a400_->SetLineStyle(2); zp1200a400_->SetLineWidth(3); zp1200a400_->SetLineColor(80); std::cout << "DRAWING" << std::endl; zp1200a400_->DrawCopy("hist sames");
             }
         }
         else if (parameter == "mt_tot" || parameter == "met")
@@ -3272,16 +4592,16 @@ void drawSignalRegion(TCut cut, TCut wCut, double sf, TH1F * QCDshape, std::stri
             }
             else
             {
-                if (syst=="600"){zp600a300_->SetLineStyle(3); zp600a300_->SetLineWidth(3); zp600a300_->SetLineColor(50); std::cout << "DRAWING" << std::endl; zp600a300_->DrawCopy("hist sames");}
-                else if (syst=="800"){zp800a300_->SetLineStyle(3); zp800a300_->SetLineWidth(5); zp800a300_->SetLineColor(60); std::cout << "DRAWING" << std::endl; zp800a300_->DrawCopy("hist sames");}
-                else if (syst=="1000"){zp1000a300_->SetLineStyle(3); zp1000a300_->SetLineWidth(5); zp1000a300_->SetLineColor(70); std::cout << "DRAWING" << std::endl; zp1000a300_->DrawCopy("hist sames");}
-                else if (syst=="1200"){zp1200a300_->SetLineStyle(3); zp1200a300_->SetLineWidth(5); zp1200a300_->SetLineColor(80); std::cout << "DRAWING" << std::endl; zp1200a300_->DrawCopy("hist sames");}
+                if (syst=="600"){zp600a400_->SetLineStyle(3); zp600a400_->SetLineWidth(3); zp600a400_->SetLineColor(50); std::cout << "DRAWING" << std::endl; zp600a400_->DrawCopy("hist sames");}
+                else if (syst=="800"){zp800a400_->SetLineStyle(3); zp800a400_->SetLineWidth(5); zp800a400_->SetLineColor(60); std::cout << "DRAWING" << std::endl; zp800a400_->DrawCopy("hist sames");}
+                else if (syst=="1000"){zp1000a400_->SetLineStyle(3); zp1000a400_->SetLineWidth(5); zp1000a400_->SetLineColor(70); std::cout << "DRAWING" << std::endl; zp1000a400_->DrawCopy("hist sames");}
+                else if (syst=="1200"){zp1200a400_->SetLineStyle(3); zp1200a400_->SetLineWidth(5); zp1200a400_->SetLineColor(80); std::cout << "DRAWING" << std::endl; zp1200a400_->DrawCopy("hist sames");}
                 else if (parameter.substr(0,6)=="mvaVar")
                 {
-                    zp600a300_->SetLineStyle(3); zp600a300_->SetLineWidth(3); zp600a300_->SetLineColor(50); std::cout << "DRAWING" << std::endl; zp600a300_->DrawCopy("hist sames");
-                    zp800a300_->SetLineStyle(3); zp800a300_->SetLineWidth(3); zp800a300_->SetLineColor(60); std::cout << "DRAWING" << std::endl; zp800a300_->DrawCopy("hist sames");
-                    zp1000a300_->SetLineStyle(3); zp1000a300_->SetLineWidth(3); zp1000a300_->SetLineColor(70); std::cout << "DRAWING" << std::endl; zp1000a300_->DrawCopy("hist sames");
-                    zp1200a300_->SetLineStyle(3); zp1200a300_->SetLineWidth(3); zp1200a300_->SetLineColor(80); std::cout << "DRAWING" << std::endl; zp1200a300_->DrawCopy("hist sames");
+                    zp600a400_->SetLineStyle(3); zp600a400_->SetLineWidth(3); zp600a400_->SetLineColor(50); std::cout << "DRAWING" << std::endl; zp600a400_->DrawCopy("hist sames");
+                    zp800a400_->SetLineStyle(3); zp800a400_->SetLineWidth(3); zp800a400_->SetLineColor(60); std::cout << "DRAWING" << std::endl; zp800a400_->DrawCopy("hist sames");
+                    zp1000a400_->SetLineStyle(3); zp1000a400_->SetLineWidth(3); zp1000a400_->SetLineColor(70); std::cout << "DRAWING" << std::endl; zp1000a400_->DrawCopy("hist sames");
+                    zp1200a400_->SetLineStyle(3); zp1200a400_->SetLineWidth(3); zp1200a400_->SetLineColor(80); std::cout << "DRAWING" << std::endl; zp1200a400_->DrawCopy("hist sames");
                 }
             }
             data_->DrawCopy("PEsames");
@@ -3318,13 +4638,48 @@ void drawSignalRegion(TCut cut, TCut wCut, double sf, TH1F * QCDshape, std::stri
     delete smh_;
 	delete qcd_;
 	delete zp600a300_;
+    delete zp600a400_;
 	delete zp800a300_;
+    delete zp800a400_;
+    delete zp800a500_;
+    delete zp800a600_;
 	delete zp1000a300_;
+    delete zp1000a400_;
+    delete zp1000a500_;
+    delete zp1000a600_;
+    delete zp1000a700_;
+    delete zp1000a800_;
 	delete zp1200a300_;
-	delete zp1400a300_;
+    delete zp1200a400_;
+    delete zp1200a500_;
+    delete zp1200a600_;
+    delete zp1200a700_;
+    delete zp1200a800_;
+    delete zp1400a300_;
+    delete zp1400a400_;
+    delete zp1400a500_;
+    delete zp1400a600_;
+    delete zp1400a700_;
+    delete zp1400a800_;
     delete zp1700a300_;
+    delete zp1700a400_;
+    delete zp1700a500_;
+    delete zp1700a600_;
+    delete zp1700a700_;
+    delete zp1700a800_;
     delete zp2000a300_;
+    delete zp2000a400_;
+    delete zp2000a500_;
+    delete zp2000a600_;
+    delete zp2000a700_;
+    delete zp2000a800_;
     delete zp2500a300_;
+    delete zp2500a400_;
+    delete zp2500a500_;
+    delete zp2500a600_;
+    delete zp2500a700_;
+    delete zp2500a800_;
+    
 	delete Signal_region;
 	delete sigMTstack;
 
@@ -4240,6 +5595,8 @@ void drawSignalRegionVarBin(TCut cut, TCut wCut, TCut normCut, TCut wNormCut, bo
         const char *QCDsave = QCDname.c_str();
         std::string SMHname = "SMH" + syst;
         const char *SMHsave = SMHname.c_str();
+        std::string ZHname = "ZH" + syst;
+        const char *ZHsave = ZHname.c_str();
         
         std::string combname = "comb" + syst;
         const char *combsave = combname.c_str();
@@ -4353,6 +5710,7 @@ void drawSignalRegionVarBin(TCut cut, TCut wCut, TCut normCut, TCut wNormCut, bo
         w_->Write(Wsave);
         qcd_->Write(QCDsave);
         
+        zhtautau_->Write(ZHsave);
         smh_->Write(SMHsave);
         
 		comb_->Write(combsave);
