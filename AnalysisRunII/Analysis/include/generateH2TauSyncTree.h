@@ -213,11 +213,11 @@ public:
 	double mtTotCalc(TLorentzVector, TLorentzVector, TLorentzVector);
 	double GetTransverseMass(TLorentzVector, TLorentzVector);
 
-	double computeLPT(bool); /* arg is a bool flag for verbose running */
+	double computeLPT(bool, TLorentzVector, TLorentzVector); /* arg is a bool flag for verbose running, int is for TES -1 0 1 */
     
-    double ttTrigPtShape(bool); /* arg is a bool for up variant, 0 is down */
+    double ttTrigPtShape(bool, TLorentzVector, TLorentzVector); /* arg is a bool for up variant, 0 is down */
 
-	std::vector <double> computePchi_and_Mmin(bool, double, double); /* args are (bool flag for verbose running, met, metPhi) */
+	std::vector <double> computePchi_and_Mmin(bool, double, double, TLorentzVector); /* args are (bool flag for verbose running, met, metPhi, TES var) */
 
 	/* GetLeg1Leg2McTriggerWeights args : leg1, leg2, CandidateEventType, -1,0,1 
 	for down nominal up shifted-systematic */
@@ -326,15 +326,14 @@ private:
     
     // k factors from monojet group
     TFile* kFactorsFile = new TFile("kfactors.root", "READ");
-    TH1F* EWK_Zcorr = (TH1F*) kFactorsFile->Get("/EWKcorr/Z");
-    TH1F* EWK_Gcorr = (TH1F*) kFactorsFile->Get("/EWKcorr/photon");
     TH1F* EWK_Wcorr = (TH1F*) kFactorsFile->Get("/EWKcorr/W");
-    TH1F* EWK_Zcorr_orig = (TH1F*) kFactorsFile->Get("/EWKcorr/Z");
-    TH1F* EWK_Gcorr_orig = (TH1F*) kFactorsFile->Get("/EWKcorr/photon");
-    TH1F* EWK_Wcorr_orig = (TH1F*) kFactorsFile->Get("/EWKcorr/W");
-    TH1F* LO_Zcorr = (TH1F*) kFactorsFile->Get("/ZJets_LO/inv_pt");
-    TH1F* LO_Gcorr = (TH1F*) kFactorsFile->Get("/GJets_LO/inv_pt_G");
+    TH1F* EWK_Wcorr_dNLO = (TH1F*) EWK_Wcorr->Clone();
     TH1F* LO_Wcorr = (TH1F*) kFactorsFile->Get("/WJets_LO/inv_pt");
+    TH1F* NLO_Wcorr = (TH1F*) kFactorsFile->Get("/WJets_012j_NLO/nominal");
+    
+    // monoZ ZZ factors
+    TFile* ZZFactorsFile = new TFile("zzKfactorGenPt.root", "READ");
+    TH1F* ZZcorr = (TH1F*) ZZFactorsFile->Get("zzKfactorGenPt");
 
     //referenced for LPT
     TFile* inFile = new TFile("pDistPlots.root","READ");
@@ -476,8 +475,13 @@ private:
     
     double genBosonTotal_pt, genBosonTotal_eta, genBosonTotal_phi, genBosonTotal_M; 	    /* the gen total 4-vector of W/Z/H */
 	double genBosonVisible_pt, genBosonVisible_eta, genBosonVisible_phi, genBosonVisible_M; /* the gen visible 4-vector of W/Z/H */
+    double genBosonTotal_Wpt; //new variable strictly for gen W,Z,H
     double genTopPt1;
     double genTopPt2;
+
+    /* bosons */
+    int leg1_GENMOTHERpdgId;
+    int leg2_GENMOTHERpdgId;
 
 	/* event ID variables */
 
@@ -510,6 +514,10 @@ private:
 	int    tau_decay_mode_1;    /* replaces strips and hadrons for Run II */
     float ZimpactTau_1;
 
+    double pt_1_flat;
+	double phi_1_flat;
+	double eta_1_flat;
+	double m_1_flat;
 
 	double mt_1;			        /* using mva met */
 	double pfmt_1;
@@ -546,6 +554,8 @@ private:
 	float byMediumIsolationMVArun2v1DBdR03oldDMwLT_1;
 	float byVLooseIsolationMVArun2v1DBdR03oldDMwLT_1;
 	float byVVTightIsolationMVArun2v1DBdR03oldDMwLT_1;
+    float byLooseIsolationMVArun2v1DBoldDMwLT_1;
+    float byTightIsolationMVArun2v1DBoldDMwLT_1;
 	float againstElectronVLooseMVA6_1;
 	float againstMuonTight3_1;
 	float againstElectronTightMVA6_1;
@@ -573,6 +583,11 @@ private:
 	int    tau_decay_mode_2;    /* replaces strips and hadrons for Run II */
     float ZimpactTau_2;
 
+    double pt_2_flat;
+	double phi_2_flat;
+	double eta_2_flat;
+	double m_2_flat;
+
 
 	double mt_2;			        /* using mva met */
 	double pfmt_2; 
@@ -596,6 +611,328 @@ private:
 	double genMCmatch_phi_2;
 	double genMCmatch_M_2;
 	int    MCMatchPdgId_2;
+    
+    /* TES Variants */
+    double     pt_1_TESUp;
+    double     mt_1_TESUp;
+    double     pfmt_1_TESUp;
+
+    double     pt_2_TESUp;
+    double     mt_2_TESUp;
+    double     pfmt_2_TESUp;
+
+    double     mt_tot_TESUp;
+    double     pt_tt_TESUp;
+    double     m_vis_TESUp;
+    double     pfmet_type1_TESUp_Pt;
+    double     P_chi_pf_TESUp;
+    double     LPT_TESUp;
+    double     cos_DeltaPhi_PFMET_Higgs_TESUp;
+
+    double     pt_1_TESDown;
+    double     mt_1_TESDown;
+    double     pfmt_1_TESDown;
+
+    double     pt_2_TESDown;
+    double     mt_2_TESDown;
+    double     pfmt_2_TESDown;
+
+    double     mt_tot_TESDown;
+    double     pt_tt_TESDown;
+    double     m_vis_TESDown;
+    double     pfmet_type1_TESDown_Pt;
+    double     P_chi_pf_TESDown;
+    double     LPT_TESDown;
+    double     cos_DeltaPhi_PFMET_Higgs_TESDown;
+
+    double     mvaVar_mt_MZP600A0400_TESUp;
+    double     mvaVar_mt_MZP800A0400_TESUp;
+    double     mvaVar_mt_MZP1000A0400_TESUp;
+    double     mvaVar_mt_MZP1200A0400_TESUp;
+
+    double     mvaVar_et_MZP600A0400_TESUp;
+    double     mvaVar_et_MZP800A0400_TESUp; 
+    double     mvaVar_et_MZP1000A0400_TESUp;
+    double     mvaVar_et_MZP1200A0400_TESUp;
+            
+    double     mvaVar_tt_MZP600A0400_TESUp;
+    double     mvaVar_tt_MZP800A0400_TESUp;
+    double     mvaVar_tt_MZP1000A0400_TESUp;
+    double     mvaVar_tt_MZP1200A0400_TESUp;
+
+    double     mvaVar_mt_MZP600A0400_TESDown;
+    double     mvaVar_mt_MZP800A0400_TESDown;
+    double     mvaVar_mt_MZP1000A0400_TESDown;
+    double     mvaVar_mt_MZP1200A0400_TESDown;
+
+    double     mvaVar_et_MZP600A0400_TESDown;
+    double     mvaVar_et_MZP800A0400_TESDown; 
+    double     mvaVar_et_MZP1000A0400_TESDown;
+    double     mvaVar_et_MZP1200A0400_TESDown;
+            
+    double     mvaVar_tt_MZP600A0400_TESDown;
+    double     mvaVar_tt_MZP800A0400_TESDown;
+    double     mvaVar_tt_MZP1000A0400_TESDown;
+    double     mvaVar_tt_MZP1200A0400_TESDown;
+    
+    /* L1TES Variants */
+    double     pt_1_L1TESUp;
+    double     mt_1_L1TESUp;
+    double     pfmt_1_L1TESUp;
+
+    double     pt_2_L1TESUp;
+    double     mt_2_L1TESUp;
+    double     pfmt_2_L1TESUp;
+
+    double     mt_tot_L1TESUp;
+    double     pt_tt_L1TESUp;
+    double     m_vis_L1TESUp;
+    double     pfmet_type1_L1TESUp_Pt;
+    double     P_chi_pf_L1TESUp;
+    double     LPT_L1TESUp;
+    double     cos_DeltaPhi_PFMET_Higgs_L1TESUp;
+
+    double     pt_1_L1TESDown;
+    double     mt_1_L1TESDown;
+    double     pfmt_1_L1TESDown;
+
+    double     pt_2_L1TESDown;
+    double     mt_2_L1TESDown;
+    double     pfmt_2_L1TESDown;
+
+    double     mt_tot_L1TESDown;
+    double     pt_tt_L1TESDown;
+    double     m_vis_L1TESDown;
+    double     pfmet_type1_L1TESDown_Pt;
+    double     P_chi_pf_L1TESDown;
+    double     LPT_L1TESDown;
+    double     cos_DeltaPhi_PFMET_Higgs_L1TESDown;
+    
+    /* L2TES Variants */
+    double     pt_1_L2TESUp;
+    double     mt_1_L2TESUp;
+    double     pfmt_1_L2TESUp;
+
+    double     pt_2_L2TESUp;
+    double     mt_2_L2TESUp;
+    double     pfmt_2_L2TESUp;
+
+    double     mt_tot_L2TESUp;
+    double     pt_tt_L2TESUp;
+    double     m_vis_L2TESUp;
+    double     pfmet_type1_L2TESUp_Pt;
+    double     P_chi_pf_L2TESUp;
+    double     LPT_L2TESUp;
+    double     cos_DeltaPhi_PFMET_Higgs_L2TESUp;
+
+    double     pt_1_L2TESDown;
+    double     mt_1_L2TESDown;
+    double     pfmt_1_L2TESDown;
+
+    double     pt_2_L2TESDown;
+    double     mt_2_L2TESDown;
+    double     pfmt_2_L2TESDown;
+
+    double     mt_tot_L2TESDown;
+    double     pt_tt_L2TESDown;
+    double     m_vis_L2TESDown;
+    double     pfmet_type1_L2TESDown_Pt;
+    double     P_chi_pf_L2TESDown;
+    double     LPT_L2TESDown;
+    double     cos_DeltaPhi_PFMET_Higgs_L2TESDown;
+
+
+ /* dm0TES Variants */
+ 
+    double     pt_1_dm0TESUp;
+    double     mt_1_dm0TESUp;
+    double     pfmt_1_dm0TESUp;
+
+    double     pt_2_dm0TESUp;
+    double     mt_2_dm0TESUp;
+    double     pfmt_2_dm0TESUp;
+
+    double     mt_tot_dm0TESUp;
+    double     pt_tt_dm0TESUp;
+    double     m_vis_dm0TESUp;
+    double     pfmet_type1_dm0TESUp_Pt;
+    double     P_chi_pf_dm0TESUp;
+    double     LPT_dm0TESUp;
+    double     cos_DeltaPhi_PFMET_Higgs_dm0TESUp;
+
+    double     pt_1_dm0TESDown;
+    double     mt_1_dm0TESDown;
+    double     pfmt_1_dm0TESDown;
+
+    double     pt_2_dm0TESDown;
+    double     mt_2_dm0TESDown;
+    double     pfmt_2_dm0TESDown;
+
+    double     mt_tot_dm0TESDown;
+    double     pt_tt_dm0TESDown;
+    double     m_vis_dm0TESDown;
+    double     pfmet_type1_dm0TESDown_Pt;
+    double     P_chi_pf_dm0TESDown;
+    double     LPT_dm0TESDown;
+    double     cos_DeltaPhi_PFMET_Higgs_dm0TESDown;
+
+    double     mvaVar_mt_MZP600A0400_dm0TESUp;
+    double     mvaVar_mt_MZP800A0400_dm0TESUp;
+    double     mvaVar_mt_MZP1000A0400_dm0TESUp;
+    double     mvaVar_mt_MZP1200A0400_dm0TESUp;
+
+    double     mvaVar_et_MZP600A0400_dm0TESUp;
+    double     mvaVar_et_MZP800A0400_dm0TESUp; 
+    double     mvaVar_et_MZP1000A0400_dm0TESUp;
+    double     mvaVar_et_MZP1200A0400_dm0TESUp;
+            
+    double     mvaVar_tt_MZP600A0400_dm0TESUp;
+    double     mvaVar_tt_MZP800A0400_dm0TESUp;
+    double     mvaVar_tt_MZP1000A0400_dm0TESUp;
+    double     mvaVar_tt_MZP1200A0400_dm0TESUp;
+
+    double     mvaVar_mt_MZP600A0400_dm0TESDown;
+    double     mvaVar_mt_MZP800A0400_dm0TESDown;
+    double     mvaVar_mt_MZP1000A0400_dm0TESDown;
+    double     mvaVar_mt_MZP1200A0400_dm0TESDown;
+
+    double     mvaVar_et_MZP600A0400_dm0TESDown;
+    double     mvaVar_et_MZP800A0400_dm0TESDown; 
+    double     mvaVar_et_MZP1000A0400_dm0TESDown;
+    double     mvaVar_et_MZP1200A0400_dm0TESDown;
+            
+    double     mvaVar_tt_MZP600A0400_dm0TESDown;
+    double     mvaVar_tt_MZP800A0400_dm0TESDown;
+    double     mvaVar_tt_MZP1000A0400_dm0TESDown;
+    double     mvaVar_tt_MZP1200A0400_dm0TESDown;
+
+ /* dm1TES Variants */
+    double     pt_1_dm1TESUp;
+    double     mt_1_dm1TESUp;
+    double     pfmt_1_dm1TESUp;
+
+    double     pt_2_dm1TESUp;
+    double     mt_2_dm1TESUp;
+    double     pfmt_2_dm1TESUp;
+
+    double     mt_tot_dm1TESUp;
+    double     pt_tt_dm1TESUp;
+    double     m_vis_dm1TESUp;
+    double     pfmet_type1_dm1TESUp_Pt;
+    double     P_chi_pf_dm1TESUp;
+    double     LPT_dm1TESUp;
+    double     cos_DeltaPhi_PFMET_Higgs_dm1TESUp;
+
+    double     pt_1_dm1TESDown;
+    double     mt_1_dm1TESDown;
+    double     pfmt_1_dm1TESDown;
+
+    double     pt_2_dm1TESDown;
+    double     mt_2_dm1TESDown;
+    double     pfmt_2_dm1TESDown;
+
+    double     mt_tot_dm1TESDown;
+    double     pt_tt_dm1TESDown;
+    double     m_vis_dm1TESDown;
+    double     pfmet_type1_dm1TESDown_Pt;
+    double     P_chi_pf_dm1TESDown;
+    double     LPT_dm1TESDown;
+    double     cos_DeltaPhi_PFMET_Higgs_dm1TESDown;
+
+    double     mvaVar_mt_MZP600A0400_dm1TESUp;
+    double     mvaVar_mt_MZP800A0400_dm1TESUp;
+    double     mvaVar_mt_MZP1000A0400_dm1TESUp;
+    double     mvaVar_mt_MZP1200A0400_dm1TESUp;
+
+    double     mvaVar_et_MZP600A0400_dm1TESUp;
+    double     mvaVar_et_MZP800A0400_dm1TESUp; 
+    double     mvaVar_et_MZP1000A0400_dm1TESUp;
+    double     mvaVar_et_MZP1200A0400_dm1TESUp;
+            
+    double     mvaVar_tt_MZP600A0400_dm1TESUp;
+    double     mvaVar_tt_MZP800A0400_dm1TESUp;
+    double     mvaVar_tt_MZP1000A0400_dm1TESUp;
+    double     mvaVar_tt_MZP1200A0400_dm1TESUp;
+
+    double     mvaVar_mt_MZP600A0400_dm1TESDown;
+    double     mvaVar_mt_MZP800A0400_dm1TESDown;
+    double     mvaVar_mt_MZP1000A0400_dm1TESDown;
+    double     mvaVar_mt_MZP1200A0400_dm1TESDown;
+
+    double     mvaVar_et_MZP600A0400_dm1TESDown;
+    double     mvaVar_et_MZP800A0400_dm1TESDown; 
+    double     mvaVar_et_MZP1000A0400_dm1TESDown;
+    double     mvaVar_et_MZP1200A0400_dm1TESDown;
+            
+    double     mvaVar_tt_MZP600A0400_dm1TESDown;
+    double     mvaVar_tt_MZP800A0400_dm1TESDown;
+    double     mvaVar_tt_MZP1000A0400_dm1TESDown;
+    double     mvaVar_tt_MZP1200A0400_dm1TESDown;
+
+ /* dm10TES Variants */
+    double     pt_1_dm10TESUp;
+    double     mt_1_dm10TESUp;
+    double     pfmt_1_dm10TESUp;
+
+    double     pt_2_dm10TESUp;
+    double     mt_2_dm10TESUp;
+    double     pfmt_2_dm10TESUp;
+
+    double     mt_tot_dm10TESUp;
+    double     pt_tt_dm10TESUp;
+    double     m_vis_dm10TESUp;
+    double     pfmet_type1_dm10TESUp_Pt;
+    double     P_chi_pf_dm10TESUp;
+    double     LPT_dm10TESUp;
+    double     cos_DeltaPhi_PFMET_Higgs_dm10TESUp;
+
+    double     pt_1_dm10TESDown;
+    double     mt_1_dm10TESDown;
+    double     pfmt_1_dm10TESDown;
+
+    double     pt_2_dm10TESDown;
+    double     mt_2_dm10TESDown;
+    double     pfmt_2_dm10TESDown;
+
+    double     mt_tot_dm10TESDown;
+    double     pt_tt_dm10TESDown;
+    double     m_vis_dm10TESDown;
+    double     pfmet_type1_dm10TESDown_Pt;
+    double     P_chi_pf_dm10TESDown;
+    double     LPT_dm10TESDown;
+    double     cos_DeltaPhi_PFMET_Higgs_dm10TESDown;
+
+    double     mvaVar_mt_MZP600A0400_dm10TESUp;
+    double     mvaVar_mt_MZP800A0400_dm10TESUp;
+    double     mvaVar_mt_MZP1000A0400_dm10TESUp;
+    double     mvaVar_mt_MZP1200A0400_dm10TESUp;
+
+    double     mvaVar_et_MZP600A0400_dm10TESUp;
+    double     mvaVar_et_MZP800A0400_dm10TESUp; 
+    double     mvaVar_et_MZP1000A0400_dm10TESUp;
+    double     mvaVar_et_MZP1200A0400_dm10TESUp;
+            
+    double     mvaVar_tt_MZP600A0400_dm10TESUp;
+    double     mvaVar_tt_MZP800A0400_dm10TESUp;
+    double     mvaVar_tt_MZP1000A0400_dm10TESUp;
+    double     mvaVar_tt_MZP1200A0400_dm10TESUp;
+
+    double     mvaVar_mt_MZP600A0400_dm10TESDown;
+    double     mvaVar_mt_MZP800A0400_dm10TESDown;
+    double     mvaVar_mt_MZP1000A0400_dm10TESDown;
+    double     mvaVar_mt_MZP1200A0400_dm10TESDown;
+
+    double     mvaVar_et_MZP600A0400_dm10TESDown;
+    double     mvaVar_et_MZP800A0400_dm10TESDown; 
+    double     mvaVar_et_MZP1000A0400_dm10TESDown;
+    double     mvaVar_et_MZP1200A0400_dm10TESDown;
+            
+    double     mvaVar_tt_MZP600A0400_dm10TESDown;
+    double     mvaVar_tt_MZP800A0400_dm10TESDown;
+    double     mvaVar_tt_MZP1000A0400_dm10TESDown;
+    double     mvaVar_tt_MZP1200A0400_dm10TESDown;
+
+
 
 	/* tau IDs */
 
@@ -606,6 +943,8 @@ private:
 	float byMediumIsolationMVArun2v1DBdR03oldDMwLT_2;
 	float byVLooseIsolationMVArun2v1DBdR03oldDMwLT_2;
 	float byVVTightIsolationMVArun2v1DBdR03oldDMwLT_2;
+    float byLooseIsolationMVArun2v1DBoldDMwLT_2;
+    float byTightIsolationMVArun2v1DBoldDMwLT_2;
 	float againstElectronVLooseMVA6_2;
 	float againstMuonTight3_2;
 	float againstElectronTightMVA6_2;
@@ -630,6 +969,7 @@ private:
     double weight_ttPtUp;
     double weight_ttPtDown;
 	double m_vis;
+    double m_vis_flat;
 
     double cos_DeltaPhi_PFMET_Higgs_UESUp;
     double cos_DeltaPhi_PFMET_Higgs_UESDown;
@@ -723,6 +1063,14 @@ private:
 	double pfmet_type1_Phi;
 	double pfmet_type1_MT1;
 	double pfmet_type1_MT2;
+    
+    double pfmet_type1_TESUp_Phi;
+    double pfmet_type1_TESUp_MT1;
+    double pfmet_type1_TESUp_MT2;
+    
+    double pfmet_type1_TESDown_Phi;
+    double pfmet_type1_TESDown_MT1;
+    double pfmet_type1_TESDown_MT2;
 
 	double pfmet_type1_JetResUp_Pt; 
 	double pfmet_type1_JetResUp_Phi;
@@ -763,16 +1111,6 @@ private:
 	double pfmet_type1_ElectronEnDown_Phi;
 	double pfmet_type1_ElectronEnDown_MT1;
 	double pfmet_type1_ElectronEnDown_MT2;
-
-	double pfmet_type1_TauEnUp_Pt; 
-	double pfmet_type1_TauEnUp_Phi;
-	double pfmet_type1_TauEnUp_MT1;
-	double pfmet_type1_TauEnUp_MT2;
-
-	double pfmet_type1_TauEnDown_Pt; 
-	double pfmet_type1_TauEnDown_Phi;
-	double pfmet_type1_TauEnDown_MT1;
-	double pfmet_type1_TauEnDown_MT2;
 
 	double pfmet_type1_UnclusteredEnUp_Pt; 
 	double pfmet_type1_UnclusteredEnUp_Phi;
@@ -1477,6 +1815,9 @@ private:
     double KReWeight_Weight;           /* indluded in final_weight */
     double KReWeight_WeightUp;
     double KReWeight_WeightDown;
+    double ZZReWeight_Weight;           /* indluded in final_weight for ZZ*/
+    double ZZReWeight_WeightUp;
+    double ZZReWeight_WeightDown;
     double JTF_WeightUp;
     double JTF_WeightDown;
     double NLOReWeight_Weight;         /* indluded in final_weight */
@@ -1560,7 +1901,7 @@ private:
 				
 	*/
 	
-	double getFinalWeight(bool); 
+	double getFinalWeight(bool, TLorentzVector, TLorentzVector);
 
 
 	/* function: getNominalWeight 
@@ -1632,13 +1973,19 @@ private:
 	*/
 	double getKFactorSyst(bool, bool);
     
+    /* function getZZFactor :
+		return a k factor for reweighting ZZ:
+                int = 1,0,-1 variants
+	*/
+	double getZZFactor(int);
+    
 	/* function getJetTauFakeFactor:
 		return a factor for reweighting W,ZJ:
                 bool = verbose option
                 int = variant, 1 up, -1 down
 
 	*/
-	double getJetTauFakeFactor(bool, int);
+	double getJetTauFakeFactor(bool, int, TLorentzVector, TLorentzVector);
     
     /* function getALDScaleFactors:
         return a scale factor for anti-lepton scale factors:
@@ -1646,6 +1993,15 @@ private:
     */
     
     double getALDScaleFactors(bool);
+    
+    /* function getTauShift:
+        return a scale factor for anti-lepton scale factors:
+        int = retreive tau dm for nominal shift
+        int = lepton type (only for hadronic taus)
+        int = variants 1, 0, or -1
+    */
+    
+    std::vector <double> getTauShift(int, int, int);
     
 	/* function getFinalScaleFactorsForPair : 
 		return a combinded final SF for trigger, ID, and ISO for both legs of a piar
@@ -1658,7 +2014,7 @@ private:
                 bool = just return tracking factor
 
 	*/
-	double getFinalScaleFactorsForPair(bool, int, bool,bool,bool,bool);
+	double getFinalScaleFactorsForPair(bool, int, bool,bool,bool,bool, TLorentzVector, TLorentzVector);
 
 	/* function: getQCDWeightForEleMuChannel(bool)
 		-- returns a size 6 double vector with elements :
@@ -1673,7 +2029,7 @@ private:
 		all set to 1.0 in case not e+mu channel
 	*/
 
-	std::vector<double> getQCDWeightForEleMuChannel(bool);
+	std::vector<double> getQCDWeightForEleMuChannel(bool, TLorentzVector, TLorentzVector);
 
 
 	////////////////////////////////
