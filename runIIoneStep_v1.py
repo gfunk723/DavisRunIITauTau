@@ -28,7 +28,7 @@ DEBUG_NTUPLE_INPUT = False
 # how many events to run, -1 means run all 
 ######################################
 
-MAX_EVENTS = -1
+MAX_EVENTS = 5000
 
 ######################################
 # datasets for local running 
@@ -40,8 +40,11 @@ MAX_EVENTS = -1
 #dataSetName_ = "/ZprimeToA0hToA0chichihtautau_2HDM_MZp-2500_MA0-500_13TeV-madgraph/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM"
 #dataSetName_ = "/SingleElectron/Run2016D-03Feb2017-v1/MINIAOD"
 
-dataSetName_ = "/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1200_MA0-300_13TeV-madgraph-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM"
+#dataSetName_ = "/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1200_MA0-300_13TeV-madgraph-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM"
 
+#dataSetName_="/EWKWPlus2Jets_WToLNu_M-50_13TeV-madgraph-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM"
+
+dataSetName_="/WJetsToLNu_HT-2500ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM"
 
 ######################################
 #  list of files to process 
@@ -59,8 +62,28 @@ if dataSetName_ == "/SingleElectron/Run2016D-03Feb2017-v1/MINIAOD":
 if dataSetName_ == "/ZprimeToA0hToA0chichihtautau_2HDM_MZp-2500_MA0-500_13TeV-madgraph/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM":
 	myfilelist.extend(['file:/uscms_data/d3/shalhout/Morinond17_monoH.root'])
 
-if dataSetName_ == "/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1200_MA0-300_13TeV-madgraph-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM":
-  myfilelist.extend(['file:/uscms_data/d3/shalhout/CrabCrash_Mor17_2500_MA0-500.root'])
+if dataSetName_ == "/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1200_MA0-300_13TeV-madgraph-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM":  
+  myfilelist.extend(['file:./PICK_EVENTS/pickevents_5EventsBTAG.root']) 
+  #myfilelist.extend(['file:./PICK_EVENTS/pickevents_BTAGEFF_MUTAU.root'])
+  #myfilelist.extend(['file:./PICK_EVENTS/pickevents_BTAGEFF.root'])
+  #myfilelist.extend(['file:./PICK_EVENTS/pickevents_1.root'])
+  #myfilelist.extend(['file:./PICK_EVENTS/pickevents_2.root'])
+  #myfilelist.extend(['file:./PICK_EVENTS/pickevents_5.root'])
+  #myfilelist.extend(['file:./PICK_EVENTS/pickevents_6.root'])
+  #myfilelist.extend(['file:./PICK_EVENTS/pickevents_7.root'])
+  #myfilelist.extend(['file:./PICK_EVENTS/pickevents_8.root'])
+  #myfilelist.extend(['file:./PICK_EVENTS/pickevents_9.root'])
+
+
+  #myfilelist.extend(['file:/uscms_data/d3/shalhout/CrabCrash_Mor17_2500_MA0-500.root'])
+
+if dataSetName_ == "/EWKWPlus2Jets_WToLNu_M-50_13TeV-madgraph-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM":
+  myfilelist.extend(['file:./PICK_EVENTS/EWK_pickevents.root']) 
+  
+
+if dataSetName_ == "/WJetsToLNu_HT-2500ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM":
+  myfilelist.extend(['file:./PICK_EVENTS/pickevents_wjetsGenBosonCheck.root']) 
+  
 
 
 
@@ -189,25 +212,25 @@ if sampleData.EventType == 'DATA':
 	process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_2016SeptRepro_v7', '')
 	#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
-  # not sure about this
-  # # period RunH data for 2016 uses a different global tag from the BCDEFG
-  # if sampleData.DataSet == '/SingleElectron/Run2016H-03Feb2017_ver2-v1/MINIAOD':
-  #   process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_Prompt_v16', '')
+# not sure about this
+# # period RunH data for 2016 uses a different global tag from the BCDEFG
+if sampleData.DataSet == '/SingleElectron/Run2016H-03Feb2017_ver2-v1/MINIAOD':
+  process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_Prompt_v16', '')
 
-  # if sampleData.DataSet == '/SingleElectron/Run2016H-03Feb2017_ver3-v1/MINIAOD':
-  #   process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_Prompt_v16', '')
+if sampleData.DataSet == '/SingleElectron/Run2016H-03Feb2017_ver3-v1/MINIAOD':
+  process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_Prompt_v16', '')
 
-  # if sampleData.DataSet == '/SingleMuon/Run2016H-03Feb2017_ver2-v1/MINIAOD':
-  #   process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_Prompt_v16', '')
+if sampleData.DataSet == '/SingleMuon/Run2016H-03Feb2017_ver2-v1/MINIAOD':
+  process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_Prompt_v16', '')
 
-  # if sampleData.DataSet == '/SingleMuon/Run2016H-03Feb2017_ver3-v1/MINIAOD':
-  #   process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_Prompt_v16', '')
+if sampleData.DataSet == '/SingleMuon/Run2016H-03Feb2017_ver3-v1/MINIAOD':
+  process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_Prompt_v16', '')
 
-  # if sampleData.DataSet == '/Tau/Run2016H-03Feb2017_ver2-v1/MINIAOD':
-  #   process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_Prompt_v16', '')
+if sampleData.DataSet == '/Tau/Run2016H-03Feb2017_ver2-v1/MINIAOD':
+  process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_Prompt_v16', '')
 
-  # if sampleData.DataSet == '/Tau/Run2016H-03Feb2017_ver3-v1/MINIAOD':
-  #   process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_Prompt_v16', '')
+if sampleData.DataSet == '/Tau/Run2016H-03Feb2017_ver3-v1/MINIAOD':
+  process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_Prompt_v16', '')
 
 
 print '********** HAVE MANUALLY SET GLOBAL TAG SET TO  *********************'

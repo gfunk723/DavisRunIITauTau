@@ -136,8 +136,8 @@ void bTagSFhelper::InitForJet(double pt_, double eta_, double rawScore_,
 
     /* set the flavour, adjusting to codes needed for the SF reader */
 
-    if(flavour_==5)  m_jetHadronFlavour = BTagEntry::FLAV_B;
-    else if(flavour_==4)  m_jetHadronFlavour = BTagEntry::FLAV_C;
+    if(abs(flavour_)==5)  m_jetHadronFlavour = BTagEntry::FLAV_B;
+    else if(abs(flavour_)==4)  m_jetHadronFlavour = BTagEntry::FLAV_C;
     else  m_jetHadronFlavour = BTagEntry::FLAV_UDSG;
 
     /* set the jetPt, use max values if exceeded and double the uncertainty */
@@ -453,6 +453,9 @@ double bTagSFhelper::SF_MediumWpDown() const { return m_SF_MediumWpDown; }
 double bTagSFhelper::SF_TightWpCentral() const { return m_SF_TightWpCentral; }
 double bTagSFhelper::SF_TightWpUp() const { return m_SF_TightWpUp; }
 double bTagSFhelper::SF_TightWpDown() const { return m_SF_TightWpDown; }
+
+
+double bTagSFhelper::getCutPointMedium() const { return m_cutMedium; }
 
 
 double bTagSFhelper::EFF_LooseWp() const { return m_EFF_LooseWp; }

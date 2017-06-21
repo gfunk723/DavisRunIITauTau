@@ -270,13 +270,23 @@ svMassAtFlatTupleConfig_(iConfig.getParameter<edm::ParameterSet>("SVMassConfig")
   BTagCalibrationReader m_MediumWpReaderAllVariants_forUDSG( BTagEntry::OP_MEDIUM,"central", {"up", "down"});
   BTagCalibrationReader m_TightWpReaderAllVariants_forUDSG( BTagEntry::OP_TIGHT,"central", {"up", "down"});
   
-  m_LooseWpReaderAllVariants_forB.load(m_calib, BTagEntry::FLAV_B, "mujets");             
-  m_MediumWpReaderAllVariants_forB.load(m_calib, BTagEntry::FLAV_B, "mujets");             
-  m_TightWpReaderAllVariants_forB.load(m_calib, BTagEntry::FLAV_B, "mujets");           
+  // m_LooseWpReaderAllVariants_forB.load(m_calib, BTagEntry::FLAV_B, "mujets");             
+  // m_MediumWpReaderAllVariants_forB.load(m_calib, BTagEntry::FLAV_B, "mujets");             
+  // m_TightWpReaderAllVariants_forB.load(m_calib, BTagEntry::FLAV_B, "mujets");           
 
-  m_LooseWpReaderAllVariants_forC.load(m_calib, BTagEntry::FLAV_C, "mujets");             
-  m_MediumWpReaderAllVariants_forC.load(m_calib, BTagEntry::FLAV_C, "mujets");             
-  m_TightWpReaderAllVariants_forC.load(m_calib, BTagEntry::FLAV_C, "mujets");      
+  // m_LooseWpReaderAllVariants_forC.load(m_calib, BTagEntry::FLAV_C, "mujets");             
+  // m_MediumWpReaderAllVariants_forC.load(m_calib, BTagEntry::FLAV_C, "mujets");             
+  // m_TightWpReaderAllVariants_forC.load(m_calib, BTagEntry::FLAV_C, "mujets");      
+
+  /* wisconsin uses comb not mujets */
+  m_LooseWpReaderAllVariants_forB.load(m_calib, BTagEntry::FLAV_B, "comb");             
+  m_MediumWpReaderAllVariants_forB.load(m_calib, BTagEntry::FLAV_B, "comb");             
+  m_TightWpReaderAllVariants_forB.load(m_calib, BTagEntry::FLAV_B, "comb");           
+
+  m_LooseWpReaderAllVariants_forC.load(m_calib, BTagEntry::FLAV_C, "comb");             
+  m_MediumWpReaderAllVariants_forC.load(m_calib, BTagEntry::FLAV_C, "comb");             
+  m_TightWpReaderAllVariants_forC.load(m_calib, BTagEntry::FLAV_C, "comb");  
+
 
   m_LooseWpReaderAllVariants_forUDSG.load(m_calib, BTagEntry::FLAV_UDSG, "incl");             
   m_MediumWpReaderAllVariants_forUDSG.load(m_calib, BTagEntry::FLAV_UDSG, "incl");             
@@ -3332,6 +3342,13 @@ void FlatTupleGenerator::handlePairIndepInfo(const edm::Event& iEvent, const edm
   genBosonVisible_phi = currentINDEP.GenBosonVisibleMomentum().phi();
   genBosonVisible_M = currentINDEP.GenBosonVisibleMomentum().M();
 
+
+  MaxPtGenBoson_WisconinStyle_pt = currentINDEP.MaxPtGenBoson_WisconinStyle().pt();
+  MaxPtGenBoson_WisconinStyle_eta = currentINDEP.MaxPtGenBoson_WisconinStyle().eta();
+  MaxPtGenBoson_WisconinStyle_phi = currentINDEP.MaxPtGenBoson_WisconinStyle().phi();
+  MaxPtGenBoson_WisconinStyle_M = currentINDEP.MaxPtGenBoson_WisconinStyle().M();
+
+
   /* handle the jets - there is a slight dep. on leptons here due to DR cuts */
 
 
@@ -3386,6 +3403,16 @@ void FlatTupleGenerator::handlePairIndepInfo(const edm::Event& iEvent, const edm
   BtagEventSFproduct_mediumWpCentral_JERdown = 1.0;
   BtagEventSFproduct_tightWpCentral_JERdown = 1.0;
 
+
+  /* set the Wisconsin style zero b-tag event weights */
+
+  jets_zero_btag_event_weight = jethelper.getZeroBtagEventSF("fullyCorrected","central", event);
+  jets_zero_btag_event_weight_up = jethelper.getZeroBtagEventSF("fullyCorrected","up", event);
+  jets_zero_btag_event_weight_down = jethelper.getZeroBtagEventSF("fullyCorrected","down", event);
+  jets_JECshiftedUp_zero_btag_event_weight = jethelper.getZeroBtagEventSF("JECshiftedUp","central", event);
+  jets_JECshiftedDown_zero_btag_event_weight = jethelper.getZeroBtagEventSF("JECshiftedDown","central", event);
+  jets_JERup_zero_btag_event_weight = jethelper.getZeroBtagEventSF("JERup","central", event);
+  jets_JERdown_zero_btag_event_weight = jethelper.getZeroBtagEventSF("JERdown","central", event);
 
 
 
@@ -4644,7 +4671,14 @@ void FlatTupleGenerator::handlePairIndepInfo(const edm::Event& iEvent, const edm
   jets_IsBTagged_TightWpDown_JERdown.clear();
   jets_PF_jetIdPassedTight_JERdown.clear();
 
-
+  /* new wisconsin style zero b-tag event weights */
+  jets_zero_btag_event_weight = 1.0;
+  jets_zero_btag_event_weight_up = 1.0;
+  jets_zero_btag_event_weight_down = 1.0;
+  jets_JECshiftedUp_zero_btag_event_weight = 1.0;
+  jets_JECshiftedDown_zero_btag_event_weight = 1.0;
+  jets_JERup_zero_btag_event_weight = 1.0;
+  jets_JERdown_zero_btag_event_weight = 1.0;
 
 
 
@@ -4727,6 +4761,12 @@ void FlatTupleGenerator::handlePairIndepInfo(const edm::Event& iEvent, const edm
   genBosonVisible_eta = NAN;
   genBosonVisible_phi = NAN;
   genBosonVisible_M = NAN;
+
+
+MaxPtGenBoson_WisconinStyle_pt  = NAN;
+MaxPtGenBoson_WisconinStyle_eta  = NAN;
+MaxPtGenBoson_WisconinStyle_phi  = NAN;
+MaxPtGenBoson_WisconinStyle_M  = NAN;
 
   isZTTatGenLevel = 0;
   isZEEatGenLevel = 0;
@@ -5528,6 +5568,14 @@ void FlatTupleGenerator::beginJob()
   FlatTuple->Branch("genBosonVisible_phi", &genBosonVisible_phi); 
   FlatTuple->Branch("genBosonVisible_M", &genBosonVisible_M); 
 
+
+  FlatTuple->Branch("MaxPtGenBoson_WisconinStyle_pt", &MaxPtGenBoson_WisconinStyle_pt); 
+  FlatTuple->Branch("MaxPtGenBoson_WisconinStyle_eta", &MaxPtGenBoson_WisconinStyle_eta); 
+  FlatTuple->Branch("MaxPtGenBoson_WisconinStyle_phi", &MaxPtGenBoson_WisconinStyle_phi); 
+  FlatTuple->Branch("MaxPtGenBoson_WisconinStyle_M", &MaxPtGenBoson_WisconinStyle_M); 
+
+
+
   FlatTuple->Branch("isZTTatGenLevel", &isZTTatGenLevel);
   FlatTuple->Branch("isZEEatGenLevel", &isZEEatGenLevel);
   FlatTuple->Branch("isZMMatGenLevel", &isZMMatGenLevel);
@@ -5729,6 +5777,17 @@ void FlatTupleGenerator::beginJob()
   FlatTuple->Branch("jets_IsBTagged_MediumWpCentral", &jets_IsBTagged_MediumWpCentral);
   FlatTuple->Branch("jets_IsBTagged_TightWpCentral", &jets_IsBTagged_TightWpCentral);
   FlatTuple->Branch("jets_PF_jetIdPassedTight", &jets_PF_jetIdPassedTight);
+
+  /* the wisconsin style zero btag event weights */
+
+  FlatTuple->Branch("jets_zero_btag_event_weight", &jets_zero_btag_event_weight);
+  FlatTuple->Branch("jets_zero_btag_event_weight_up", &jets_zero_btag_event_weight_up);
+  FlatTuple->Branch("jets_zero_btag_event_weight_down", &jets_zero_btag_event_weight_down);
+ 
+  FlatTuple->Branch("jets_JECshiftedUp_zero_btag_event_weight", &jets_JECshiftedUp_zero_btag_event_weight);
+  FlatTuple->Branch("jets_JECshiftedDown_zero_btag_event_weight", &jets_JECshiftedDown_zero_btag_event_weight);
+  FlatTuple->Branch("jets_JERup_zero_btag_event_weight", &jets_JERup_zero_btag_event_weight);
+  FlatTuple->Branch("jets_JERdown_zero_btag_event_weight", &jets_JERdown_zero_btag_event_weight);
 
   /* the new mono_H style btag SFs */
   FlatTuple->Branch("BtagEventSFproduct_looseWpDown",  &BtagEventSFproduct_looseWpDown);

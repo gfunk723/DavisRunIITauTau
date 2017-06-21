@@ -236,20 +236,20 @@ bool SimpleFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) {
       float dz = packedLeadTauCand->dz();
      
       bool isoCheck = 0;
-      if(tauToCheck.tauID("byTightIsolationMVArun2v1DBdR03oldDMwLT") > 0.5 ) isoCheck = 1;
-      if(tauToCheck.tauID("byVTightIsolationMVArun2v1DBdR03oldDMwLT") > 0.5) isoCheck = 1;
+      //if(tauToCheck.tauID("byTightIsolationMVArun2v1DBdR03oldDMwLT") > 0.5 ) isoCheck = 1;
+      //if(tauToCheck.tauID("byVTightIsolationMVArun2v1DBdR03oldDMwLT") > 0.5) isoCheck = 1;
       if(tauToCheck.tauID("byLooseIsolationMVArun2v1DBdR03oldDMwLT") > 0.5 ) isoCheck = 1;
-      if(tauToCheck.tauID("byMediumIsolationMVArun2v1DBdR03oldDMwLT") > 0.5 ) isoCheck = 1;
-      if(tauToCheck.tauID("byVLooseIsolationMVArun2v1DBdR03oldDMwLT") > 0.5 ) isoCheck = 1;
-      if(tauToCheck.tauID("byVVTightIsolationMVArun2v1DBdR03oldDMwLT") > 0.5) isoCheck = 1;
+      //if(tauToCheck.tauID("byMediumIsolationMVArun2v1DBdR03oldDMwLT") > 0.5 ) isoCheck = 1;
+      //if(tauToCheck.tauID("byVLooseIsolationMVArun2v1DBdR03oldDMwLT") > 0.5 ) isoCheck = 1;
+      //if(tauToCheck.tauID("byVVTightIsolationMVArun2v1DBdR03oldDMwLT") > 0.5) isoCheck = 1;
 
       // include  also the rerun tau ID
-      if(tauToCheck.userFloat("rerunDiscriminationByIsolationMVArun2v1VLoose") > 0.5 ) isoCheck = 1;
-      if(tauToCheck.userFloat("rerunDiscriminationByIsolationMVArun2v1Loose") > 0.5) isoCheck = 1;
-      if(tauToCheck.userFloat("rerunDiscriminationByIsolationMVArun2v1Medium") > 0.5 ) isoCheck = 1;
-      if(tauToCheck.userFloat("rerunDiscriminationByIsolationMVArun2v1Tight") > 0.5 ) isoCheck = 1;
-      if(tauToCheck.userFloat("rerunDiscriminationByIsolationMVArun2v1VTight") > 0.5 ) isoCheck = 1;
-      if(tauToCheck.userFloat("rerunDiscriminationByIsolationMVArun2v1VVTight") > 0.5) isoCheck = 1;
+      // if(tauToCheck.userFloat("rerunDiscriminationByIsolationMVArun2v1VLoose") > 0.5 ) isoCheck = 1;
+      // if(tauToCheck.userFloat("rerunDiscriminationByIsolationMVArun2v1Loose") > 0.5) isoCheck = 1;
+      // if(tauToCheck.userFloat("rerunDiscriminationByIsolationMVArun2v1Medium") > 0.5 ) isoCheck = 1;
+      // if(tauToCheck.userFloat("rerunDiscriminationByIsolationMVArun2v1Tight") > 0.5 ) isoCheck = 1;
+      // if(tauToCheck.userFloat("rerunDiscriminationByIsolationMVArun2v1VTight") > 0.5 ) isoCheck = 1;
+      // if(tauToCheck.userFloat("rerunDiscriminationByIsolationMVArun2v1VVTight") > 0.5) isoCheck = 1;
 
       if ( !isoCheck ) continue;
       if(  !(fabs(dz) < 0.2) ) continue;
@@ -271,9 +271,9 @@ bool SimpleFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) {
       double pt_up = 1.1 * tauToCheck.pt();
       double pt_down = 0.9 * tauToCheck.pt();
 
-      if( ( pt > 40.0 || pt_up > 40.0 || pt_down > 40.0) && goodMVA_TauTau ) number_good_tauTau_Taus ++;
-      if( ( pt > 20.0 || pt_up > 20.0 || pt_down > 20.0) && goodMVA_eleTau ) number_good_eleTau_Taus ++;
-      if( ( pt > 20.0 || pt_up > 20.0 || pt_down > 20.0) && goodMVA_muTau ) number_good_muTau_Taus ++;
+      if( ( pt > 35.0 || pt_up > 35.0 || pt_down > 35.0) && goodMVA_TauTau ) number_good_tauTau_Taus ++; // was 40 ; changed for TauES @ sync tree
+      if( ( pt > 17.0 || pt_up > 17.0 || pt_down > 17.0) && goodMVA_eleTau ) number_good_eleTau_Taus ++; // was 20 ; changed for TauES @ sync tree
+      if( ( pt > 17.0 || pt_up > 17.0 || pt_down > 17.0) && goodMVA_muTau ) number_good_muTau_Taus ++; // was 20 ; changed for TauES @ sync tree
 
   
     }
@@ -303,20 +303,20 @@ bool SimpleFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) {
       float dz = packedLeadTauCand->dz();
      
       bool isoCheck = 0;
-      if(tauToCheck.tauID("byTightIsolationMVArun2v1DBdR03oldDMwLT") > 0.5 ) isoCheck = 1;
-      if(tauToCheck.tauID("byVTightIsolationMVArun2v1DBdR03oldDMwLT") > 0.5) isoCheck = 1;
+      // if(tauToCheck.tauID("byTightIsolationMVArun2v1DBdR03oldDMwLT") > 0.5 ) isoCheck = 1;
+      // if(tauToCheck.tauID("byVTightIsolationMVArun2v1DBdR03oldDMwLT") > 0.5) isoCheck = 1;
       if(tauToCheck.tauID("byLooseIsolationMVArun2v1DBdR03oldDMwLT") > 0.5 ) isoCheck = 1;
-      if(tauToCheck.tauID("byMediumIsolationMVArun2v1DBdR03oldDMwLT") > 0.5 ) isoCheck = 1;
-      if(tauToCheck.tauID("byVLooseIsolationMVArun2v1DBdR03oldDMwLT") > 0.5 ) isoCheck = 1;
-      if(tauToCheck.tauID("byVVTightIsolationMVArun2v1DBdR03oldDMwLT") > 0.5) isoCheck = 1;
+      // if(tauToCheck.tauID("byMediumIsolationMVArun2v1DBdR03oldDMwLT") > 0.5 ) isoCheck = 1;
+      // if(tauToCheck.tauID("byVLooseIsolationMVArun2v1DBdR03oldDMwLT") > 0.5 ) isoCheck = 1;
+      // if(tauToCheck.tauID("byVVTightIsolationMVArun2v1DBdR03oldDMwLT") > 0.5) isoCheck = 1;
 
       // include  also the rerun tau ID
-      if(tauToCheck.userFloat("rerunDiscriminationByIsolationMVArun2v1VLoose") > 0.5 ) isoCheck = 1;
-      if(tauToCheck.userFloat("rerunDiscriminationByIsolationMVArun2v1Loose") > 0.5) isoCheck = 1;
-      if(tauToCheck.userFloat("rerunDiscriminationByIsolationMVArun2v1Medium") > 0.5 ) isoCheck = 1;
-      if(tauToCheck.userFloat("rerunDiscriminationByIsolationMVArun2v1Tight") > 0.5 ) isoCheck = 1;
-      if(tauToCheck.userFloat("rerunDiscriminationByIsolationMVArun2v1VTight") > 0.5 ) isoCheck = 1;
-      if(tauToCheck.userFloat("rerunDiscriminationByIsolationMVArun2v1VVTight") > 0.5) isoCheck = 1;
+      // if(tauToCheck.userFloat("rerunDiscriminationByIsolationMVArun2v1VLoose") > 0.5 ) isoCheck = 1;
+      // if(tauToCheck.userFloat("rerunDiscriminationByIsolationMVArun2v1Loose") > 0.5) isoCheck = 1;
+      // if(tauToCheck.userFloat("rerunDiscriminationByIsolationMVArun2v1Medium") > 0.5 ) isoCheck = 1;
+      // if(tauToCheck.userFloat("rerunDiscriminationByIsolationMVArun2v1Tight") > 0.5 ) isoCheck = 1;
+      // if(tauToCheck.userFloat("rerunDiscriminationByIsolationMVArun2v1VTight") > 0.5 ) isoCheck = 1;
+      // if(tauToCheck.userFloat("rerunDiscriminationByIsolationMVArun2v1VVTight") > 0.5) isoCheck = 1;
 
 
       if ( !isoCheck ) continue;
@@ -339,9 +339,15 @@ bool SimpleFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) {
       double pt_up = 1.1 * tauToCheck.pt();
       double pt_down = 0.9 * tauToCheck.pt();
 
-      if( ( pt > 40.0 || pt_up > 40.0 || pt_down > 40.0) && goodMVA_TauTau ) number_good_tauTau_TausBoosted ++;
-      if( ( pt > 20.0 || pt_up > 20.0 || pt_down > 20.0) && goodMVA_eleTau ) number_good_eleTau_TausBoosted ++;
-      if( ( pt > 20.0 || pt_up > 20.0 || pt_down > 20.0) && goodMVA_muTau ) number_good_muTau_TausBoosted ++;
+      if( ( pt > 35.0 || pt_up > 35.0 || pt_down > 35.0) && goodMVA_TauTau ) number_good_tauTau_TausBoosted ++; // was 40 ; changed for TauES @ sync tree
+      if( ( pt > 17.0 || pt_up > 17.0 || pt_down > 17.0) && goodMVA_eleTau ) number_good_eleTau_TausBoosted ++; // was 20 ; changed for TauES @ sync tree
+      if( ( pt > 17.0 || pt_up > 17.0 || pt_down > 17.0) && goodMVA_muTau ) number_good_muTau_TausBoosted ++; // was 20 ; changed for TauES @ sync tree
+
+
+
+      // if( ( pt > 40.0 || pt_up > 40.0 || pt_down > 40.0) && goodMVA_TauTau ) number_good_tauTau_TausBoosted ++;
+      // if( ( pt > 20.0 || pt_up > 20.0 || pt_down > 20.0) && goodMVA_eleTau ) number_good_eleTau_TausBoosted ++;
+      // if( ( pt > 20.0 || pt_up > 20.0 || pt_down > 20.0) && goodMVA_muTau ) number_good_muTau_TausBoosted ++;
 
   
     }

@@ -9,7 +9,7 @@ from DavisRunIITauTau.TupleConfigurations.and_string_concatonator import and_str
 # do we want a smaller version of the FlatTuple ?
 ###################################################
 
-SmallTree_ = True
+SmallTree_ = False
 
 if SmallTree_ is True :
 	print "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
@@ -171,7 +171,7 @@ muon_MuonTau.append("passesTightMuonId==1.0")
 
 # tau in MuonTau final state :
 tau_MuonTau = []
-tau_MuonTau.append("pt>20")
+tau_MuonTau.append("pt>17") # was 20 ; changed for TauES @ sync tree
 tau_MuonTau.append("abs(eta)<2.3")
 tau_MuonTau.append("tauID('decayModeFinding') > 0.5")                                        
 tau_MuonTau.append("abs(dz)<0.2")
@@ -199,7 +199,7 @@ ele_EleTau.append("numberOfMissingInnerHits<=1")
 
 # tau in EleTau final state :
 tau_EleTau = []
-tau_EleTau.append("pt>20")
+tau_EleTau.append("pt>17") # was 20 ; changed for TauES @ sync tree
 tau_EleTau.append("abs(eta)<2.3")
 tau_EleTau.append("tauID('decayModeFinding') > 0.5")                                        
 tau_EleTau.append("abs(dz)<0.2")
@@ -207,7 +207,7 @@ tau_EleTau.append("abs(charge)==1.0")
 
 # tau in TauTau final state :
 tau_TauTau = []
-tau_TauTau.append("pt>40")
+tau_TauTau.append("pt>35") # was 20 ; changed for TauES @ sync tree
 tau_TauTau.append("abs(eta)<2.1")
 tau_TauTau.append("tauID('decayModeFinding') > 0.5")                                        
 tau_TauTau.append("abs(dz)<0.2")
@@ -324,18 +324,23 @@ post_sync_TauTau_tauMVACuts_ = cms.string('1==1')
 if APPLY_POST_SYNC_TAU_CUTS is True :
 	#post_sync_tauIso_ = cms.string('(tauID("byTightIsolationMVArun2v1DBdR03oldDMwLT") > 0.5 || tauID("byVTightIsolationMVArun2v1DBdR03oldDMwLT") > 0.5 || tauID("byLooseIsolationMVArun2v1DBdR03oldDMwLT") > 0.5 || tauID("byMediumIsolationMVArun2v1DBdR03oldDMwLT") > 0.5 || tauID("byVLooseIsolationMVArun2v1DBdR03oldDMwLT") > 0.5 || tauID("byVVTightIsolationMVArun2v1DBdR03oldDMwLT") > 0.5)')
 	
-	post_sync_tauIso_ = cms.string('(tauID("byTightIsolationMVArun2v1DBdR03oldDMwLT") > 0.5 ||\
-		tauID("byVTightIsolationMVArun2v1DBdR03oldDMwLT") > 0.5 ||\
-		tauID("byLooseIsolationMVArun2v1DBdR03oldDMwLT") > 0.5 ||\
-		tauID("byMediumIsolationMVArun2v1DBdR03oldDMwLT") > 0.5 ||\
-		tauID("byVLooseIsolationMVArun2v1DBdR03oldDMwLT") > 0.5 ||\
-		tauID("byVVTightIsolationMVArun2v1DBdR03oldDMwLT") > 0.5 ||\
-		userFloat("rerunDiscriminationByIsolationMVArun2v1VLoose") > 0.5 ||\
-		userFloat("rerunDiscriminationByIsolationMVArun2v1Loose") > 0.5  ||\
-		userFloat("rerunDiscriminationByIsolationMVArun2v1Medium") > 0.5 ||\
-		userFloat("rerunDiscriminationByIsolationMVArun2v1Tight") > 0.5  ||\
-		userFloat("rerunDiscriminationByIsolationMVArun2v1VTight") > 0.5 ||\
-		userFloat("rerunDiscriminationByIsolationMVArun2v1VVTight") > 0.5)')
+	# post_sync_tauIso_ = cms.string('(tauID("byTightIsolationMVArun2v1DBdR03oldDMwLT") > 0.5 ||\
+	# 	tauID("byVTightIsolationMVArun2v1DBdR03oldDMwLT") > 0.5 ||\
+	# 	tauID("byLooseIsolationMVArun2v1DBdR03oldDMwLT") > 0.5 ||\
+	# 	tauID("byMediumIsolationMVArun2v1DBdR03oldDMwLT") > 0.5 ||\
+	# 	tauID("byVLooseIsolationMVArun2v1DBdR03oldDMwLT") > 0.5 ||\
+	# 	tauID("byVVTightIsolationMVArun2v1DBdR03oldDMwLT") > 0.5 ||\
+	# 	userFloat("rerunDiscriminationByIsolationMVArun2v1VLoose") > 0.5 ||\
+	# 	userFloat("rerunDiscriminationByIsolationMVArun2v1Loose") > 0.5  ||\
+	# 	userFloat("rerunDiscriminationByIsolationMVArun2v1Medium") > 0.5 ||\
+	# 	userFloat("rerunDiscriminationByIsolationMVArun2v1Tight") > 0.5  ||\
+	# 	userFloat("rerunDiscriminationByIsolationMVArun2v1VTight") > 0.5 ||\
+	# 	userFloat("rerunDiscriminationByIsolationMVArun2v1VVTight") > 0.5)')
+
+
+
+	post_sync_tauIso_ = cms.string('(tauID("byLooseIsolationMVArun2v1DBdR03oldDMwLT") > 0.5)')
+
 
 	post_sync_EleTau_tauMVACuts_ = cms.string("(tauID('againstElectronTightMVA6')> 0.5 && tauID('againstMuonLoose3')>0.5)")
 	post_sync_MuonTau_tauMVACuts_ = cms.string("(tauID('againstElectronVLooseMVA6')> 0.5 && tauID('againstMuonTight3')>0.5)")
@@ -880,7 +885,7 @@ generalConfig = cms.PSet(
 			#####################
 			# b-tag configuration 
 
-			BtagSF_File = cms.string("DavisRunIITauTau/RunTimeDataInput/data/BTAGSF/CSVv2Moriond17_2017_1_26_BtoH.csv"),
+			BtagSF_File = cms.string("DavisRunIITauTau/RunTimeDataInput/data/BTAGSF/CSVv2_Moriond17_B_H.csv"),
 			# these have not yet been updated and are only used in promote-demote which mono-H does not use
 			looseBtagEff_file = cms.string("DavisRunIITauTau/RunTimeDataInput/data/BTAGEFF/tagging_efficiencies_ichep2016.root"),
 			mediumBtagEff_file = cms.string("DavisRunIITauTau/RunTimeDataInput/data/BTAGEFF/tagging_efficiencies_ichep2016.root"),
@@ -898,6 +903,7 @@ generalConfig = cms.PSet(
 			# you *MUST* make sure this jetIDcut is inclusive of any b-tag selection you
 			# wish to apply later 
 			jetIDcut = cms.string("pt>20 && abs(eta) < 4.7  && PF_jetIdPassed")
+			#jetIDcut = cms.string("1==1")
 
 					)
 
