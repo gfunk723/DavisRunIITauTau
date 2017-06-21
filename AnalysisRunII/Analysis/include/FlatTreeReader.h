@@ -47,6 +47,8 @@
 #include <map>
 #include <TString.h>
 #include <assert.h>
+#include <RooWorkspace.h>
+#include <RooRealVar.h>
 
 
 
