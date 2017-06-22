@@ -4507,6 +4507,9 @@ void generateH2TauSyncTree::setupBranches(TTree * T)
     T->Branch("pt_2_dm10TESUp", &pt_2_dm10TESUp);
     T->Branch("mt_2_dm10TESUp", &mt_2_dm10TESUp);
     T->Branch("pfmt_2_dm10TESUp", &pfmt_2_dm10TESUp);
+    
+    T->Branch("pfmt_1_JEnUp", &pfmt_1_JEnUp);
+    T->Branch("pfmt_1_JEnDown", &pfmt_1_JEnDown);
 
     T->Branch("mt_tot_dm10TESUp", &mt_tot_dm10TESUp);
     T->Branch("pt_tt_dm10TESUp", &pt_tt_dm10TESUp);
