@@ -186,7 +186,7 @@ std::string saveName;
 /* args are cut, canvas name */
 
 double relaxedScale(TCut, TCut, TChain *, std::string, float[]);
-double wjetsNorm(TCut, TCut, TCut, TCut, TH1F *, std::string, std::string, std::string, bool);
+double wjetsNorm(TCut, TCut, TCut, TCut, std::string, std::string, std::string, bool);
 
 /* given a TCut and a w mc scale factor fill a TH1F with a qcd shape under the TCut */
 /* args are cut, w sf, qcd hist to fill, string expression to fill (pt_1 m_vis etc.), binning array,
@@ -662,15 +662,10 @@ void doTauTau()
     std::string metCutTmp;
     if (cRegion) {metCutTmp = "met > " + control_met_cutoff;}
     else {metCutTmp = met_options["NOM"];}
+    
     TCut cut_options_nom((drCutMap[drCut] + " && " + metCutTmp + " && " + mt_options["NOM"] + " && pt_tt > 65").c_str());
     TCut cut_weights_nom = jetCutMap["NOM"];
 
-    TCut cut_options_wCon((drCutMap[drCut] + " &&  m_vis > 80.").c_str());
-    TCut cut_weights_wCon = jetCutMap["NOM"];
-    
-    TCut cut_options_bCon((metCutTmp + " && pt_tt > 65 && m_vis > 70.").c_str());
-    TCut cut_weights_bCon = jetCutMap["BCON"];
-    
     TCut mt_totBlind("mt_tot < 200");
     
     //Systematic Cuts
@@ -689,9 +684,6 @@ void doTauTau()
     TCut cut_options_dm10TESUp((drCutMap[drCut] + " && " + met_options["TES_DM10UP"] + " && " + mt_options["TES_DM10UP"] + " && pt_tt_dm10TESUp > 65").c_str());
     TCut cut_options_dm10TESDown((drCutMap[drCut] + " && " + met_options["TES_DM10DOWN"] + " && " + mt_options["TES_DM10DOWN"] + " && pt_tt_dm10TESDown > 65").c_str());
     
-    TCut cut_options_VPtUp((drCutMap[drCut] + " && " + met_options["NOM"] + " && " + mt_options["NOM"] + " && pt_tt > 65").c_str());
-    TCut cut_options_VPtDown((drCutMap[drCut] + " && " + met_options["NOM"] + " && " + mt_options["NOM"] + " && pt_tt > 65").c_str());
-    
     TCut cut_options_TauFakeUp((drCutMap[drCut] + " && " + met_options["NOM"] + " && " + mt_options["NOM"] + " && pt_tt > 65").c_str());
     TCut cut_options_TauFakeDown((drCutMap[drCut] + " && " + met_options["NOM"] + " && " + mt_options["NOM"] + " && pt_tt > 65").c_str());
     
@@ -704,12 +696,35 @@ void doTauTau()
     TCut cut_options_bTagUp((drCutMap[drCut] + " && " + met_options["NOM"] + " && " + mt_options["NOM"] + " && pt_tt > 65").c_str());
     TCut cut_options_bTagDown((drCutMap[drCut] + " && " + met_options["NOM"] + " && " + mt_options["NOM"] + " && pt_tt > 65").c_str());
     
+    //Systematic cuts for WCon
+
+    TCut cut_options_wCon((drCutMap[drCut] + " && met > 105. && mt_1 > 80. && pt_tt > 65.").c_str());
+    
+    TCut cut_options_wCon_UESUp((drCutMap[drCut] + " && pfmet_type1_UnclusteredEnUp_Pt > 105. && pfmet_type1_UnclusteredEnUp_MT1 > 80. && pt_tt > 65.").c_str());
+    TCut cut_options_wCon_UESDown((drCutMap[drCut] + " && pfmet_type1_UnclusteredEnDown_Pt > 105. && pfmet_type1_UnclusteredEnDown_MT1 > 80. && pt_tt > 65.").c_str());
+    
+    TCut cut_options_wCon_dm0TESUp((drCutMap[drCut] + " && pfmet_type1_dm0TESUp_Pt > 105. && mt_1_dm0TESUp > 80. && pt_tt_dm0TESUp > 65.").c_str());
+    TCut cut_options_wCon_dm0TESDown((drCutMap[drCut] + " && pfmet_type1_dm0TESDown_Pt > 105. && mt_1_dm0TESDown > 80. && pt_tt_dm0TESDown > 65.").c_str());
+    
+    TCut cut_options_wCon_dm1TESUp((drCutMap[drCut] + " && pfmet_type1_dm1TESUp_Pt > 105. && mt_1_dm1TESUp > 80. && pt_tt_dm1TESUp > 65.").c_str());
+    TCut cut_options_wCon_dm1TESDown((drCutMap[drCut] + " && pfmet_type1_dm1TESDown_Pt > 105. && mt_1_dm1TESDown > 80. && pt_tt_dm1TESDown > 65.").c_str());
+    
+    TCut cut_options_wCon_dm10TESUp((drCutMap[drCut] + " && pfmet_type1_dm10TESUp_Pt > 105. && mt_1_dm10TESUp > 80. && pt_tt_dm10TESUp > 65.").c_str());
+    TCut cut_options_wCon_dm10TESDown((drCutMap[drCut] + " && pfmet_type1_dm10TESDown_Pt > 105. && mt_1_dm10TESDown > 80. && pt_tt_dm10TESDown > 65.").c_str());
+    
+    TCut cut_options_wCon_JECUp((drCutMap[drCut] + " && pfmet_type1_JetEnUp_Pt > 105. && pfmt_1_JEnUp > 80. && pt_tt > 65.").c_str());
+    TCut cut_options_wCon_JECDown((drCutMap[drCut] + " && pfmet_type1_JetEnDown_Pt > 105. && pfmt_1_JEnDown > 80. && pt_tt > 65.").c_str());
+    
+    
     //Weights
     TCut cut_weights_UESUp = jetCutMap["NOM"];
     TCut cut_weights_UESDown = jetCutMap["NOM"];
     
-    TCut cut_weights_VPtUp = jetCutMap["NOM"]; cut_weights_VPtUp *= weightMap["ZUP"]; cut_weights_VPtUp *= weightMap["KUP"];
-    TCut cut_weights_VPtDown = jetCutMap["NOM"]; cut_weights_VPtDown *= weightMap["ZDOWN"]; cut_weights_VPtDown *= weightMap["KDOWN"];
+    TCut cut_weights_ZPtUp = jetCutMap["NOM"]; cut_weights_ZPtUp *= weightMap["ZUP"];
+    TCut cut_weights_ZPtDown = jetCutMap["NOM"]; cut_weights_ZPtDown *= weightMap["ZDOWN"];
+    
+    TCut cut_weights_KPtUp = jetCutMap["NOM"]; cut_weights_KPtUp *= weightMap["KUP"];
+    TCut cut_weights_KPtDown = jetCutMap["NOM"]; cut_weights_KPtDown *= weightMap["KDOWN"];
     
     TCut cut_weights_TauFakeUp = jetCutMap["NOM"]; cut_weights_TauFakeUp *= weightMap["JTFUP"];
     TCut cut_weights_TauFakeDown = jetCutMap["NOM"]; cut_weights_TauFakeDown *= weightMap["JTFDOWN"];
@@ -736,7 +751,7 @@ void doTauTau()
 	
     double wSF_SS_TauTau = 1.0; /* temp */
 
-    //double wSF_OS_TauTau = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_wCon, (rel_signalCut_base + cut_options_wCon)*cut_weights_wCon, (wSS_Control_base + cut_options_wCon)*cut_weights_wCon, (SScut_TauTau_base_RelTauIso + cut_options_wCon)*cut_weights_wCon, "TauTauWjetsOS", "tt");
+    //double wSF_OS_TauTau = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_nom, (rel_signalCut_base + cut_options_wCon)*cut_weights_nom, (wSS_Control_base + cut_options_wCon)*cut_weights_nom, (SScut_TauTau_base_RelTauIso + cut_options_wCon)*cut_weights_nom, "TauTauWjetsOS", "tt");
     
     double wSF_OS_TauTau = 1.0;
     
@@ -785,10 +800,10 @@ void doTauTau()
             
             drawSignalRegionVarBin((signalCut_base + cut_options_UESUp)*cut_weights_UESUp, (rel_signalCut_base + cut_options_UESUp)*cut_weights_UESUp, (SScut_TauTau_base + cut_options_UESUp)*cut_weights_UESUp, (SScut_TauTau_base_RelTauIso + cut_options_UESUp)*cut_weights_UESUp, wSF_SS_TauTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_TauTau, "mt_tot_UESUp", mt_totVarBinning,  "", "tt", "_CMS_scale_m_13TeVUp", 0, 1);
             drawSignalRegionVarBin((signalCut_base + cut_options_UESDown)*cut_weights_UESDown, (rel_signalCut_base + cut_options_UESDown)*cut_weights_UESDown, (SScut_TauTau_base + cut_options_UESDown)*cut_weights_UESDown, (SScut_TauTau_base_RelTauIso + cut_options_UESDown)*cut_weights_UESDown, wSF_SS_TauTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_TauTau, "mt_tot_UESDown", mt_totVarBinning,  "", "tt", "_CMS_scale_m_13TeVDown", 0, 1);
-            drawSignalRegionVarBin((signalCut_base + cut_options_VPtUp)*cut_weights_VPtUp, (rel_signalCut_base + cut_options_VPtUp)*cut_weights_VPtUp, (SScut_TauTau_base + cut_options_VPtUp)*cut_weights_VPtUp, (SScut_TauTau_base_RelTauIso + cut_options_VPtUp)*cut_weights_VPtUp, wSF_SS_TauTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_TauTau, "mt_tot", mt_totVarBinning,  "", "tt", "_CMS_xtt_dyShape_13TeVUp", 0, 1);
-            drawSignalRegionVarBin((signalCut_base + cut_options_VPtDown)*cut_weights_VPtDown, (rel_signalCut_base + cut_options_VPtDown)*cut_weights_VPtDown, (SScut_TauTau_base + cut_options_VPtDown)*cut_weights_VPtDown, (SScut_TauTau_base_RelTauIso + cut_options_VPtDown)*cut_weights_VPtDown, wSF_SS_TauTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_TauTau, "mt_tot", mt_totVarBinning,  "", "tt", "_CMS_xtt_dyShape_13TeVDown", 0, 1);
-            drawSignalRegionVarBin((signalCut_base + cut_options_VPtUp)*cut_weights_VPtUp, (rel_signalCut_base + cut_options_VPtUp)*cut_weights_VPtUp, (SScut_TauTau_base + cut_options_VPtUp)*cut_weights_VPtUp, (SScut_TauTau_base_RelTauIso + cut_options_VPtUp)*cut_weights_VPtUp, wSF_SS_TauTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_TauTau, "mt_tot", mt_totVarBinning,  "", "tt", "_CMS_xtt_wShape_13TeVUp", 0, 1);
-            drawSignalRegionVarBin((signalCut_base + cut_options_VPtDown)*cut_weights_VPtDown, (rel_signalCut_base + cut_options_VPtDown)*cut_weights_VPtDown, (SScut_TauTau_base + cut_options_VPtDown)*cut_weights_VPtDown, (SScut_TauTau_base_RelTauIso + cut_options_VPtDown)*cut_weights_VPtDown, wSF_SS_TauTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_TauTau, "mt_tot", mt_totVarBinning,  "", "tt", "_CMS_xtt_wShape_13TeVDown", 0, 1);
+            drawSignalRegionVarBin((signalCut_base + cut_options_nom)*cut_weights_ZPtUp, (rel_signalCut_base + cut_options_nom)*cut_weights_ZPtUp, (SScut_TauTau_base + cut_options_nom)*cut_weights_ZPtUp, (SScut_TauTau_base_RelTauIso + cut_options_nom)*cut_weights_ZPtUp, wSF_SS_TauTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_TauTau, "mt_tot", mt_totVarBinning,  "", "tt", "_CMS_xtt_dyShape_13TeVUp", 0, 1);
+            drawSignalRegionVarBin((signalCut_base + cut_options_nom)*cut_weights_ZPtDown, (rel_signalCut_base + cut_options_nom)*cut_weights_ZPtDown, (SScut_TauTau_base + cut_options_nom)*cut_weights_ZPtDown, (SScut_TauTau_base_RelTauIso + cut_options_nom)*cut_weights_ZPtDown, wSF_SS_TauTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_TauTau, "mt_tot", mt_totVarBinning,  "", "tt", "_CMS_xtt_dyShape_13TeVDown", 0, 1);
+            drawSignalRegionVarBin((signalCut_base + cut_options_nom)*cut_weights_KPtUp, (rel_signalCut_base + cut_options_nom)*cut_weights_KPtUp, (SScut_TauTau_base + cut_options_nom)*cut_weights_KPtUp, (SScut_TauTau_base_RelTauIso + cut_options_nom)*cut_weights_KPtUp, wSF_SS_TauTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_TauTau, "mt_tot", mt_totVarBinning,  "", "tt", "_CMS_xtt_wShape_13TeVUp", 0, 1);
+            drawSignalRegionVarBin((signalCut_base + cut_options_nom)*cut_weights_KPtDown, (rel_signalCut_base + cut_options_nom)*cut_weights_KPtDown, (SScut_TauTau_base + cut_options_nom)*cut_weights_KPtDown, (SScut_TauTau_base_RelTauIso + cut_options_nom)*cut_weights_KPtDown, wSF_SS_TauTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_TauTau, "mt_tot", mt_totVarBinning,  "", "tt", "_CMS_xtt_wShape_13TeVDown", 0, 1);
             drawSignalRegionVarBin((signalCut_base + cut_options_TauFakeUp)*cut_weights_TauFakeUp, (rel_signalCut_base + cut_options_TauFakeUp)*cut_weights_TauFakeUp, (SScut_TauTau_base + cut_options_TauFakeUp)*cut_weights_TauFakeUp, (SScut_TauTau_base_RelTauIso + cut_options_TauFakeUp)*cut_weights_TauFakeUp, wSF_SS_TauTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_TauTau, "mt_tot", mt_totVarBinning,  "", "tt", "_CMS_xtt_jetToTauFake_13TeVUp", 0, 1);
             drawSignalRegionVarBin((signalCut_base + cut_options_TauFakeDown)*cut_weights_TauFakeDown, (rel_signalCut_base + cut_options_TauFakeDown)*cut_weights_TauFakeDown, (SScut_TauTau_base + cut_options_TauFakeDown)*cut_weights_TauFakeDown, (SScut_TauTau_base_RelTauIso + cut_options_TauFakeDown)*cut_weights_TauFakeDown, wSF_SS_TauTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_TauTau, "mt_tot", mt_totVarBinning,  "", "tt", "_CMS_xtt_jetToTauFake_13TeVDown", 0, 1);
             drawSignalRegionVarBin((signalCut_base + cut_options_bTagUp)*cut_weights_bTagUp, (rel_signalCut_base + cut_options_bTagUp)*cut_weights_bTagUp, (SScut_TauTau_base + cut_options_bTagUp)*cut_weights_bTagUp, (SScut_TauTau_base_RelTauIso + cut_options_bTagUp)*cut_weights_bTagUp, wSF_SS_TauTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_TauTau, "mt_tot", mt_totVarBinning,  "", "tt", "_CMS_xtt_bTag_13TeVUp", 0, 1);
@@ -813,10 +828,10 @@ void doTauTau()
             
                 countTotalsVarBin((signalCut_base + cut_options_UESUp)*cut_weights_UESUp, (rel_signalCut_base + cut_options_UESUp)*cut_weights_UESUp, (SScut_TauTau_base + cut_options_UESUp)*cut_weights_UESUp, (SScut_TauTau_base_RelTauIso + cut_options_UESUp)*cut_weights_UESUp, wSF_SS_TauTau, wSF_OS_TauTau, "mt_tot_UESUp", mt_totVarBinning, "Mt_total", "tt", "_CMS_scale_m_13TeVUp");
                 countTotalsVarBin((signalCut_base + cut_options_UESDown)*cut_weights_UESDown, (rel_signalCut_base + cut_options_UESDown)*cut_weights_UESDown, (SScut_TauTau_base + cut_options_UESDown)*cut_weights_UESDown, (SScut_TauTau_base_RelTauIso + cut_options_UESDown)*cut_weights_UESDown, wSF_SS_TauTau, wSF_OS_TauTau, "mt_tot_UESDown", mt_totVarBinning, "Mt_total", "tt", "_CMS_scale_m_13TeVDown");
-                countTotalsVarBin((signalCut_base + cut_options_VPtUp)*cut_weights_VPtUp, (rel_signalCut_base + cut_options_VPtUp)*cut_weights_VPtUp, (SScut_TauTau_base + cut_options_VPtUp)*cut_weights_VPtUp, (SScut_TauTau_base_RelTauIso + cut_options_VPtUp)*cut_weights_VPtUp, wSF_SS_TauTau, wSF_OS_TauTau, "mt_tot", mt_totVarBinning, "Mt_total", "tt", "_CMS_xtt_dyShape_13TeVUp");
-                countTotalsVarBin((signalCut_base + cut_options_VPtDown)*cut_weights_VPtDown, (rel_signalCut_base + cut_options_VPtDown)*cut_weights_VPtDown, (SScut_TauTau_base + cut_options_VPtDown)*cut_weights_VPtDown, (SScut_TauTau_base_RelTauIso + cut_options_VPtDown)*cut_weights_VPtDown, wSF_SS_TauTau, wSF_OS_TauTau, "mt_tot", mt_totVarBinning, "Mt_total", "tt", "_CMS_xtt_dyShape_13TeVDown");
-                countTotalsVarBin((signalCut_base + cut_options_VPtUp)*cut_weights_VPtUp, (rel_signalCut_base + cut_options_VPtUp)*cut_weights_VPtUp, (SScut_TauTau_base + cut_options_VPtUp)*cut_weights_VPtUp, (SScut_TauTau_base_RelTauIso + cut_options_VPtUp)*cut_weights_VPtUp, wSF_SS_TauTau, wSF_OS_TauTau, "mt_tot", mt_totVarBinning, "Mt_total", "tt", "_CMS_xtt_wShape_13TeVUp");
-                countTotalsVarBin((signalCut_base + cut_options_VPtDown)*cut_weights_VPtDown, (rel_signalCut_base + cut_options_VPtDown)*cut_weights_VPtDown, (SScut_TauTau_base + cut_options_VPtDown)*cut_weights_VPtDown, (SScut_TauTau_base_RelTauIso + cut_options_VPtDown)*cut_weights_VPtDown, wSF_SS_TauTau, wSF_OS_TauTau, "mt_tot", mt_totVarBinning, "Mt_total", "tt", "_CMS_xtt_wShape_13TeVDown");
+                countTotalsVarBin((signalCut_base + cut_options_nom)*cut_weights_ZPtUp, (rel_signalCut_base + cut_options_nom)*cut_weights_ZPtUp, (SScut_TauTau_base + cut_options_nom)*cut_weights_ZPtUp, (SScut_TauTau_base_RelTauIso + cut_options_nom)*cut_weights_ZPtUp, wSF_SS_TauTau, wSF_OS_TauTau, "mt_tot", mt_totVarBinning, "Mt_total", "tt", "_CMS_xtt_dyShape_13TeVUp");
+                countTotalsVarBin((signalCut_base + cut_options_nom)*cut_weights_ZPtDown, (rel_signalCut_base + cut_options_nom)*cut_weights_ZPtDown, (SScut_TauTau_base + cut_options_nom)*cut_weights_ZPtDown, (SScut_TauTau_base_RelTauIso + cut_options_nom)*cut_weights_ZPtDown, wSF_SS_TauTau, wSF_OS_TauTau, "mt_tot", mt_totVarBinning, "Mt_total", "tt", "_CMS_xtt_dyShape_13TeVDown");
+                countTotalsVarBin((signalCut_base + cut_options_nom)*cut_weights_KPtUp, (rel_signalCut_base + cut_options_nom)*cut_weights_KPtUp, (SScut_TauTau_base + cut_options_nom)*cut_weights_KPtUp, (SScut_TauTau_base_RelTauIso + cut_options_nom)*cut_weights_KPtUp, wSF_SS_TauTau, wSF_OS_TauTau, "mt_tot", mt_totVarBinning, "Mt_total", "tt", "_CMS_xtt_wShape_13TeVUp");
+                countTotalsVarBin((signalCut_base + cut_options_nom)*cut_weights_KPtDown, (rel_signalCut_base + cut_options_nom)*cut_weights_KPtDown, (SScut_TauTau_base + cut_options_nom)*cut_weights_KPtDown, (SScut_TauTau_base_RelTauIso + cut_options_nom)*cut_weights_KPtDown, wSF_SS_TauTau, wSF_OS_TauTau, "mt_tot", mt_totVarBinning, "Mt_total", "tt", "_CMS_xtt_wShape_13TeVDown");
                 countTotalsVarBin((signalCut_base + cut_options_TauFakeUp)*cut_weights_TauFakeUp, (rel_signalCut_base + cut_options_TauFakeUp)*cut_weights_TauFakeUp, (SScut_TauTau_base + cut_options_TauFakeUp)*cut_weights_TauFakeUp, (SScut_TauTau_base_RelTauIso + cut_options_TauFakeUp)*cut_weights_TauFakeUp, wSF_SS_TauTau, wSF_OS_TauTau, "mt_tot", mt_totVarBinning, "Mt_total", "tt", "_CMS_xtt_jetToTauFake_13TeVUp");
                 countTotalsVarBin((signalCut_base + cut_options_TauFakeDown)*cut_weights_TauFakeDown, (rel_signalCut_base + cut_options_TauFakeDown)*cut_weights_TauFakeDown, (SScut_TauTau_base + cut_options_TauFakeDown)*cut_weights_TauFakeDown, (SScut_TauTau_base_RelTauIso + cut_options_TauFakeDown)*cut_weights_TauFakeDown, wSF_SS_TauTau, wSF_OS_TauTau, "mt_tot", mt_totVarBinning, "Mt_total", "tt", "_CMS_xtt_jetToTauFake_13TeVDown");
                 countTotalsVarBin((signalCut_base + cut_options_bTagUp)*cut_weights_bTagUp, (rel_signalCut_base + cut_options_bTagUp)*cut_weights_bTagUp, (SScut_TauTau_base + cut_options_bTagUp)*cut_weights_bTagUp, (SScut_TauTau_base_RelTauIso + cut_options_bTagUp)*cut_weights_bTagUp, wSF_SS_TauTau, wSF_OS_TauTau, "mt_tot", mt_totVarBinning, "Mt_total", "tt", "_CMS_xtt_bTag_13TeVUp");
@@ -889,9 +904,6 @@ void doEleMu()
     else {metCutTmp = met_options["NOM"];}
     TCut cut_options_nom((drCutMap[drCut] + " && " + metCutTmp + " && " + mt_options["NOM"] + " && pt_tt > 65").c_str());
     TCut cut_weights_nom = jetCutMap["NOM"];
-
-    TCut cut_options_wCon((drCutMap[drCut] + " &&  m_vis > 80.").c_str());
-    TCut cut_weights_wCon = jetCutMap["NOM"];
     
     TCut cut_options_bCon((metCutTmp + " && pt_tt > 65 && m_vis > 70.").c_str());
     TCut cut_weights_bCon = jetCutMap["BCON"];
@@ -901,9 +913,6 @@ void doEleMu()
     //Systematic Cuts
     TCut cut_options_UESUp((drCutMap[drCut] + " && " + met_options["MET_UES_UP"] + " && " + mt_options["NOM"] + " && pt_tt > 65").c_str());
     TCut cut_options_UESDown((drCutMap[drCut] + " && " + met_options["MET_UES_DOWN"] + " && " + mt_options["NOM"] + " && pt_tt > 65").c_str());
-    
-    TCut cut_options_VPtUp((drCutMap[drCut] + " && " + met_options["NOM"] + " && " + mt_options["NOM"] + " && pt_tt > 65").c_str());
-    TCut cut_options_VPtDown((drCutMap[drCut] + " && " + met_options["NOM"] + " && " + mt_options["NOM"] + " && pt_tt > 65").c_str());
     
     TCut cut_options_TauFakeUp((drCutMap[drCut] + " && " + met_options["NOM"] + " && " + mt_options["NOM"] + " && pt_tt > 65").c_str());
     TCut cut_options_TauFakeDown((drCutMap[drCut] + " && " + met_options["NOM"] + " && " + mt_options["NOM"] + " && pt_tt > 65").c_str());
@@ -921,8 +930,11 @@ void doEleMu()
     TCut cut_weights_UESUp = jetCutMap["NOM"];
     TCut cut_weights_UESDown = jetCutMap["NOM"];
     
-    TCut cut_weights_VPtUp = jetCutMap["NOM"]; cut_weights_VPtUp *= weightMap["ZUP"]; cut_weights_VPtUp *= weightMap["KUP"];
-    TCut cut_weights_VPtDown = jetCutMap["NOM"]; cut_weights_VPtDown *= weightMap["ZDOWN"]; cut_weights_VPtDown *= weightMap["KDOWN"];
+    TCut cut_weights_ZPtUp = jetCutMap["NOM"]; cut_weights_ZPtUp *= weightMap["ZUP"];
+    TCut cut_weights_ZPtDown = jetCutMap["NOM"]; cut_weights_ZPtDown *= weightMap["ZDOWN"];
+    
+    TCut cut_weights_KPtUp = jetCutMap["NOM"]; cut_weights_KPtUp *= weightMap["KUP"];
+    TCut cut_weights_KPtDown = jetCutMap["NOM"]; cut_weights_KPtDown *= weightMap["KDOWN"];
     
     TCut cut_weights_TauFakeUp = jetCutMap["NOM"]; cut_weights_TauFakeUp *= weightMap["JTFUP"];
     TCut cut_weights_TauFakeDown = jetCutMap["NOM"]; cut_weights_TauFakeDown *= weightMap["JTFDOWN"];
@@ -1026,12 +1038,6 @@ void doEleTau()
     
     TCut cut_options_nom((drCutMap[drCut] + " && " + metCutTmp + " && " + mt_options["NOM"] + " && pt_tt > 65").c_str());
     TCut cut_weights_nom = jetCutMap["NOM"];
-
-    TCut cut_options_wCon((drCutMap[drCut] + " &&  m_vis > 80.").c_str());
-    TCut cut_weights_wCon = jetCutMap["NOM"];
-    
-    TCut cut_options_bCon((metCutTmp + " && pt_tt > 65 && m_vis > 70.").c_str());
-    TCut cut_weights_bCon = jetCutMap["BCON"];
     
     TCut mt_totBlind("mt_tot < 200");
     
@@ -1051,9 +1057,6 @@ void doEleTau()
     TCut cut_options_dm10TESUp((drCutMap[drCut] + " && " + met_options["TES_DM10UP"] + " && " + mt_options["TES_DM10UP"] + " && pt_tt_dm10TESUp > 65").c_str());
     TCut cut_options_dm10TESDown((drCutMap[drCut] + " && " + met_options["TES_DM10DOWN"] + " && " + mt_options["TES_DM10DOWN"] + " && pt_tt_dm10TESDown > 65").c_str());
     
-    TCut cut_options_VPtUp((drCutMap[drCut] + " && " + met_options["NOM"] + " && " + mt_options["NOM"] + " && pt_tt > 65").c_str());
-    TCut cut_options_VPtDown((drCutMap[drCut] + " && " + met_options["NOM"] + " && " + mt_options["NOM"] + " && pt_tt > 65").c_str());
-    
     TCut cut_options_TauFakeUp((drCutMap[drCut] + " && " + met_options["NOM"] + " && " + mt_options["NOM"] + " && pt_tt > 65").c_str());
     TCut cut_options_TauFakeDown((drCutMap[drCut] + " && " + met_options["NOM"] + " && " + mt_options["NOM"] + " && pt_tt > 65").c_str());
     
@@ -1066,12 +1069,35 @@ void doEleTau()
     TCut cut_options_bTagUp((drCutMap[drCut] + " && " + met_options["NOM"] + " && " + mt_options["NOM"] + " && pt_tt > 65").c_str());
     TCut cut_options_bTagDown((drCutMap[drCut] + " && " + met_options["NOM"] + " && " + mt_options["NOM"] + " && pt_tt > 65").c_str());
     
+    //Systematic cuts for WCon
+
+    TCut cut_options_wCon((drCutMap[drCut] + " && met > 105. && mt_1 > 80. && pt_tt > 65.").c_str());
+    
+    TCut cut_options_wCon_UESUp((drCutMap[drCut] + " && pfmet_type1_UnclusteredEnUp_Pt > 105. && pfmet_type1_UnclusteredEnUp_MT1 > 80. && pt_tt > 65.").c_str());
+    TCut cut_options_wCon_UESDown((drCutMap[drCut] + " && pfmet_type1_UnclusteredEnDown_Pt > 105. && pfmet_type1_UnclusteredEnDown_MT1 > 80. && pt_tt > 65.").c_str());
+    
+    TCut cut_options_wCon_dm0TESUp((drCutMap[drCut] + " && pfmet_type1_dm0TESUp_Pt > 105. && mt_1_dm0TESUp > 80. && pt_tt_dm0TESUp > 65.").c_str());
+    TCut cut_options_wCon_dm0TESDown((drCutMap[drCut] + " && pfmet_type1_dm0TESDown_Pt > 105. && mt_1_dm0TESDown > 80. && pt_tt_dm0TESDown > 65.").c_str());
+    
+    TCut cut_options_wCon_dm1TESUp((drCutMap[drCut] + " && pfmet_type1_dm1TESUp_Pt > 105. && mt_1_dm1TESUp > 80. && pt_tt_dm1TESUp > 65.").c_str());
+    TCut cut_options_wCon_dm1TESDown((drCutMap[drCut] + " && pfmet_type1_dm1TESDown_Pt > 105. && mt_1_dm1TESDown > 80. && pt_tt_dm1TESDown > 65.").c_str());
+    
+    TCut cut_options_wCon_dm10TESUp((drCutMap[drCut] + " && pfmet_type1_dm10TESUp_Pt > 105. && mt_1_dm10TESUp > 80. && pt_tt_dm10TESUp > 65.").c_str());
+    TCut cut_options_wCon_dm10TESDown((drCutMap[drCut] + " && pfmet_type1_dm10TESDown_Pt > 105. && mt_1_dm10TESDown > 80. && pt_tt_dm10TESDown > 65.").c_str());
+    
+    TCut cut_options_wCon_JECUp((drCutMap[drCut] + " && pfmet_type1_JetEnUp_Pt > 105. && pfmt_1_JEnUp > 80. && pt_tt > 65.").c_str());
+    TCut cut_options_wCon_JECDown((drCutMap[drCut] + " && pfmet_type1_JetEnDown_Pt > 105. && pfmt_1_JEnDown > 80. && pt_tt > 65.").c_str());
+    
+    
     //Weights
     TCut cut_weights_UESUp = jetCutMap["NOM"];
     TCut cut_weights_UESDown = jetCutMap["NOM"];
     
-    TCut cut_weights_VPtUp = jetCutMap["NOM"]; cut_weights_VPtUp *= weightMap["ZUP"]; cut_weights_VPtUp *= weightMap["KUP"];
-    TCut cut_weights_VPtDown = jetCutMap["NOM"]; cut_weights_VPtDown *= weightMap["ZDOWN"]; cut_weights_VPtDown *= weightMap["KDOWN"];
+    TCut cut_weights_ZPtUp = jetCutMap["NOM"]; cut_weights_ZPtUp *= weightMap["ZUP"];
+    TCut cut_weights_ZPtDown = jetCutMap["NOM"]; cut_weights_ZPtDown *= weightMap["ZDOWN"];
+    
+    TCut cut_weights_KPtUp = jetCutMap["NOM"]; cut_weights_KPtUp *= weightMap["KUP"];
+    TCut cut_weights_KPtDown = jetCutMap["NOM"]; cut_weights_KPtDown *= weightMap["KDOWN"];
     
     TCut cut_weights_TauFakeUp = jetCutMap["NOM"]; cut_weights_TauFakeUp *= weightMap["JTFUP"];
     TCut cut_weights_TauFakeDown = jetCutMap["NOM"]; cut_weights_TauFakeDown *= weightMap["JTFDOWN"];
@@ -1095,8 +1121,45 @@ void doEleTau()
     
     double wSF_SS_eleTau = 1.0; /* temp */
 
-    //double wSF_OS_eleTau = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_wCon, (rel_signalCut_base + cut_options_wCon)*cut_weights_wCon, (wSS_Control_base + cut_options_wCon)*cut_weights_wCon, (SScut_eleTau_base_RelTauIso + cut_options_wCon)*cut_weights_wCon, "eleTauWjetsOS", "et");
-    double wSF_OS_eleTau = 0.90;
+    double wSF_OS_eleTau = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_nom, (rel_signalCut_base + cut_options_wCon)*cut_weights_nom, (wSS_Control_base + cut_options_wCon)*cut_weights_nom, (SScut_eleTau_base_RelTauIso + cut_options_wCon)*cut_weights_nom, "eleTauWjetsOS", "et", "", 1);
+    
+    double wSF_OS_eleTau_UESUp = wjetsNorm((w_Control_base + cut_options_wCon_UESUp)*cut_weights_nom, (rel_signalCut_base + cut_options_wCon_UESUp)*cut_weights_nom, (wSS_Control_base + cut_options_wCon_UESUp)*cut_weights_nom, (SScut_eleTau_base_RelTauIso + cut_options_wCon_UESUp)*cut_weights_nom, "eleTauWjetsOS_UESUp", "et", "_CMS_scale_m_13TeVUp", 1);
+    double wSF_OS_eleTau_UESDown = wjetsNorm((w_Control_base + cut_options_wCon_UESDown)*cut_weights_nom, (rel_signalCut_base + cut_options_wCon_UESDown)*cut_weights_nom, (wSS_Control_base + cut_options_wCon_UESDown)*cut_weights_nom, (SScut_eleTau_base_RelTauIso + cut_options_wCon_UESDown)*cut_weights_nom, "eleTauWjetsOS_UESDown", "et", "_CMS_scale_m_13TeVDown", 1);
+    
+    double wSF_OS_eleTau_ZPtUp = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_ZPtUp, (rel_signalCut_base + cut_options_wCon)*cut_weights_ZPtUp, (wSS_Control_base + cut_options_wCon)*cut_weights_ZPtUp, (SScut_eleTau_base_RelTauIso + cut_options_wCon)*cut_weights_ZPtUp, "eleTauWjetsOS", "et", "_CMS_xtt_dyShape_13TeVUp", 1);
+    double wSF_OS_eleTau_ZPtDown = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_ZPtDown, (rel_signalCut_base + cut_options_wCon)*cut_weights_ZPtDown, (wSS_Control_base + cut_options_wCon)*cut_weights_ZPtDown, (SScut_eleTau_base_RelTauIso + cut_options_wCon)*cut_weights_ZPtDown, "eleTauWjetsOS", "et", "_CMS_xtt_dyShape_13TeVDown", 1);
+    
+    double wSF_OS_eleTau_KPtUp = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_KPtUp, (rel_signalCut_base + cut_options_wCon)*cut_weights_KPtUp, (wSS_Control_base + cut_options_wCon)*cut_weights_ZPtUp, (SScut_eleTau_base_RelTauIso + cut_options_wCon)*cut_weights_ZPtUp, "eleTauWjetsOS", "et", "_CMS_xtt_wShape_13TeVUp", 1);
+    double wSF_OS_eleTau_KPtDown = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_KPtDown, (rel_signalCut_base + cut_options_wCon)*cut_weights_KPtDown, (wSS_Control_base + cut_options_wCon)*cut_weights_KPtDown, (SScut_eleTau_base_RelTauIso + cut_options_wCon)*cut_weights_KPtDown, "eleTauWjetsOS", "et", "_CMS_xtt_wShape_13TeVDown", 1);
+    
+    double wSF_OS_eleTau_TauFakeUp = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_TauFakeUp, (rel_signalCut_base + cut_options_wCon)*cut_weights_TauFakeUp, (wSS_Control_base + cut_options_wCon)*cut_weights_ZPtUp, (SScut_eleTau_base_RelTauIso + cut_options_wCon)*cut_weights_ZPtUp, "eleTauWjetsOS", "et", "_CMS_xtt_jetToTauFake_13TeVUp", 1);
+    double wSF_OS_eleTau_TauFakeDown = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_TauFakeDown, (rel_signalCut_base + cut_options_wCon)*cut_weights_TauFakeDown, (wSS_Control_base + cut_options_wCon)*cut_weights_TauFakeDown, (SScut_eleTau_base_RelTauIso + cut_options_wCon)*cut_weights_TauFakeDown, "eleTauWjetsOS", "et", "_CMS_xtt_jetToTauFake_13TeVDown", 1);
+    
+    double wSF_OS_eleTau_ZLUp = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_nom, (rel_signalCut_base + cut_options_wCon)*cut_weights_nom, (wSS_Control_base + cut_options_wCon)*cut_weights_nom, (SScut_eleTau_base_RelTauIso + cut_options_wCon)*cut_weights_nom, "eleTauWjetsOS", "et", "_CMS_xtt_ZLScale_eleTau_13TeVUp", 1);
+    double wSF_OS_eleTau_ZLDown = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_nom, (rel_signalCut_base + cut_options_wCon)*cut_weights_nom, (wSS_Control_base + cut_options_wCon)*cut_weights_nom, (SScut_eleTau_base_RelTauIso + cut_options_wCon)*cut_weights_nom, "eleTauWjetsOS", "et", "_CMS_xtt_ZLScale_eleTau_13TeVDown", 1);
+    
+    double wSF_OS_eleTau_bTagUp = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_bTagUp, (rel_signalCut_base + cut_options_wCon)*cut_weights_bTagUp, (wSS_Control_base + cut_options_wCon)*cut_weights_bTagUp, (SScut_eleTau_base_RelTauIso + cut_options_wCon)*cut_weights_bTagUp, "eleTauWjetsOS", "et", "_CMS_xtt_bTag_13TeVUp", 1);
+    double wSF_OS_eleTau_bTagDown = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_bTagDown, (rel_signalCut_base + cut_options_wCon)*cut_weights_bTagDown, (wSS_Control_base + cut_options_wCon)*cut_weights_bTagDown, (SScut_eleTau_base_RelTauIso + cut_options_wCon)*cut_weights_bTagDown, "eleTauWjetsOS", "et", "_CMS_xtt_bTag_13TeVDown", 1);
+    
+    double wSF_OS_eleTau_JECUp = wjetsNorm((w_Control_base + cut_options_wCon_JECUp)*cut_weights_JECUp, (rel_signalCut_base + cut_options_wCon_JECUp)*cut_weights_JECUp, (wSS_Control_base + cut_options_wCon_JECUp)*cut_weights_JECUp, (SScut_eleTau_base_RelTauIso + cut_options_wCon_JECUp)*cut_weights_JECUp, "eleTauWjetsOS", "et", "_CMS_scale_j_13TeVUp", 1);
+    double wSF_OS_eleTau_JECDown = wjetsNorm((w_Control_base + cut_options_wCon_JECDown)*cut_weights_JECDown, (rel_signalCut_base + cut_options_wCon_JECDown)*cut_weights_JECDown, (wSS_Control_base + cut_options_wCon_JECDown)*cut_weights_JECDown, (SScut_eleTau_base_RelTauIso + cut_options_wCon_JECDown)*cut_weights_JECDown, "eleTauWjetsOS", "et", "_CMS_scale_j_13TeVDown", 1);
+    
+    double wSF_OS_eleTau_HPTUp = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_HPTUp, (rel_signalCut_base + cut_options_wCon)*cut_weights_HPTUp, (wSS_Control_base + cut_options_wCon)*cut_weights_HPTUp, (SScut_eleTau_base_RelTauIso + cut_options_wCon)*cut_weights_HPTUp, "eleTauWjetsOS", "et", "_CMS_xtt_highTauEffi_13TeVUp", 1);
+    double wSF_OS_eleTau_HPTDown = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_HPTDown, (rel_signalCut_base + cut_options_wCon)*cut_weights_HPTDown, (wSS_Control_base + cut_options_wCon)*cut_weights_HPTDown, (SScut_eleTau_base_RelTauIso + cut_options_wCon)*cut_weights_HPTDown, "eleTauWjetsOS", "et", "_CMS_xtt_highTauEffi_13TeVDown", 1);
+    
+    double wSF_OS_eleTau_dm0TESUp = wjetsNorm((w_Control_base + cut_options_wCon_dm0TESUp)*cut_weights_nom, (rel_signalCut_base + cut_options_wCon_dm0TESUp)*cut_weights_nom, (wSS_Control_base + cut_options_wCon_dm0TESUp)*cut_weights_nom, (SScut_eleTau_base_RelTauIso + cut_options_wCon_dm0TESUp)*cut_weights_nom, "eleTauWjetsOS", "et", "_CMS_scale_t_dm0_13TeVUp", 1);
+    double wSF_OS_eleTau_dm0TESDown = wjetsNorm((w_Control_base + cut_options_wCon_dm0TESDown)*cut_weights_nom, (rel_signalCut_base + cut_options_wCon_dm0TESDown)*cut_weights_nom, (wSS_Control_base + cut_options_wCon_dm0TESDown)*cut_weights_nom, (SScut_eleTau_base_RelTauIso + cut_options_wCon_dm0TESDown)*cut_weights_nom, "eleTauWjetsOS", "et", "_CMS_scale_t_dm0_13TeVDown", 1);
+    
+    double wSF_OS_eleTau_dm1TESUp = wjetsNorm((w_Control_base + cut_options_wCon_dm1TESUp)*cut_weights_nom, (rel_signalCut_base + cut_options_wCon_dm1TESUp)*cut_weights_nom, (wSS_Control_base + cut_options_wCon_dm1TESUp)*cut_weights_nom, (SScut_eleTau_base_RelTauIso + cut_options_wCon_dm1TESUp)*cut_weights_nom, "eleTauWjetsOS", "et", "_CMS_scale_t_dm1_13TeVUp", 1);
+    double wSF_OS_eleTau_dm1TESDown = wjetsNorm((w_Control_base + cut_options_wCon_dm1TESDown)*cut_weights_nom, (rel_signalCut_base + cut_options_wCon_dm1TESDown)*cut_weights_nom, (wSS_Control_base + cut_options_wCon_dm1TESDown)*cut_weights_nom, (SScut_eleTau_base_RelTauIso + cut_options_wCon_dm1TESDown)*cut_weights_nom, "eleTauWjetsOS", "et", "_CMS_scale_t_dm1_13TeVDown", 1);
+    
+    double wSF_OS_eleTau_dm10TESUp = wjetsNorm((w_Control_base + cut_options_wCon_dm10TESUp)*cut_weights_nom, (rel_signalCut_base + cut_options_wCon_dm10TESUp)*cut_weights_nom, (wSS_Control_base + cut_options_wCon_dm10TESUp)*cut_weights_nom, (SScut_eleTau_base_RelTauIso + cut_options_wCon_dm10TESUp)*cut_weights_nom, "eleTauWjetsOS", "et", "_CMS_scale_t_dm10_13TeVUp", 1);
+    double wSF_OS_eleTau_dm10TESDown = wjetsNorm((w_Control_base + cut_options_wCon_dm10TESDown)*cut_weights_nom, (rel_signalCut_base + cut_options_wCon_dm10TESDown)*cut_weights_nom, (wSS_Control_base + cut_options_wCon_dm10TESDown)*cut_weights_nom, (SScut_eleTau_base_RelTauIso + cut_options_wCon_dm10TESDown)*cut_weights_nom, "eleTauWjetsOS", "et", "_CMS_scale_t_dm10_13TeVDown", 1);
+    
+    double wSF_OS_eleTau_TopPtUp = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_TopPtUp, (rel_signalCut_base + cut_options_wCon)*cut_weights_TopPtUp, (wSS_Control_base + cut_options_wCon)*cut_weights_TopPtUp, (SScut_eleTau_base_RelTauIso + cut_options_wCon)*cut_weights_TopPtUp, "eleTauWjetsOS", "et", "_CMS_xtt_ttbarShape_13TeVUp", 1);
+    double wSF_OS_eleTau_TopPtDown = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_TopPtDown, (rel_signalCut_base + cut_options_wCon)*cut_weights_TopPtDown, (wSS_Control_base + cut_options_wCon)*cut_weights_TopPtDown, (SScut_eleTau_base_RelTauIso + cut_options_wCon)*cut_weights_TopPtDown, "eleTauWjetsOS", "et", "_CMS_xtt_ttbarShape_13TeVDown", 1);
+    
+    //double wSF_OS_eleTau = 0.90;
     
     if (sigChoice==1)
     {
@@ -1139,10 +1202,10 @@ void doEleTau()
             
             drawSignalRegionVarBin((signalCut_base + cut_options_UESUp)*cut_weights_UESUp, (rel_signalCut_base + cut_options_UESUp)*cut_weights_UESUp, (SScut_eleTau_base + cut_options_UESUp)*cut_weights_UESUp, (SScut_eleTau_base_RelTauIso + cut_options_UESUp)*cut_weights_UESUp, wSF_SS_eleTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_eleTau, "mt_tot_UESUp", mt_totVarBinning,  "", "et", "_CMS_scale_m_13TeVUp", 0, 1);
             drawSignalRegionVarBin((signalCut_base + cut_options_UESDown)*cut_weights_UESDown, (rel_signalCut_base + cut_options_UESDown)*cut_weights_UESDown, (SScut_eleTau_base + cut_options_UESDown)*cut_weights_UESDown, (SScut_eleTau_base_RelTauIso + cut_options_UESDown)*cut_weights_UESDown, wSF_SS_eleTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_eleTau, "mt_tot_UESDown", mt_totVarBinning,  "", "et", "_CMS_scale_m_13TeVDown", 0, 1);
-            drawSignalRegionVarBin((signalCut_base + cut_options_VPtUp)*cut_weights_VPtUp, (rel_signalCut_base + cut_options_VPtUp)*cut_weights_VPtUp, (SScut_eleTau_base + cut_options_VPtUp)*cut_weights_VPtUp, (SScut_eleTau_base_RelTauIso + cut_options_VPtUp)*cut_weights_VPtUp, wSF_SS_eleTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_eleTau, "mt_tot", mt_totVarBinning,  "", "et", "_CMS_xtt_dyShape_13TeVUp", 0, 1);
-            drawSignalRegionVarBin((signalCut_base + cut_options_VPtDown)*cut_weights_VPtDown, (rel_signalCut_base + cut_options_VPtDown)*cut_weights_VPtDown, (SScut_eleTau_base + cut_options_VPtDown)*cut_weights_VPtDown, (SScut_eleTau_base_RelTauIso + cut_options_VPtDown)*cut_weights_VPtDown, wSF_SS_eleTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_eleTau, "mt_tot", mt_totVarBinning,  "", "et", "_CMS_xtt_dyShape_13TeVDown", 0, 1);
-            drawSignalRegionVarBin((signalCut_base + cut_options_VPtUp)*cut_weights_VPtUp, (rel_signalCut_base + cut_options_VPtUp)*cut_weights_VPtUp, (SScut_eleTau_base + cut_options_VPtUp)*cut_weights_VPtUp, (SScut_eleTau_base_RelTauIso + cut_options_VPtUp)*cut_weights_VPtUp, wSF_SS_eleTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_eleTau, "mt_tot", mt_totVarBinning,  "", "et", "_CMS_xtt_wShape_13TeVUp", 0, 1);
-            drawSignalRegionVarBin((signalCut_base + cut_options_VPtDown)*cut_weights_VPtDown, (rel_signalCut_base + cut_options_VPtDown)*cut_weights_VPtDown, (SScut_eleTau_base + cut_options_VPtDown)*cut_weights_VPtDown, (SScut_eleTau_base_RelTauIso + cut_options_VPtDown)*cut_weights_VPtDown, wSF_SS_eleTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_eleTau, "mt_tot", mt_totVarBinning,  "", "et", "_CMS_xtt_wShape_13TeVDown", 0, 1);
+            drawSignalRegionVarBin((signalCut_base + cut_options_nom)*cut_weights_ZPtUp, (rel_signalCut_base + cut_options_nom)*cut_weights_ZPtUp, (SScut_eleTau_base + cut_options_nom)*cut_weights_ZPtUp, (SScut_eleTau_base_RelTauIso + cut_options_nom)*cut_weights_ZPtUp, wSF_SS_eleTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_eleTau, "mt_tot", mt_totVarBinning,  "", "et", "_CMS_xtt_dyShape_13TeVUp", 0, 1);
+            drawSignalRegionVarBin((signalCut_base + cut_options_nom)*cut_weights_ZPtDown, (rel_signalCut_base + cut_options_nom)*cut_weights_ZPtDown, (SScut_eleTau_base + cut_options_nom)*cut_weights_ZPtDown, (SScut_eleTau_base_RelTauIso + cut_options_nom)*cut_weights_ZPtDown, wSF_SS_eleTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_eleTau, "mt_tot", mt_totVarBinning,  "", "et", "_CMS_xtt_dyShape_13TeVDown", 0, 1);
+            drawSignalRegionVarBin((signalCut_base + cut_options_nom)*cut_weights_KPtUp, (rel_signalCut_base + cut_options_nom)*cut_weights_KPtUp, (SScut_eleTau_base + cut_options_nom)*cut_weights_KPtUp, (SScut_eleTau_base_RelTauIso + cut_options_nom)*cut_weights_KPtUp, wSF_SS_eleTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_eleTau, "mt_tot", mt_totVarBinning,  "", "et", "_CMS_xtt_wShape_13TeVUp", 0, 1);
+            drawSignalRegionVarBin((signalCut_base + cut_options_nom)*cut_weights_KPtDown, (rel_signalCut_base + cut_options_nom)*cut_weights_KPtDown, (SScut_eleTau_base + cut_options_nom)*cut_weights_KPtDown, (SScut_eleTau_base_RelTauIso + cut_options_nom)*cut_weights_KPtDown, wSF_SS_eleTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_eleTau, "mt_tot", mt_totVarBinning,  "", "et", "_CMS_xtt_wShape_13TeVDown", 0, 1);
             drawSignalRegionVarBin((signalCut_base + cut_options_TauFakeUp)*cut_weights_TauFakeUp, (rel_signalCut_base + cut_options_TauFakeUp)*cut_weights_TauFakeUp, (SScut_eleTau_base + cut_options_TauFakeUp)*cut_weights_TauFakeUp, (SScut_eleTau_base_RelTauIso + cut_options_TauFakeUp)*cut_weights_TauFakeUp, wSF_SS_eleTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_eleTau, "mt_tot", mt_totVarBinning,  "", "et", "_CMS_xtt_jetToTauFake_13TeVUp", 0, 1);
             drawSignalRegionVarBin((signalCut_base + cut_options_TauFakeDown)*cut_weights_TauFakeDown, (rel_signalCut_base + cut_options_TauFakeDown)*cut_weights_TauFakeDown, (SScut_eleTau_base + cut_options_TauFakeDown)*cut_weights_TauFakeDown, (SScut_eleTau_base_RelTauIso + cut_options_TauFakeDown)*cut_weights_TauFakeDown, wSF_SS_eleTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_eleTau, "mt_tot", mt_totVarBinning,  "", "et", "_CMS_xtt_jetToTauFake_13TeVDown", 0, 1);
             drawSignalRegionVarBin((signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, (SScut_eleTau_base + cut_options_nom)*cut_weights_nom, (SScut_eleTau_base_RelTauIso + cut_options_nom)*cut_weights_nom, wSF_SS_eleTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_eleTau, "0.98 * mt_tot", mt_totVarBinning,  "", "et", "_CMS_xtt_ZLScale_etau_13TeVUp", 0, 1);
@@ -1168,10 +1231,10 @@ void doEleTau()
             
                 countTotalsVarBin((signalCut_base + cut_options_UESUp)*cut_weights_UESUp, (rel_signalCut_base + cut_options_UESUp)*cut_weights_UESUp, (SScut_eleTau_base + cut_options_UESUp)*cut_weights_UESUp, (SScut_eleTau_base_RelTauIso + cut_options_UESUp)*cut_weights_UESUp, wSF_SS_eleTau, wSF_OS_eleTau, "mt_tot_UESUp", mt_totVarBinning, "Mt_total", "et", "_CMS_scale_m_13TeVUp");
                 countTotalsVarBin((signalCut_base + cut_options_UESDown)*cut_weights_UESDown, (rel_signalCut_base + cut_options_UESDown)*cut_weights_UESDown, (SScut_eleTau_base + cut_options_UESDown)*cut_weights_UESDown, (SScut_eleTau_base_RelTauIso + cut_options_UESDown)*cut_weights_UESDown, wSF_SS_eleTau, wSF_OS_eleTau, "mt_tot_UESDown", mt_totVarBinning, "Mt_total", "et", "_CMS_scale_m_13TeVDown");
-                countTotalsVarBin((signalCut_base + cut_options_VPtUp)*cut_weights_VPtUp, (rel_signalCut_base + cut_options_VPtUp)*cut_weights_VPtUp, (SScut_eleTau_base + cut_options_VPtUp)*cut_weights_VPtUp, (SScut_eleTau_base_RelTauIso + cut_options_VPtUp)*cut_weights_VPtUp, wSF_SS_eleTau, wSF_OS_eleTau, "mt_tot", mt_totVarBinning, "Mt_total", "et", "_CMS_xtt_dyShape_13TeVUp");
-                countTotalsVarBin((signalCut_base + cut_options_VPtDown)*cut_weights_VPtDown, (rel_signalCut_base + cut_options_VPtDown)*cut_weights_VPtDown, (SScut_eleTau_base + cut_options_VPtDown)*cut_weights_VPtDown, (SScut_eleTau_base_RelTauIso + cut_options_VPtDown)*cut_weights_VPtDown, wSF_SS_eleTau, wSF_OS_eleTau, "mt_tot", mt_totVarBinning, "Mt_total", "et", "_CMS_xtt_dyShape_13TeVDown");
-                countTotalsVarBin((signalCut_base + cut_options_VPtUp)*cut_weights_VPtUp, (rel_signalCut_base + cut_options_VPtUp)*cut_weights_VPtUp, (SScut_eleTau_base + cut_options_VPtUp)*cut_weights_VPtUp, (SScut_eleTau_base_RelTauIso + cut_options_VPtUp)*cut_weights_VPtUp, wSF_SS_eleTau, wSF_OS_eleTau, "mt_tot", mt_totVarBinning, "Mt_total", "et", "_CMS_xtt_wShape_13TeVUp");
-                countTotalsVarBin((signalCut_base + cut_options_VPtDown)*cut_weights_VPtDown, (rel_signalCut_base + cut_options_VPtDown)*cut_weights_VPtDown, (SScut_eleTau_base + cut_options_VPtDown)*cut_weights_VPtDown, (SScut_eleTau_base_RelTauIso + cut_options_VPtDown)*cut_weights_VPtDown, wSF_SS_eleTau, wSF_OS_eleTau, "mt_tot", mt_totVarBinning, "Mt_total", "et", "_CMS_xtt_wShape_13TeVDown");
+                countTotalsVarBin((signalCut_base + cut_options_nom)*cut_weights_ZPtUp, (rel_signalCut_base + cut_options_nom)*cut_weights_ZPtUp, (SScut_eleTau_base + cut_options_nom)*cut_weights_ZPtUp, (SScut_eleTau_base_RelTauIso + cut_options_nom)*cut_weights_ZPtUp, wSF_SS_eleTau, wSF_OS_eleTau, "mt_tot", mt_totVarBinning, "Mt_total", "et", "_CMS_xtt_dyShape_13TeVUp");
+                countTotalsVarBin((signalCut_base + cut_options_nom)*cut_weights_ZPtDown, (rel_signalCut_base + cut_options_nom)*cut_weights_ZPtDown, (SScut_eleTau_base + cut_options_nom)*cut_weights_ZPtDown, (SScut_eleTau_base_RelTauIso + cut_options_nom)*cut_weights_ZPtDown, wSF_SS_eleTau, wSF_OS_eleTau, "mt_tot", mt_totVarBinning, "Mt_total", "et", "_CMS_xtt_dyShape_13TeVDown");
+                countTotalsVarBin((signalCut_base + cut_options_nom)*cut_weights_KPtUp, (rel_signalCut_base + cut_options_nom)*cut_weights_KPtUp, (SScut_eleTau_base + cut_options_nom)*cut_weights_KPtUp, (SScut_eleTau_base_RelTauIso + cut_options_nom)*cut_weights_KPtUp, wSF_SS_eleTau, wSF_OS_eleTau, "mt_tot", mt_totVarBinning, "Mt_total", "et", "_CMS_xtt_wShape_13TeVUp");
+                countTotalsVarBin((signalCut_base + cut_options_nom)*cut_weights_KPtDown, (rel_signalCut_base + cut_options_nom)*cut_weights_KPtDown, (SScut_eleTau_base + cut_options_nom)*cut_weights_KPtDown, (SScut_eleTau_base_RelTauIso + cut_options_nom)*cut_weights_KPtDown, wSF_SS_eleTau, wSF_OS_eleTau, "mt_tot", mt_totVarBinning, "Mt_total", "et", "_CMS_xtt_wShape_13TeVDown");
                 countTotalsVarBin((signalCut_base + cut_options_TauFakeUp)*cut_weights_TauFakeUp, (rel_signalCut_base + cut_options_TauFakeUp)*cut_weights_TauFakeUp, (SScut_eleTau_base + cut_options_TauFakeUp)*cut_weights_TauFakeUp, (SScut_eleTau_base_RelTauIso + cut_options_TauFakeUp)*cut_weights_TauFakeUp, wSF_SS_eleTau, wSF_OS_eleTau, "mt_tot", mt_totVarBinning, "Mt_total", "et", "_CMS_xtt_jetToTauFake_13TeVUp");
                 countTotalsVarBin((signalCut_base + cut_options_TauFakeDown)*cut_weights_TauFakeDown, (rel_signalCut_base + cut_options_TauFakeDown)*cut_weights_TauFakeDown, (SScut_eleTau_base + cut_options_TauFakeDown)*cut_weights_TauFakeDown, (SScut_eleTau_base_RelTauIso + cut_options_TauFakeDown)*cut_weights_TauFakeDown, wSF_SS_eleTau, wSF_OS_eleTau, "mt_tot", mt_totVarBinning, "Mt_total", "et", "_CMS_xtt_jetToTauFake_13TeVDown");
                 countTotalsVarBin((signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, (SScut_eleTau_base + cut_options_nom)*cut_weights_nom, (SScut_eleTau_base_RelTauIso + cut_options_nom)*cut_weights_nom, wSF_SS_eleTau, wSF_OS_eleTau, "0.98 *mt_tot", mt_totVarBinning, "Mt_total", "et", "_CMS_xtt_ZLScale_etau_13TeVUp");
@@ -1260,10 +1323,6 @@ void doMuTau()
     }
     TCut cut_options_nom((drCutMap[drCut] + " && " + metCutTmp + " && " + mt_options["NOM"] + " && pt_tt > 65").c_str());
     TCut cut_weights_nom = jetCutMap["NOM"];
-
-    TCut cut_options_wCon((drCutMap[drCut] + " && met > 105. && mt_1 > 80. && pt_tt > 65.").c_str());
-    TCut cut_weights_wCon = jetCutMap["NOM"];
-
     
     TCut mt_totBlind("mt_tot < 200");
     
@@ -1283,9 +1342,6 @@ void doMuTau()
     TCut cut_options_dm10TESUp((drCutMap[drCut] + " && " + met_options["TES_DM10UP"] + " && " + mt_options["TES_DM10UP"] + " && pt_tt_dm10TESUp > 65").c_str());
     TCut cut_options_dm10TESDown((drCutMap[drCut] + " && " + met_options["TES_DM10DOWN"] + " && " + mt_options["TES_DM10DOWN"] + " && pt_tt_dm10TESDown > 65").c_str());
     
-    TCut cut_options_VPtUp((drCutMap[drCut] + " && " + met_options["NOM"] + " && " + mt_options["NOM"] + " && pt_tt > 65").c_str());
-    TCut cut_options_VPtDown((drCutMap[drCut] + " && " + met_options["NOM"] + " && " + mt_options["NOM"] + " && pt_tt > 65").c_str());
-    
     TCut cut_options_TauFakeUp((drCutMap[drCut] + " && " + met_options["NOM"] + " && " + mt_options["NOM"] + " && pt_tt > 65").c_str());
     TCut cut_options_TauFakeDown((drCutMap[drCut] + " && " + met_options["NOM"] + " && " + mt_options["NOM"] + " && pt_tt > 65").c_str());
     
@@ -1298,12 +1354,34 @@ void doMuTau()
     TCut cut_options_bTagUp((drCutMap[drCut] + " && " + met_options["NOM"] + " && " + mt_options["NOM"] + " && pt_tt > 65").c_str());
     TCut cut_options_bTagDown((drCutMap[drCut] + " && " + met_options["NOM"] + " && " + mt_options["NOM"] + " && pt_tt > 65").c_str());
     
+    //Systematic cuts for WCon
+
+    TCut cut_options_wCon((drCutMap[drCut] + " && met > 105. && mt_1 > 80. && pt_tt > 65.").c_str());
+    
+    TCut cut_options_wCon_UESUp((drCutMap[drCut] + " && pfmet_type1_UnclusteredEnUp_Pt > 105. && pfmet_type1_UnclusteredEnUp_MT1 > 80. && pt_tt > 65.").c_str());
+    TCut cut_options_wCon_UESDown((drCutMap[drCut] + " && pfmet_type1_UnclusteredEnDown_Pt > 105. && pfmet_type1_UnclusteredEnDown_MT1 > 80. && pt_tt > 65.").c_str());
+    
+    TCut cut_options_wCon_dm0TESUp((drCutMap[drCut] + " && pfmet_type1_dm0TESUp_Pt > 105. && mt_1_dm0TESUp > 80. && pt_tt_dm0TESUp > 65.").c_str());
+    TCut cut_options_wCon_dm0TESDown((drCutMap[drCut] + " && pfmet_type1_dm0TESDown_Pt > 105. && mt_1_dm0TESDown > 80. && pt_tt_dm0TESDown > 65.").c_str());
+    
+    TCut cut_options_wCon_dm1TESUp((drCutMap[drCut] + " && pfmet_type1_dm1TESUp_Pt > 105. && mt_1_dm1TESUp > 80. && pt_tt_dm1TESUp > 65.").c_str());
+    TCut cut_options_wCon_dm1TESDown((drCutMap[drCut] + " && pfmet_type1_dm1TESDown_Pt > 105. && mt_1_dm1TESDown > 80. && pt_tt_dm1TESDown > 65.").c_str());
+    
+    TCut cut_options_wCon_dm10TESUp((drCutMap[drCut] + " && pfmet_type1_dm10TESUp_Pt > 105. && mt_1_dm10TESUp > 80. && pt_tt_dm10TESUp > 65.").c_str());
+    TCut cut_options_wCon_dm10TESDown((drCutMap[drCut] + " && pfmet_type1_dm10TESDown_Pt > 105. && mt_1_dm10TESDown > 80. && pt_tt_dm10TESDown > 65.").c_str());
+    
+    TCut cut_options_wCon_JECUp((drCutMap[drCut] + " && pfmet_type1_JetEnUp_Pt > 105. && pfmt_1_JEnUp > 80. && pt_tt > 65.").c_str());
+    TCut cut_options_wCon_JECDown((drCutMap[drCut] + " && pfmet_type1_JetEnDown_Pt > 105. && pfmt_1_JEnDown > 80. && pt_tt > 65.").c_str());
+    
     //Weights
     TCut cut_weights_UESUp = jetCutMap["NOM"];
     TCut cut_weights_UESDown = jetCutMap["NOM"];
     
-    TCut cut_weights_VPtUp = jetCutMap["NOM"]; cut_weights_VPtUp *= weightMap["ZUP"]; cut_weights_VPtUp *= weightMap["KUP"];
-    TCut cut_weights_VPtDown = jetCutMap["NOM"]; cut_weights_VPtDown *= weightMap["ZDOWN"]; cut_weights_VPtDown *= weightMap["KDOWN"];
+    TCut cut_weights_ZPtUp = jetCutMap["NOM"]; cut_weights_ZPtUp *= weightMap["ZUP"];
+    TCut cut_weights_ZPtDown = jetCutMap["NOM"]; cut_weights_ZPtDown *= weightMap["ZDOWN"];
+    
+    TCut cut_weights_KPtUp = jetCutMap["NOM"]; cut_weights_KPtUp *= weightMap["KUP"];
+    TCut cut_weights_KPtDown = jetCutMap["NOM"]; cut_weights_KPtDown *= weightMap["KDOWN"];
     
     TCut cut_weights_TauFakeUp = jetCutMap["NOM"]; cut_weights_TauFakeUp *= weightMap["JTFUP"];
     TCut cut_weights_TauFakeDown = jetCutMap["NOM"]; cut_weights_TauFakeDown *= weightMap["JTFDOWN"];
@@ -1329,9 +1407,45 @@ void doMuTau()
     
     double wSF_SS_muTau = 1.0; /* temp */
 
-    //double wSF_OS_muTau = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_wCon, (rel_signalCut_base + cut_options_wCon)*cut_weights_wCon, (wSS_Control_base + cut_options_wCon)*cut_weights_wCon, (SScut_muTau_base_RelTauIso + cut_options_wCon)*cut_weights_wCon, "muTauWjetsOS", "mt");
+    double wSF_OS_muTau = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_nom, (rel_signalCut_base + cut_options_wCon)*cut_weights_nom, (wSS_Control_base + cut_options_wCon)*cut_weights_nom, (SScut_muTau_base_RelTauIso + cut_options_wCon)*cut_weights_nom, "muTauWjetsOS", "mt", "", 1);
     
-    double wSF_OS_muTau = 0.92;
+    double wSF_OS_muTau_UESUp = wjetsNorm((w_Control_base + cut_options_wCon_UESUp)*cut_weights_nom, (rel_signalCut_base + cut_options_wCon_UESUp)*cut_weights_nom, (wSS_Control_base + cut_options_wCon_UESUp)*cut_weights_nom, (SScut_muTau_base_RelTauIso + cut_options_wCon_UESUp)*cut_weights_nom, "muTauWjetsOS_UESUp", "mt", "_CMS_scale_m_13TeVUp", 1);
+    double wSF_OS_muTau_UESDown = wjetsNorm((w_Control_base + cut_options_wCon_UESDown)*cut_weights_nom, (rel_signalCut_base + cut_options_wCon_UESDown)*cut_weights_nom, (wSS_Control_base + cut_options_wCon_UESDown)*cut_weights_nom, (SScut_muTau_base_RelTauIso + cut_options_wCon_UESDown)*cut_weights_nom, "muTauWjetsOS_UESDown", "mt", "_CMS_scale_m_13TeVDown", 1);
+    
+    double wSF_OS_muTau_ZPtUp = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_ZPtUp, (rel_signalCut_base + cut_options_wCon)*cut_weights_ZPtUp, (wSS_Control_base + cut_options_wCon)*cut_weights_ZPtUp, (SScut_muTau_base_RelTauIso + cut_options_wCon)*cut_weights_ZPtUp, "muTauWjetsOS", "mt", "_CMS_xtt_dyShape_13TeVUp", 1);
+    double wSF_OS_muTau_ZPtDown = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_ZPtDown, (rel_signalCut_base + cut_options_wCon)*cut_weights_ZPtDown, (wSS_Control_base + cut_options_wCon)*cut_weights_ZPtDown, (SScut_muTau_base_RelTauIso + cut_options_wCon)*cut_weights_ZPtDown, "muTauWjetsOS", "mt", "_CMS_xtt_dyShape_13TeVDown", 1);
+    
+    double wSF_OS_muTau_KPtUp = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_KPtUp, (rel_signalCut_base + cut_options_wCon)*cut_weights_KPtUp, (wSS_Control_base + cut_options_wCon)*cut_weights_ZPtUp, (SScut_muTau_base_RelTauIso + cut_options_wCon)*cut_weights_ZPtUp, "muTauWjetsOS", "mt", "_CMS_xtt_wShape_13TeVUp", 1);
+    double wSF_OS_muTau_KPtDown = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_KPtDown, (rel_signalCut_base + cut_options_wCon)*cut_weights_KPtDown, (wSS_Control_base + cut_options_wCon)*cut_weights_KPtDown, (SScut_muTau_base_RelTauIso + cut_options_wCon)*cut_weights_KPtDown, "muTauWjetsOS", "mt", "_CMS_xtt_wShape_13TeVDown", 1);
+    
+    double wSF_OS_muTau_TauFakeUp = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_TauFakeUp, (rel_signalCut_base + cut_options_wCon)*cut_weights_TauFakeUp, (wSS_Control_base + cut_options_wCon)*cut_weights_ZPtUp, (SScut_muTau_base_RelTauIso + cut_options_wCon)*cut_weights_ZPtUp, "muTauWjetsOS", "mt", "_CMS_xtt_jetToTauFake_13TeVUp", 1);
+    double wSF_OS_muTau_TauFakeDown = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_TauFakeDown, (rel_signalCut_base + cut_options_wCon)*cut_weights_TauFakeDown, (wSS_Control_base + cut_options_wCon)*cut_weights_TauFakeDown, (SScut_muTau_base_RelTauIso + cut_options_wCon)*cut_weights_TauFakeDown, "muTauWjetsOS", "mt", "_CMS_xtt_jetToTauFake_13TeVDown", 1);
+    
+    double wSF_OS_muTau_ZLUp = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_nom, (rel_signalCut_base + cut_options_wCon)*cut_weights_nom, (wSS_Control_base + cut_options_wCon)*cut_weights_nom, (SScut_muTau_base_RelTauIso + cut_options_wCon)*cut_weights_nom, "muTauWjetsOS", "mt", "_CMS_xtt_ZLScale_mutau_13TeVUp", 1);
+    double wSF_OS_muTau_ZLDown = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_nom, (rel_signalCut_base + cut_options_wCon)*cut_weights_nom, (wSS_Control_base + cut_options_wCon)*cut_weights_nom, (SScut_muTau_base_RelTauIso + cut_options_wCon)*cut_weights_nom, "muTauWjetsOS", "mt", "_CMS_xtt_ZLScale_mutau_13TeVDown", 1);
+    
+    double wSF_OS_muTau_bTagUp = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_bTagUp, (rel_signalCut_base + cut_options_wCon)*cut_weights_bTagUp, (wSS_Control_base + cut_options_wCon)*cut_weights_bTagUp, (SScut_muTau_base_RelTauIso + cut_options_wCon)*cut_weights_bTagUp, "muTauWjetsOS", "mt", "_CMS_xtt_bTag_13TeVUp", 1);
+    double wSF_OS_muTau_bTagDown = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_bTagDown, (rel_signalCut_base + cut_options_wCon)*cut_weights_bTagDown, (wSS_Control_base + cut_options_wCon)*cut_weights_bTagDown, (SScut_muTau_base_RelTauIso + cut_options_wCon)*cut_weights_bTagDown, "muTauWjetsOS", "mt", "_CMS_xtt_bTag_13TeVDown", 1);
+    
+    double wSF_OS_muTau_JECUp = wjetsNorm((w_Control_base + cut_options_wCon_JECUp)*cut_weights_JECUp, (rel_signalCut_base + cut_options_wCon_JECUp)*cut_weights_JECUp, (wSS_Control_base + cut_options_wCon_JECUp)*cut_weights_JECUp, (SScut_muTau_base_RelTauIso + cut_options_wCon_JECUp)*cut_weights_JECUp, "muTauWjetsOS", "mt", "_CMS_scale_j_13TeVUp", 1);
+    double wSF_OS_muTau_JECDown = wjetsNorm((w_Control_base + cut_options_wCon_JECDown)*cut_weights_JECDown, (rel_signalCut_base + cut_options_wCon_JECDown)*cut_weights_JECDown, (wSS_Control_base + cut_options_wCon_JECDown)*cut_weights_JECDown, (SScut_muTau_base_RelTauIso + cut_options_wCon_JECDown)*cut_weights_JECDown, "muTauWjetsOS", "mt", "_CMS_scale_j_13TeVDown", 1);
+    
+    double wSF_OS_muTau_HPTUp = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_HPTUp, (rel_signalCut_base + cut_options_wCon)*cut_weights_HPTUp, (wSS_Control_base + cut_options_wCon)*cut_weights_HPTUp, (SScut_muTau_base_RelTauIso + cut_options_wCon)*cut_weights_HPTUp, "muTauWjetsOS", "mt", "_CMS_xtt_highTauEffi_13TeVUp", 1);
+    double wSF_OS_muTau_HPTDown = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_HPTDown, (rel_signalCut_base + cut_options_wCon)*cut_weights_HPTDown, (wSS_Control_base + cut_options_wCon)*cut_weights_HPTDown, (SScut_muTau_base_RelTauIso + cut_options_wCon)*cut_weights_HPTDown, "muTauWjetsOS", "mt", "_CMS_xtt_highTauEffi_13TeVDown", 1);
+    
+    double wSF_OS_muTau_dm0TESUp = wjetsNorm((w_Control_base + cut_options_wCon_dm0TESUp)*cut_weights_nom, (rel_signalCut_base + cut_options_wCon_dm0TESUp)*cut_weights_nom, (wSS_Control_base + cut_options_wCon_dm0TESUp)*cut_weights_nom, (SScut_muTau_base_RelTauIso + cut_options_wCon_dm0TESUp)*cut_weights_nom, "muTauWjetsOS", "mt", "_CMS_scale_t_dm0_13TeVUp", 1);
+    double wSF_OS_muTau_dm0TESDown = wjetsNorm((w_Control_base + cut_options_wCon_dm0TESDown)*cut_weights_nom, (rel_signalCut_base + cut_options_wCon_dm0TESDown)*cut_weights_nom, (wSS_Control_base + cut_options_wCon_dm0TESDown)*cut_weights_nom, (SScut_muTau_base_RelTauIso + cut_options_wCon_dm0TESDown)*cut_weights_nom, "muTauWjetsOS", "mt", "_CMS_scale_t_dm0_13TeVDown", 1);
+    
+    double wSF_OS_muTau_dm1TESUp = wjetsNorm((w_Control_base + cut_options_wCon_dm1TESUp)*cut_weights_nom, (rel_signalCut_base + cut_options_wCon_dm1TESUp)*cut_weights_nom, (wSS_Control_base + cut_options_wCon_dm1TESUp)*cut_weights_nom, (SScut_muTau_base_RelTauIso + cut_options_wCon_dm1TESUp)*cut_weights_nom, "muTauWjetsOS", "mt", "_CMS_scale_t_dm1_13TeVUp", 1);
+    double wSF_OS_muTau_dm1TESDown = wjetsNorm((w_Control_base + cut_options_wCon_dm1TESDown)*cut_weights_nom, (rel_signalCut_base + cut_options_wCon_dm1TESDown)*cut_weights_nom, (wSS_Control_base + cut_options_wCon_dm1TESDown)*cut_weights_nom, (SScut_muTau_base_RelTauIso + cut_options_wCon_dm1TESDown)*cut_weights_nom, "muTauWjetsOS", "mt", "_CMS_scale_t_dm1_13TeVDown", 1);
+    
+    double wSF_OS_muTau_dm10TESUp = wjetsNorm((w_Control_base + cut_options_wCon_dm10TESUp)*cut_weights_nom, (rel_signalCut_base + cut_options_wCon_dm10TESUp)*cut_weights_nom, (wSS_Control_base + cut_options_wCon_dm10TESUp)*cut_weights_nom, (SScut_muTau_base_RelTauIso + cut_options_wCon_dm10TESUp)*cut_weights_nom, "muTauWjetsOS", "mt", "_CMS_scale_t_dm10_13TeVUp", 1);
+    double wSF_OS_muTau_dm10TESDown = wjetsNorm((w_Control_base + cut_options_wCon_dm10TESDown)*cut_weights_nom, (rel_signalCut_base + cut_options_wCon_dm10TESDown)*cut_weights_nom, (wSS_Control_base + cut_options_wCon_dm10TESDown)*cut_weights_nom, (SScut_muTau_base_RelTauIso + cut_options_wCon_dm10TESDown)*cut_weights_nom, "muTauWjetsOS", "mt", "_CMS_scale_t_dm10_13TeVDown", 1);
+    
+    double wSF_OS_muTau_TopPtUp = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_TopPtUp, (rel_signalCut_base + cut_options_wCon)*cut_weights_TopPtUp, (wSS_Control_base + cut_options_wCon)*cut_weights_TopPtUp, (SScut_muTau_base_RelTauIso + cut_options_wCon)*cut_weights_TopPtUp, "muTauWjetsOS", "mt", "_CMS_xtt_ttbarShape_13TeVUp", 1);
+    double wSF_OS_muTau_TopPtDown = wjetsNorm((w_Control_base + cut_options_wCon)*cut_weights_TopPtDown, (rel_signalCut_base + cut_options_wCon)*cut_weights_TopPtDown, (wSS_Control_base + cut_options_wCon)*cut_weights_TopPtDown, (SScut_muTau_base_RelTauIso + cut_options_wCon)*cut_weights_TopPtDown, "muTauWjetsOS", "mt", "_CMS_xtt_ttbarShape_13TeVDown", 1);
+
+    //double wSF_OS_muTau = 0.92;
     
     if (sigChoice==1)
     {
@@ -1366,11 +1480,11 @@ void doMuTau()
             
             drawSignalRegionVarBin((signalCut_base + cut_options_UESUp)*cut_weights_UESUp, (rel_signalCut_base + cut_options_UESUp)*cut_weights_UESUp, (SScut_muTau_base + cut_options_UESUp)*cut_weights_UESUp, (SScut_muTau_base_RelTauIso + cut_options_UESUp)*cut_weights_UESUp, wSF_SS_muTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_muTau, "mt_tot_UESUp", mt_totVarBinning,  "", "mt", "_CMS_scale_m_13TeVUp", 0, 1);
             drawSignalRegionVarBin((signalCut_base + cut_options_UESDown)*cut_weights_UESDown, (rel_signalCut_base + cut_options_UESDown)*cut_weights_UESDown, (SScut_muTau_base + cut_options_UESDown)*cut_weights_UESDown, (SScut_muTau_base_RelTauIso + cut_options_UESDown)*cut_weights_UESDown, wSF_SS_muTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_muTau, "mt_tot_UESDown", mt_totVarBinning,  "", "mt", "_CMS_scale_m_13TeVDown", 0, 1);
-            drawSignalRegionVarBin((signalCut_base + cut_options_VPtUp)*cut_weights_VPtUp, (rel_signalCut_base + cut_options_VPtUp)*cut_weights_VPtUp, (SScut_muTau_base + cut_options_VPtUp)*cut_weights_VPtUp, (SScut_muTau_base_RelTauIso + cut_options_VPtUp)*cut_weights_VPtUp, wSF_SS_muTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_muTau, "mt_tot", mt_totVarBinning,  "", "mt", "_CMS_xtt_dyShape_13TeVUp", 0, 1);
-            drawSignalRegionVarBin((signalCut_base + cut_options_VPtDown)*cut_weights_VPtDown, (rel_signalCut_base + cut_options_VPtDown)*cut_weights_VPtDown, (SScut_muTau_base + cut_options_VPtDown)*cut_weights_VPtDown, (SScut_muTau_base_RelTauIso + cut_options_VPtDown)*cut_weights_VPtDown, wSF_SS_muTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_muTau, "mt_tot", mt_totVarBinning,  "", "mt", "_CMS_xtt_dyShape_13TeVDown", 0, 1);
+            drawSignalRegionVarBin((signalCut_base + cut_options_nom)*cut_weights_ZPtUp, (rel_signalCut_base + cut_options_nom)*cut_weights_ZPtUp, (SScut_muTau_base + cut_options_nom)*cut_weights_ZPtUp, (SScut_muTau_base_RelTauIso + cut_options_nom)*cut_weights_ZPtUp, wSF_SS_muTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_muTau, "mt_tot", mt_totVarBinning,  "", "mt", "_CMS_xtt_dyShape_13TeVUp", 0, 1);
+            drawSignalRegionVarBin((signalCut_base + cut_options_nom)*cut_weights_ZPtDown, (rel_signalCut_base + cut_options_nom)*cut_weights_ZPtDown, (SScut_muTau_base + cut_options_nom)*cut_weights_ZPtDown, (SScut_muTau_base_RelTauIso + cut_options_nom)*cut_weights_ZPtDown, wSF_SS_muTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_muTau, "mt_tot", mt_totVarBinning,  "", "mt", "_CMS_xtt_dyShape_13TeVDown", 0, 1);
             
-            drawSignalRegionVarBin((signalCut_base + cut_options_VPtUp)*cut_weights_VPtUp, (rel_signalCut_base + cut_options_VPtUp)*cut_weights_VPtUp, (SScut_muTau_base + cut_options_VPtUp)*cut_weights_VPtUp, (SScut_muTau_base_RelTauIso + cut_options_VPtUp)*cut_weights_VPtUp, wSF_SS_muTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_muTau, "mt_tot", mt_totVarBinning,  "", "mt", "_CMS_xtt_wShape_13TeVUp", 0, 1);
-            drawSignalRegionVarBin((signalCut_base + cut_options_VPtDown)*cut_weights_VPtDown, (rel_signalCut_base + cut_options_VPtDown)*cut_weights_VPtDown, (SScut_muTau_base + cut_options_VPtDown)*cut_weights_VPtDown, (SScut_muTau_base_RelTauIso + cut_options_VPtDown)*cut_weights_VPtDown, wSF_SS_muTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_muTau, "mt_tot", mt_totVarBinning,  "", "mt", "_CMS_xtt_wShape_13TeVDown", 0, 1);
+            drawSignalRegionVarBin((signalCut_base + cut_options_nom)*cut_weights_KPtUp, (rel_signalCut_base + cut_options_nom)*cut_weights_KPtUp, (SScut_muTau_base + cut_options_nom)*cut_weights_KPtUp, (SScut_muTau_base_RelTauIso + cut_options_nom)*cut_weights_KPtUp, wSF_SS_muTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_muTau, "mt_tot", mt_totVarBinning,  "", "mt", "_CMS_xtt_wShape_13TeVUp", 0, 1);
+            drawSignalRegionVarBin((signalCut_base + cut_options_nom)*cut_weights_KPtDown, (rel_signalCut_base + cut_options_nom)*cut_weights_KPtDown, (SScut_muTau_base + cut_options_nom)*cut_weights_KPtDown, (SScut_muTau_base_RelTauIso + cut_options_nom)*cut_weights_KPtDown, wSF_SS_muTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_muTau, "mt_tot", mt_totVarBinning,  "", "mt", "_CMS_xtt_wShape_13TeVDown", 0, 1);
             drawSignalRegionVarBin((signalCut_base + cut_options_TauFakeUp)*cut_weights_TauFakeUp, (rel_signalCut_base + cut_options_TauFakeUp)*cut_weights_TauFakeUp, (SScut_muTau_base + cut_options_TauFakeUp)*cut_weights_TauFakeUp, (SScut_muTau_base_RelTauIso + cut_options_TauFakeUp)*cut_weights_TauFakeUp, wSF_SS_muTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_muTau, "mt_tot", mt_totVarBinning,  "", "mt", "_CMS_xtt_jetToTauFake_13TeVUp", 0, 1);
             drawSignalRegionVarBin((signalCut_base + cut_options_TauFakeDown)*cut_weights_TauFakeDown, (rel_signalCut_base + cut_options_TauFakeDown)*cut_weights_TauFakeDown, (SScut_muTau_base + cut_options_TauFakeDown)*cut_weights_TauFakeDown, (SScut_muTau_base_RelTauIso + cut_options_TauFakeDown)*cut_weights_TauFakeDown, wSF_SS_muTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_muTau, "mt_tot", mt_totVarBinning,  "", "mt", "_CMS_xtt_jetToTauFake_13TeVDown", 0, 1);
             
@@ -1378,7 +1492,6 @@ void doMuTau()
             drawSignalRegionVarBin((signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, (SScut_muTau_base + cut_options_nom)*cut_weights_nom, (SScut_muTau_base_RelTauIso + cut_options_nom)*cut_weights_nom, wSF_SS_muTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_muTau, "1.02 * mt_tot", mt_totVarBinning,  "", "mt", "_CMS_xtt_ZLScale_mutau_13TeVDown", 0, 1);
             drawSignalRegionVarBin((signalCut_base + cut_options_bTagUp)*cut_weights_bTagUp, (rel_signalCut_base + cut_options_bTagUp)*cut_weights_bTagUp, (SScut_muTau_base + cut_options_bTagUp)*cut_weights_bTagUp, (SScut_muTau_base_RelTauIso + cut_options_bTagUp)*cut_weights_bTagUp, wSF_SS_muTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_muTau, "mt_tot", mt_totVarBinning,  "", "mt", "_CMS_xtt_bTag_13TeVUp", 0, 1);
             drawSignalRegionVarBin((signalCut_base + cut_options_bTagDown)*cut_weights_bTagDown, (rel_signalCut_base + cut_options_bTagDown)*cut_weights_bTagDown, (SScut_muTau_base + cut_options_bTagDown)*cut_weights_bTagDown, (SScut_muTau_base_RelTauIso + cut_options_bTagDown)*cut_weights_bTagDown, wSF_SS_muTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_muTau, "mt_tot", mt_totVarBinning,  "", "mt", "_CMS_xtt_bTag_13TeVDown", 0, 1);
-            
             drawSignalRegionVarBin((signalCut_base + cut_options_JECUp)*cut_weights_JECUp, (rel_signalCut_base + cut_options_JECUp)*cut_weights_JECUp, (SScut_muTau_base + cut_options_JECUp)*cut_weights_JECUp, (SScut_muTau_base_RelTauIso + cut_options_JECUp)*cut_weights_JECUp, wSF_SS_muTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_muTau, "mt_tot_JEnUp", mt_totVarBinning,  "", "mt", "_CMS_scale_j_13TeVUp", 0, 1);
             drawSignalRegionVarBin((signalCut_base + cut_options_JECDown)*cut_weights_JECDown, (rel_signalCut_base + cut_options_JECDown)*cut_weights_JECDown, (SScut_muTau_base + cut_options_JECDown)*cut_weights_JECDown, (SScut_muTau_base_RelTauIso + cut_options_JECDown)*cut_weights_JECDown, wSF_SS_muTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_muTau, "mt_tot_JEnDown", mt_totVarBinning,  "", "mt","_CMS_scale_j_13TeVDown", 0, 1);
             drawSignalRegionVarBin((signalCut_base + cut_options_HPTUp)*cut_weights_HPTUp, (rel_signalCut_base + cut_options_HPTUp)*cut_weights_HPTUp, (SScut_muTau_base + cut_options_HPTUp)*cut_weights_HPTUp, (SScut_muTau_base_RelTauIso + cut_options_HPTUp)*cut_weights_HPTUp, wSF_SS_muTau, (signalCut_base + cut_options_nom)*cut_weights_nom, (rel_signalCut_base + cut_options_nom)*cut_weights_nom, 0, wSF_OS_muTau, "mt_tot", mt_totVarBinning,  "", "mt", "_CMS_xtt_highTauEffi_13TeVUp", 0, 1);
@@ -1397,10 +1510,10 @@ void doMuTau()
             
                 countTotalsVarBin((signalCut_base + cut_options_UESUp)*cut_weights_UESUp, (rel_signalCut_base + cut_options_UESUp)*cut_weights_UESUp, (SScut_muTau_base + cut_options_UESUp)*cut_weights_UESUp, (SScut_muTau_base_RelTauIso + cut_options_UESUp)*cut_weights_UESUp, wSF_SS_muTau, wSF_OS_muTau, "mt_tot_UESUp", mt_totVarBinning, "Mt_total", "mt", "_CMS_scale_m_13TeVUp");
                 countTotalsVarBin((signalCut_base + cut_options_UESDown)*cut_weights_UESDown, (rel_signalCut_base + cut_options_UESDown)*cut_weights_UESDown, (SScut_muTau_base + cut_options_UESDown)*cut_weights_UESDown, (SScut_muTau_base_RelTauIso + cut_options_UESDown)*cut_weights_UESDown, wSF_SS_muTau, wSF_OS_muTau, "mt_tot_UESDown", mt_totVarBinning, "Mt_total", "mt", "_CMS_scale_m_13TeVDown");
-                countTotalsVarBin((signalCut_base + cut_options_VPtUp)*cut_weights_VPtUp, (rel_signalCut_base + cut_options_VPtUp)*cut_weights_VPtUp, (SScut_muTau_base + cut_options_VPtUp)*cut_weights_VPtUp, (SScut_muTau_base_RelTauIso + cut_options_VPtUp)*cut_weights_VPtUp, wSF_SS_muTau, wSF_OS_muTau, "mt_tot", mt_totVarBinning, "Mt_total", "mt", "_CMS_xtt_dyShape_13TeVUp");
-                countTotalsVarBin((signalCut_base + cut_options_VPtDown)*cut_weights_VPtDown, (rel_signalCut_base + cut_options_VPtDown)*cut_weights_VPtDown, (SScut_muTau_base + cut_options_VPtDown)*cut_weights_VPtDown, (SScut_muTau_base_RelTauIso + cut_options_VPtDown)*cut_weights_VPtDown, wSF_SS_muTau, wSF_OS_muTau, "mt_tot", mt_totVarBinning, "Mt_total", "mt", "_CMS_xtt_dyShape_13TeVDown");
-                countTotalsVarBin((signalCut_base + cut_options_VPtUp)*cut_weights_VPtUp, (rel_signalCut_base + cut_options_VPtUp)*cut_weights_VPtUp, (SScut_muTau_base + cut_options_VPtUp)*cut_weights_VPtUp, (SScut_muTau_base_RelTauIso + cut_options_VPtUp)*cut_weights_VPtUp, wSF_SS_muTau, wSF_OS_muTau, "mt_tot", mt_totVarBinning, "Mt_total", "mt", "_CMS_xtt_wShape_13TeVUp");
-                countTotalsVarBin((signalCut_base + cut_options_VPtDown)*cut_weights_VPtDown, (rel_signalCut_base + cut_options_VPtDown)*cut_weights_VPtDown, (SScut_muTau_base + cut_options_VPtDown)*cut_weights_VPtDown, (SScut_muTau_base_RelTauIso + cut_options_VPtDown)*cut_weights_VPtDown, wSF_SS_muTau, wSF_OS_muTau, "mt_tot", mt_totVarBinning, "Mt_total", "mt", "_CMS_xtt_wShape_13TeVDown");
+                countTotalsVarBin((signalCut_base + cut_options_nom)*cut_weights_ZPtUp, (rel_signalCut_base + cut_options_nom)*cut_weights_ZPtUp, (SScut_muTau_base + cut_options_nom)*cut_weights_ZPtUp, (SScut_muTau_base_RelTauIso + cut_options_nom)*cut_weights_ZPtUp, wSF_SS_muTau, wSF_OS_muTau, "mt_tot", mt_totVarBinning, "Mt_total", "mt", "_CMS_xtt_dyShape_13TeVUp");
+                countTotalsVarBin((signalCut_base + cut_options_nom)*cut_weights_ZPtDown, (rel_signalCut_base + cut_options_nom)*cut_weights_ZPtDown, (SScut_muTau_base + cut_options_nom)*cut_weights_ZPtDown, (SScut_muTau_base_RelTauIso + cut_options_nom)*cut_weights_ZPtDown, wSF_SS_muTau, wSF_OS_muTau, "mt_tot", mt_totVarBinning, "Mt_total", "mt", "_CMS_xtt_dyShape_13TeVDown");
+                countTotalsVarBin((signalCut_base + cut_options_nom)*cut_weights_KPtUp, (rel_signalCut_base + cut_options_nom)*cut_weights_KPtUp, (SScut_muTau_base + cut_options_nom)*cut_weights_KPtUp, (SScut_muTau_base_RelTauIso + cut_options_nom)*cut_weights_KPtUp, wSF_SS_muTau, wSF_OS_muTau, "mt_tot", mt_totVarBinning, "Mt_total", "mt", "_CMS_xtt_wShape_13TeVUp");
+                countTotalsVarBin((signalCut_base + cut_options_nom)*cut_weights_KPtDown, (rel_signalCut_base + cut_options_nom)*cut_weights_KPtDown, (SScut_muTau_base + cut_options_nom)*cut_weights_KPtDown, (SScut_muTau_base_RelTauIso + cut_options_nom)*cut_weights_KPtDown, wSF_SS_muTau, wSF_OS_muTau, "mt_tot", mt_totVarBinning, "Mt_total", "mt", "_CMS_xtt_wShape_13TeVDown");
                 countTotalsVarBin((signalCut_base + cut_options_TauFakeUp)*cut_weights_TauFakeUp, (rel_signalCut_base + cut_options_TauFakeUp)*cut_weights_TauFakeUp, (SScut_muTau_base + cut_options_TauFakeUp)*cut_weights_TauFakeUp, (SScut_muTau_base_RelTauIso + cut_options_TauFakeUp)*cut_weights_TauFakeUp, wSF_SS_muTau, wSF_OS_muTau, "mt_tot", mt_totVarBinning, "Mt_total", "mt", "_CMS_xtt_jetToTauFake_13TeVUp");
                 countTotalsVarBin((signalCut_base + cut_options_TauFakeDown)*cut_weights_TauFakeDown, (rel_signalCut_base + cut_options_TauFakeDown)*cut_weights_TauFakeDown, (SScut_muTau_base + cut_options_TauFakeDown)*cut_weights_TauFakeDown, (SScut_muTau_base_RelTauIso + cut_options_TauFakeDown)*cut_weights_TauFakeDown, wSF_SS_muTau, wSF_OS_muTau, "mt_tot", mt_totVarBinning, "Mt_total", "mt", "_CMS_xtt_jetToTauFake_13TeVDown");
                 
@@ -4905,8 +5018,9 @@ void fillQCD_ShapeVarBin(TCut SScut, TCut SScutRel, double WnormForQCD, TH1F * Q
 	delete QCD_SS;
 }
 
-double wjetsNorm(TCut wNormCut, TCut wNormCutRel, TCut wSSCut, TCut wSSCutRel, std::string can_name, std::string chan, std::string syst, bool createOutputShapes)  //not ready for 80X yet, may be used
+double wjetsNorm(TCut wNormCut, TCut wNormCutRel, TCut wSSCut, TCut wSSCutRel, std::string can_name, std::string chan, std::string syst, bool createOutputShapes) //not ready for 80X yet, may be used
 {
+    int  binnum = binnum_mt_tot;
 
 	/* create a TCanvas */
     TCanvas * wjetNorm_can = new TCanvas(can_name.c_str(),can_name.c_str(),canDim[0],canDim[1]);
@@ -4914,97 +5028,98 @@ double wjetsNorm(TCut wNormCut, TCut wNormCutRel, TCut wSSCut, TCut wSSCutRel, s
 
 	/* create some histograms and format them */
 
-	TH1F * data_ = new TH1F("data_","data_",m_visConBinning[0],m_visConBinning[1],m_visConBinning[2]); 
+	TH1F * data_ = new TH1F("data_","data_",binnum,mt_totVarBinning);
 	data_->Sumw2(); 
 	data_->SetMarkerStyle(dataMarker);
 
-	TH1F * ztt_ = new TH1F("ztt_","ztt_",m_visConBinning[0],m_visConBinning[1],m_visConBinning[2]);
+	TH1F * ztt_ = new TH1F("ztt_","ztt_",binnum,mt_totVarBinning); 
 	ztt_->Sumw2();
 	ztt_->SetFillColor(colors["ZTT"]);
     
-    TH1F * zl_ = new TH1F("zl_","zl_",m_visConBinning[0],m_visConBinning[1],m_visConBinning[2]);
+    TH1F * zl_ = new TH1F("zl_","zl_",binnum,mt_totVarBinning); 
 	zl_->Sumw2();
 	zl_->SetFillColor(colors["ZL"]);
     
-    TH1F * zj_ = new TH1F("zj_","zj_",m_visConBinning[0],m_visConBinning[1],m_visConBinning[2]);
+    TH1F * zj_ = new TH1F("zj_","zj_",binnum,mt_totVarBinning); 
 	zj_->Sumw2();
 	zj_->SetFillColor(colors["ZJ"]);
 	
-	TH1F * w_ = new TH1F("w_","w_",m_visConBinning[0],m_visConBinning[1],m_visConBinning[2]); 
+	TH1F * w_ = new TH1F("w_","w_",binnum,mt_totVarBinning);  
 	w_->Sumw2(); 
 	w_->SetFillColor(colors["W"]);
 	
-	TH1F * ttj_ = new TH1F("ttj_","ttj_",m_visConBinning[0],m_visConBinning[1],m_visConBinning[2]);
+	TH1F * ttj_ = new TH1F("ttj_","ttj_",binnum,mt_totVarBinning); 
 	ttj_->Sumw2();
 	ttj_->SetFillColor(colors["TTJ"]);
     
-    TH1F * ttt_ = new TH1F("ttt_","ttt_",m_visConBinning[0],m_visConBinning[1],m_visConBinning[2]);
+    TH1F * ttt_ = new TH1F("ttt_","ttt_",binnum,mt_totVarBinning); 
 	ttt_->Sumw2();
 	ttt_->SetFillColor(colors["TTT"]);
 	
-	TH1F * vvt_ = new TH1F("vvt_","vvt_",m_visConBinning[0],m_visConBinning[1],m_visConBinning[2]);
+	TH1F * vvt_ = new TH1F("vvt_","vvt_",binnum,mt_totVarBinning); 
 	vvt_->Sumw2();
 	vvt_->SetFillColor(colors["VV"]);
     
-    TH1F * vvj_ = new TH1F("vvj_","vvj_",m_visConBinning[0],m_visConBinning[1],m_visConBinning[2]);
+    TH1F * vvj_ = new TH1F("vvj_","vvj_",binnum,mt_totVarBinning); 
 	vvj_->Sumw2();
 	vvj_->SetFillColor(colors["VV"]);
     
-    TH1F * zvv_ = new TH1F("zvv_","zvv_",m_visConBinning[0],m_visConBinning[1],m_visConBinning[2]);
+    TH1F * zvv_ = new TH1F("zvv_","zvv_",binnum,mt_totVarBinning); 
 	zvv_->Sumw2();
 	zvv_->SetFillColor(colors["ZVV"]);
     
-    TH1F * ewk_ = new TH1F("ewk_","ewk_",m_visConBinning[0],m_visConBinning[1],m_visConBinning[2]);
+    TH1F * ewk_ = new TH1F("ewk_","ewk_",binnum,mt_totVarBinning); 
 	ewk_->Sumw2();
 	ewk_->SetFillColor(colors["EWK"]);
     
-    TH1F * qcd_ = new TH1F("qcd_","qcd_",m_visConBinning[0],m_visConBinning[1],m_visConBinning[2]);
+    TH1F * qcd_ = new TH1F("qcd_","qcd_",binnum,mt_totVarBinning); 
 	qcd_->Sumw2();
 	qcd_->SetFillColor(colors["QCD"]);
 	
-	TH1F * zhtautau_ = new TH1F("zhtautau_","zhtautau_",m_visConBinning[0],m_visConBinning[1],m_visConBinning[2]);
+	TH1F * zhtautau_ = new TH1F("zhtautau_","zhtautau_",binnum,mt_totVarBinning); 
 	zhtautau_->Sumw2();
 	zhtautau_->SetFillColor(colors["ZHTauTau"]);
 
-	TH1F * glugluhtautau_ = new TH1F("glugluhtautau_","glugluhtautau_",m_visConBinning[0],m_visConBinning[1],m_visConBinning[2]);
+	TH1F * glugluhtautau_ = new TH1F("glugluhtautau_","glugluhtautau_",binnum,mt_totVarBinning); 
 	glugluhtautau_->Sumw2();
 	glugluhtautau_->SetFillColor(colors["GluGluHTauTau"]);
     
-    TH1F * vbfhtautau_ = new TH1F("vbfhtautau_","vbfhtautau_",m_visConBinning[0],m_visConBinning[1],m_visConBinning[2]);
+    TH1F * vbfhtautau_ = new TH1F("vbfhtautau_","vbfhtautau_",binnum,mt_totVarBinning); 
 	vbfhtautau_->Sumw2();
     vbfhtautau_->SetFillColor(colors["VBFHTauTau"]);
     
-    TH1F * smh_ = new TH1F("smh_","smh_",m_visConBinning[0],m_visConBinning[1],m_visConBinning[2]);
+    TH1F * smh_ = new TH1F("smh_","smh_",binnum,mt_totVarBinning); 
 	smh_->Sumw2();
     smh_->SetFillColor(colors["SMH"]);
 
-	TH1F * comb_ = new TH1F("comb_","comb_",m_visConBinning[0],m_visConBinning[1],m_visConBinning[2]); 
+	TH1F * comb_ = new TH1F("comb_","comb_",binnum,mt_totVarBinning);  
 	comb_->Sumw2(); 
 
-	TH1F * combSUM_ = new TH1F("combSUM_","combSUM_",m_visConBinning[0],m_visConBinning[1],m_visConBinning[2]); 
+	TH1F * combSUM_ = new TH1F("combSUM_","combSUM_",binnum,mt_totVarBinning);
 	combSUM_->Sumw2();
 
 	/* fill the hists */
 	wjetNorm_can->cd(1);
 
-	DATA->Draw("m_vis>>data_",wNormCut);
+	DATA->Draw("mt_tot>>data_",wNormCut);
     
-	W->Draw("m_vis>>w_",wNormCut*weights["W"].c_str());
-	ZTT->Draw("m_vis>>ztt_",wNormCut*weights["ZTT"].c_str());
-    ZJ->Draw("m_vis>>zj_",wNormCut*weights["ZJ"].c_str());
-    ZL->Draw("m_vis>>zl_",wNormCut*weights["ZL"].c_str());
-	VVT->Draw("m_vis>>vvt_",wNormCut*weights["VV"].c_str());
-    VVJ->Draw("m_vis>>vvj_",wNormCut*weights["VV"].c_str());
-    ZVV->Draw("m_vis>>zvv_",wNormCut*weights["ZVV"].c_str());
-    EWK->Draw("m_vis>>ewk_",wNormCut*weights["EWK"].c_str());
-	TTT->Draw("m_vis>>ttt_",wNormCut*weights["TTT"].c_str());
-    TTJ->Draw("m_vis>>ttj_",wNormCut*weights["TTJ"].c_str());
-	ZHTauTau->Draw("m_vis>>zhtautau_",wNormCut*weights["ZHTauTau"].c_str());
-    GluGluHTauTau->Draw("m_vis>>glugluhtautau_",wNormCut*weights["GluGluHTauTau"].c_str());
-    VBFHTauTau->Draw("m_vis>>vbfhtautau_",wNormCut*weights["VBFHTauTau"].c_str());
+	W->Draw("mt_tot>>w_",wNormCut*weights["W"].c_str());
+	ZTT->Draw("mt_tot>>ztt_",wNormCut*weights["ZTT"].c_str());
+    ZJ->Draw("mt_tot>>zj_",wNormCut*weights["ZJ"].c_str());
+    ZL->Draw("mt_tot>>zl_",wNormCut*weights["ZL"].c_str());
+	VVT->Draw("mt_tot>>vvt_",wNormCut*weights["VV"].c_str());
+    VVJ->Draw("mt_tot>>vvj_",wNormCut*weights["VV"].c_str());
+    ZVV->Draw("mt_tot>>zvv_",wNormCut*weights["ZVV"].c_str());
+    EWK->Draw("mt_tot>>ewk_",wNormCut*weights["EWK"].c_str());
+	TTT->Draw("mt_tot>>ttt_",wNormCut*weights["TTT"].c_str());
+    TTJ->Draw("mt_tot>>ttj_",wNormCut*weights["TTJ"].c_str());
+	ZHTauTau->Draw("mt_tot>>zhtautau_",wNormCut*weights["ZHTauTau"].c_str());
+    GluGluHTauTau->Draw("mt_tot>>glugluhtautau_",wNormCut*weights["GluGluHTauTau"].c_str());
+    VBFHTauTau->Draw("mt_tot>>vbfhtautau_",wNormCut*weights["VBFHTauTau"].c_str());
     
-    fillQCD_Shape(wSSCut, wSSCutRel, 1.0, qcd_, "m_vis", m_visConBinning, "QCD AI SS m_vis sideband in " + chan + " channel", "", chan, 0, 0);
-	qcd_->Scale(qcdOStoSS);
+    fillQCD_ShapeVarBin(wSSCut, wSSCutRel, 1.0, qcd_, "mt_tot", mt_totVarBinning, "QCD AI SS mt_tot sideband in " + chan + " channel", syst, chan, 0, 0);
+	
+    qcd_->Scale(qcdOStoSS);
     
     smh_->Add(zhtautau_);
     smh_->Add(glugluhtautau_);
