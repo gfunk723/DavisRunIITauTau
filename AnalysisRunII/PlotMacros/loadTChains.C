@@ -83,6 +83,35 @@ TChain * MZP2500_MA0600  = new TChain("TauCheck");
 TChain * MZP2500_MA0700  = new TChain("TauCheck");
 TChain * MZP2500_MA0800  = new TChain("TauCheck");
 
+TChain * MZP10_MX1 = new TChain("TauCheck");
+TChain * MZP100_MX1 = new TChain("TauCheck");
+TChain * MZP500_MX1 = new TChain("TauCheck");
+TChain * MZP1000_MX1 = new TChain("TauCheck");
+TChain * MZP10000_MX1 = new TChain("TauCheck");
+
+TChain * MZP10_MX50 = new TChain("TauCheck");
+TChain * MZP100_MX50 = new TChain("TauCheck");
+TChain * MZP500_MX50 = new TChain("TauCheck");
+TChain * MZP1000_MX50 = new TChain("TauCheck");
+TChain * MZP10000_MX50 = new TChain("TauCheck");
+
+TChain * MZP10_MX150 = new TChain("TauCheck");
+TChain * MZP100_MX150 = new TChain("TauCheck");
+TChain * MZP500_MX150 = new TChain("TauCheck");
+TChain * MZP1000_MX150 = new TChain("TauCheck");
+TChain * MZP10000_MX150 = new TChain("TauCheck");
+
+TChain * MZP10_MX500 = new TChain("TauCheck");
+TChain * MZP100_MX500 = new TChain("TauCheck");
+TChain * MZP500_MX500 = new TChain("TauCheck");
+TChain * MZP1000_MX500 = new TChain("TauCheck");
+TChain * MZP10000_MX500 = new TChain("TauCheck");
+
+TChain * MZP10_MX1000 = new TChain("TauCheck");
+TChain * MZP100_MX1000 = new TChain("TauCheck");
+TChain * MZP500_MX1000 = new TChain("TauCheck");
+TChain * MZP1000_MX1000 = new TChain("TauCheck");
+TChain * MZP10000_MX1000 = new TChain("TauCheck");
 
 //BKG subgroups
 //W
@@ -160,7 +189,8 @@ TChain * ST_tW_top_5f_inclusiveDecays = new TChain("TauCheck");
 TChain * ST_t_channel_antitop_4f_inclusiveDecays = new TChain("TauCheck");
 TChain * ST_t_channel_top_4f_inclusiveDecays = new TChain("TauCheck");
 
-TChain * VVTo2L2Nu = new TChain("TauCheck");
+TChain * WWTo2L2Nu = new TChain("TauCheck");
+TChain * ZZTo2L2Nu = new TChain("TauCheck");
 TChain * WWTo1L1Nu2Q = new TChain("TauCheck");
 TChain * WZTo1L1Nu2Q = new TChain("TauCheck");
 TChain * WZTo1L3Nu = new TChain("TauCheck");
@@ -213,119 +243,151 @@ void fileLoad (TChain * CHAIN, TString PATH_TO_FILES, std::string FILE_NAME)
 void setup_MC_files(std::string FILE_NAME)
 {
 
-    fileLoad(GluGluHTauTau, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_GluGluHTauTau/GluGluHToTauTau_M125_13TeV_powheg_pythia8/", FILE_NAME);
-    fileLoad(VBFHTauTau, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_VBFHTauTau/VBFHToTauTau_M125_13TeV_powheg_pythia8/", FILE_NAME);
-    fileLoad(ZHTauTau, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_ZHTauTau/ZHToTauTau_M125_13TeV_powheg_pythia8/", FILE_NAME);
-    fileLoad(HWW, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_HWW2L2Nu/VBFHToWWTo2L2Nu_M125_13TeV_powheg_JHUgen_pythia8/", FILE_NAME);
-    fileLoad(HWW, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_HWW2L2Nu/GluGluHToWWTo2L2Nu_M125_13TeV_powheg_JHUgen_pythia8/", FILE_NAME);
+    fileLoad(GluGluHTauTau, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_GluGluHTauTau/GluGluHToTauTau_M125_13TeV_powheg_pythia8/", FILE_NAME);
+    fileLoad(VBFHTauTau, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_VBFHTauTau/VBFHToTauTau_M125_13TeV_powheg_pythia8/", FILE_NAME);
+    fileLoad(ZHTauTau, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_ZHTauTau/ZHToTauTau_M125_13TeV_powheg_pythia8/", FILE_NAME);
+    fileLoad(HWW, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_HWW2L2Nu/VBFHToWWTo2L2Nu_M125_13TeV_powheg_JHUgen_pythia8/", FILE_NAME);
+    fileLoad(HWW, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_HWW2L2Nu/GluGluHToWWTo2L2Nu_M125_13TeV_powheg_JHUgen_pythia8/", FILE_NAME);
     
-    fileLoad(TT, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/TT/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/", FILE_NAME);
+    fileLoad(TT, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/TT/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/", FILE_NAME);
     
-    fileLoad(ST_t_channel_antitop_4f_inclusiveDecays, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/VV/ST_t-channel_antitop_4f_inclusiveDecays_13TeV-powhegV2-madspin-pythia8_TuneCUETP8M1/", FILE_NAME);
-    fileLoad(ST_t_channel_top_4f_inclusiveDecays, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/VV/ST_t-channel_top_4f_inclusiveDecays_13TeV-powhegV2-madspin-pythia8_TuneCUETP8M1/", FILE_NAME);
-    fileLoad(ST_tW_antitop_5f_inclusiveDecays, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/VV/ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/", FILE_NAME);
-    fileLoad(ST_tW_top_5f_inclusiveDecays, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/VV/ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/", FILE_NAME);
+    fileLoad(ST_t_channel_antitop_4f_inclusiveDecays, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/VV/ST_t-channel_antitop_4f_inclusiveDecays_13TeV-powhegV2-madspin-pythia8_TuneCUETP8M1/", FILE_NAME);
+    fileLoad(ST_t_channel_top_4f_inclusiveDecays, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/VV/ST_t-channel_top_4f_inclusiveDecays_13TeV-powhegV2-madspin-pythia8_TuneCUETP8M1/", FILE_NAME);
+    fileLoad(ST_tW_antitop_5f_inclusiveDecays, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/VV/ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/", FILE_NAME);
+    fileLoad(ST_tW_top_5f_inclusiveDecays, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/VV/ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/", FILE_NAME);
 
-    fileLoad(VVTo2L2Nu, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/VV/VVTo2L2Nu_13TeV_amcatnloFXFX_madspin_pythia8/", FILE_NAME);
-    fileLoad(WWTo1L1Nu2Q, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/VV/WWTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8/", FILE_NAME);
-    fileLoad(WZTo1L1Nu2Q, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/VV/WZTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8/", FILE_NAME);
-    fileLoad(WZTo1L3Nu, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/VV/WZTo1L3Nu_13TeV_amcatnloFXFX_madspin_pythia8/", FILE_NAME);
-    fileLoad(WZTo2L2Q, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/VV/WZTo2L2Q_13TeV_amcatnloFXFX_madspin_pythia8/", FILE_NAME);
-    fileLoad(ZZTo2L2Q, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/VV/ZZTo2L2Q_13TeV_amcatnloFXFX_madspin_pythia8/", FILE_NAME);
-    fileLoad(ZZTo2Q2Nu, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/VV/ZZTo2Q2Nu_13TeV_amcatnloFXFX_madspin_pythia8/", FILE_NAME);
-    fileLoad(ZZTo4L, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/VV/ZZTo4L_13TeV-amcatnloFXFX-pythia8/",FILE_NAME);
-    fileLoad(ZZZ, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/VV/ZZZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8/", FILE_NAME);
-    fileLoad(WZZ, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/VV/WZZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8/", FILE_NAME);
-    fileLoad(WWZ, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/VV/WWZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8/", FILE_NAME);
-    fileLoad(WWW, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/VV/WWW_4F_TuneCUETP8M1_13TeV-amcatnlo-pythia8/", FILE_NAME);
+    fileLoad(WWTo2L2Nu, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/VV/WWTo2L2Nu_13TeV-powheg/", FILE_NAME);
+    fileLoad(ZZTo2L2Nu, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/VV/ZZTo2L2Nu_13TeV_powheg_pythia8/", FILE_NAME);
+    
+    fileLoad(WWTo1L1Nu2Q, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/VV/WWTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8/", FILE_NAME);
+    fileLoad(WZTo1L1Nu2Q, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/VV/WZTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8/", FILE_NAME);
+    fileLoad(WZTo1L3Nu, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/VV/WZTo1L3Nu_13TeV_amcatnloFXFX_madspin_pythia8/", FILE_NAME);
+    fileLoad(WZTo2L2Q, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/VV/WZTo2L2Q_13TeV_amcatnloFXFX_madspin_pythia8/", FILE_NAME);
+    fileLoad(ZZTo2L2Q, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/VV/ZZTo2L2Q_13TeV_amcatnloFXFX_madspin_pythia8/", FILE_NAME);
+    fileLoad(ZZTo2Q2Nu, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/VV/ZZTo2Q2Nu_13TeV_amcatnloFXFX_madspin_pythia8/", FILE_NAME);
+    fileLoad(ZZTo4L, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/VV/ZZTo4L_13TeV-amcatnloFXFX-pythia8/",FILE_NAME);
+    fileLoad(ZZZ, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/VV/ZZZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8/", FILE_NAME);
+    fileLoad(WZZ, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/VV/WZZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8/", FILE_NAME);
+    fileLoad(WWZ, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/VV/WWZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8/", FILE_NAME);
+    fileLoad(WWW, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/VV/WWW_4F_TuneCUETP8M1_13TeV-amcatnlo-pythia8/", FILE_NAME);
     
     if(useHTbinnedW==1)
     {
-        fileLoad(WJetsToLNu, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/W/WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
-        fileLoad(WJetsToLNuHT100To200, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/W/WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
-        fileLoad(WJetsToLNuHT200To400, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/W/WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
-        fileLoad(WJetsToLNuHT400To600, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/W/WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
-        fileLoad(WJetsToLNuHT600To800, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/W/WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
-        fileLoad(WJetsToLNuHT800To1200, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/W/WJetsToLNu_HT-800To1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
-        fileLoad(WJetsToLNuHT2500ToInf, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/W/WJetsToLNu_HT-1200To2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
-        fileLoad(WJetsToLNuHT1200To2500, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/W/WJetsToLNu_HT-2500ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
+        fileLoad(WJetsToLNu, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/W/WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
+        fileLoad(WJetsToLNuHT100To200, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/W/WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
+        fileLoad(WJetsToLNuHT200To400, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/W/WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
+        fileLoad(WJetsToLNuHT400To600, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/W/WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
+        fileLoad(WJetsToLNuHT600To800, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/W/WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
+        fileLoad(WJetsToLNuHT800To1200, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/W/WJetsToLNu_HT-800To1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
+        fileLoad(WJetsToLNuHT2500ToInf, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/W/WJetsToLNu_HT-1200To2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
+        fileLoad(WJetsToLNuHT1200To2500, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/W/WJetsToLNu_HT-2500ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
     }
     else
     {
-        fileLoad(W1JetsToLNu, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/W/W1JetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
-        fileLoad(W2JetsToLNu, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/W/W2JetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
-        fileLoad(W3JetsToLNu, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/W/W3JetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
-        fileLoad(W4JetsToLNu, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/W/W4JetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
+        fileLoad(W1JetsToLNu, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/W/W1JetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
+        fileLoad(W2JetsToLNu, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/W/W2JetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
+        fileLoad(W3JetsToLNu, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/W/W3JetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
+        fileLoad(W4JetsToLNu, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/W/W4JetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
     }
     
-    fileLoad(DY1Jets, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/DY/DY1JetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
-    fileLoad(DY2Jets, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/DY/DY2JetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
-    fileLoad(DY3Jets, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/DY/DY3JetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
-    fileLoad(DY4Jets, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/DY/DY4JetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
-    fileLoad(DYinc, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/DY/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
+    fileLoad(DY1Jets, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/DY/DY1JetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
+    fileLoad(DY2Jets, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/DY/DY2JetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
+    fileLoad(DY3Jets, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/DY/DY3JetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
+    fileLoad(DY4Jets, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/DY/DY4JetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
+    fileLoad(DYinc, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/DY/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/", FILE_NAME);
     
-    fileLoad(ZJetsToNuNuHT100To200, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/DYinv/ZJetsToNuNu_HT-100To200_13TeV-madgraph/", FILE_NAME);
-    fileLoad(ZJetsToNuNuHT200To400, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/DYinv/ZJetsToNuNu_HT-200To400_13TeV-madgraph/", FILE_NAME);
-    fileLoad(ZJetsToNuNuHT400To600, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/DYinv/ZJetsToNuNu_HT-400To600_13TeV-madgraph/", FILE_NAME);
-    fileLoad(ZJetsToNuNuHT600To800, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/DYinv/ZJetsToNuNu_HT-600To800_13TeV-madgraph/", FILE_NAME);
-    fileLoad(ZJetsToNuNuHT800To1200, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/DYinv/ZJetsToNuNu_HT-800To1200_13TeV-madgraph/", FILE_NAME);
-    fileLoad(ZJetsToNuNuHT1200To2500, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/DYinv/ZJetsToNuNu_HT-1200To2500_13TeV-madgraph/", FILE_NAME);
-    fileLoad(ZJetsToNuNuHT2500ToInf, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/DYinv/ZJetsToNuNu_HT-2500ToInf_13TeV-madgraph/", FILE_NAME);
+    fileLoad(ZJetsToNuNuHT100To200, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/DYinv/ZJetsToNuNu_HT-100To200_13TeV-madgraph/", FILE_NAME);
+    fileLoad(ZJetsToNuNuHT200To400, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/DYinv/ZJetsToNuNu_HT-200To400_13TeV-madgraph/", FILE_NAME);
+    fileLoad(ZJetsToNuNuHT400To600, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/DYinv/ZJetsToNuNu_HT-400To600_13TeV-madgraph/", FILE_NAME);
+    fileLoad(ZJetsToNuNuHT600To800, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/DYinv/ZJetsToNuNu_HT-600To800_13TeV-madgraph/", FILE_NAME);
+    fileLoad(ZJetsToNuNuHT800To1200, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/DYinv/ZJetsToNuNu_HT-800To1200_13TeV-madgraph/", FILE_NAME);
+    fileLoad(ZJetsToNuNuHT1200To2500, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/DYinv/ZJetsToNuNu_HT-1200To2500_13TeV-madgraph/", FILE_NAME);
+    fileLoad(ZJetsToNuNuHT2500ToInf, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/DYinv/ZJetsToNuNu_HT-2500ToInf_13TeV-madgraph/", FILE_NAME);
     
-    fileLoad(EWKWMinus2Jets, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/EWK/EWKWMinus2Jets_WToLNu_M-50_13TeV-madgraph-pythia8/", FILE_NAME);
-    fileLoad(EWKWPlus2Jets, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/EWK/EWKWPlus2Jets_WToLNu_M-50_13TeV-madgraph-pythia8/", FILE_NAME);
-    fileLoad(EWKZ2Jets_ZToLL, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/EWK/EWKZ2Jets_ZToLL_M-50_13TeV-madgraph-pythia8/", FILE_NAME);
-    fileLoad(EWKZ2Jets_ZToNuNu, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/EWK/EWKZ2Jets_ZToNuNu_13TeV-madgraph-pythia8/", FILE_NAME);
+    fileLoad(EWKWMinus2Jets, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/EWK/EWKWMinus2Jets_WToLNu_M-50_13TeV-madgraph-pythia8/", FILE_NAME);
+    fileLoad(EWKWPlus2Jets, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/EWK/EWKWPlus2Jets_WToLNu_M-50_13TeV-madgraph-pythia8/", FILE_NAME);
+    fileLoad(EWKZ2Jets_ZToLL, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/EWK/EWKZ2Jets_ZToLL_M-50_13TeV-madgraph-pythia8/", FILE_NAME);
+    fileLoad(EWKZ2Jets_ZToNuNu, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/EWK/EWKZ2Jets_ZToNuNu_13TeV-madgraph-pythia8/", FILE_NAME);
     
-    fileLoad(MZP600_MA0300, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-600_MA0-300_13TeV-madgraph-pythia8/", FILE_NAME);
-    fileLoad(MZP600_MA0400, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-600_MA0-400_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP600_MA0300, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-600_MA0-300_13TeV-madgraph-pythia8/", FILE_NAME);
+    fileLoad(MZP600_MA0400, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-600_MA0-400_13TeV-madgraph/", FILE_NAME);
     
-    fileLoad(MZP800_MA0300, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-800_MA0-300_13TeV-madgraph-pythia8/", FILE_NAME);
-    fileLoad(MZP800_MA0400, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-800_MA0-400_13TeV-madgraph/", FILE_NAME);
-    fileLoad(MZP800_MA0500, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-800_MA0-500_13TeV-madgraph/", FILE_NAME);
-    fileLoad(MZP800_MA0600, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-800_MA0-600_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP800_MA0300, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-800_MA0-300_13TeV-madgraph-pythia8/", FILE_NAME);
+    fileLoad(MZP800_MA0400, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-800_MA0-400_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP800_MA0500, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-800_MA0-500_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP800_MA0600, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-800_MA0-600_13TeV-madgraph/", FILE_NAME);
     
-    fileLoad(MZP1000_MA0300, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1000_MA0-300_13TeV-madgraph-pythia8/", FILE_NAME);
-    fileLoad(MZP1000_MA0400, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1000_MA0-400_13TeV-madgraph/", FILE_NAME);
-    fileLoad(MZP1000_MA0500, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1000_MA0-500_13TeV-madgraph/", FILE_NAME);
-    fileLoad(MZP1000_MA0600, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1000_MA0-600_13TeV-madgraph/", FILE_NAME);
-    fileLoad(MZP1000_MA0700, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1000_MA0-700_13TeV-madgraph/", FILE_NAME);
-    fileLoad(MZP1000_MA0800, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1000_MA0-800_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP1000_MA0300, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1000_MA0-300_13TeV-madgraph-pythia8/", FILE_NAME);
+    fileLoad(MZP1000_MA0400, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1000_MA0-400_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP1000_MA0500, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1000_MA0-500_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP1000_MA0600, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1000_MA0-600_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP1000_MA0700, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1000_MA0-700_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP1000_MA0800, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1000_MA0-800_13TeV-madgraph/", FILE_NAME);
     
-    fileLoad(MZP1200_MA0300, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1200_MA0-300_13TeV-madgraph-pythia8/", FILE_NAME);
-    fileLoad(MZP1200_MA0400, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1200_MA0-400_13TeV-madgraph/", FILE_NAME);
-    fileLoad(MZP1200_MA0500, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1200_MA0-500_13TeV-madgraph/", FILE_NAME);
-    fileLoad(MZP1200_MA0600, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1200_MA0-600_13TeV-madgraph/", FILE_NAME);
-    fileLoad(MZP1200_MA0700, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1200_MA0-700_13TeV-madgraph/", FILE_NAME);
-    fileLoad(MZP1200_MA0800, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1200_MA0-800_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP1200_MA0300, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1200_MA0-300_13TeV-madgraph-pythia8/", FILE_NAME);
+    fileLoad(MZP1200_MA0400, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1200_MA0-400_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP1200_MA0500, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1200_MA0-500_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP1200_MA0600, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1200_MA0-600_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP1200_MA0700, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1200_MA0-700_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP1200_MA0800, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1200_MA0-800_13TeV-madgraph/", FILE_NAME);
     
-    fileLoad(MZP1400_MA0300, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1400_MA0-300_13TeV-madgraph-pythia8/", FILE_NAME);
-    fileLoad(MZP1400_MA0400, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1400_MA0-400_13TeV-madgraph/", FILE_NAME);
-    fileLoad(MZP1400_MA0500, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1400_MA0-500_13TeV-madgraph/", FILE_NAME);
-    fileLoad(MZP1400_MA0600, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1400_MA0-600_13TeV-madgraph/", FILE_NAME);
-    fileLoad(MZP1400_MA0700, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1400_MA0-700_13TeV-madgraph/", FILE_NAME);
-    fileLoad(MZP1400_MA0800, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1400_MA0-800_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP1400_MA0300, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1400_MA0-300_13TeV-madgraph-pythia8/", FILE_NAME);
+    fileLoad(MZP1400_MA0400, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1400_MA0-400_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP1400_MA0500, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1400_MA0-500_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP1400_MA0600, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1400_MA0-600_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP1400_MA0700, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1400_MA0-700_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP1400_MA0800, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1400_MA0-800_13TeV-madgraph/", FILE_NAME);
     
-    fileLoad(MZP1700_MA0300, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1700_MA0-300_13TeV-madgraph-pythia8/", FILE_NAME);
-    fileLoad(MZP1700_MA0400, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1700_MA0-400_13TeV-madgraph/", FILE_NAME);
-    fileLoad(MZP1700_MA0500, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1700_MA0-500_13TeV-madgraph/", FILE_NAME);
-    fileLoad(MZP1700_MA0600, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1700_MA0-600_13TeV-madgraph/", FILE_NAME);
-    fileLoad(MZP1700_MA0700, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1700_MA0-700_13TeV-madgraph/", FILE_NAME);
-    fileLoad(MZP1700_MA0800, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1700_MA0-800_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP1700_MA0300, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1700_MA0-300_13TeV-madgraph-pythia8/", FILE_NAME);
+    fileLoad(MZP1700_MA0400, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1700_MA0-400_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP1700_MA0500, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1700_MA0-500_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP1700_MA0600, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1700_MA0-600_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP1700_MA0700, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1700_MA0-700_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP1700_MA0800, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-1700_MA0-800_13TeV-madgraph/", FILE_NAME);
     
-    fileLoad(MZP2000_MA0300, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-2000_MA0-300_13TeV-madgraph-pythia8/", FILE_NAME);
-    fileLoad(MZP2000_MA0400, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-2000_MA0-400_13TeV-madgraph/", FILE_NAME);
-    fileLoad(MZP2000_MA0500, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-2000_MA0-500_13TeV-madgraph/", FILE_NAME);
-    fileLoad(MZP2000_MA0600, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-2000_MA0-600_13TeV-madgraph/", FILE_NAME);
-    fileLoad(MZP2000_MA0700, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-2000_MA0-700_13TeV-madgraph/", FILE_NAME);
-    fileLoad(MZP2000_MA0800, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-2000_MA0-800_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP2000_MA0300, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-2000_MA0-300_13TeV-madgraph-pythia8/", FILE_NAME);
+    fileLoad(MZP2000_MA0400, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-2000_MA0-400_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP2000_MA0500, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-2000_MA0-500_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP2000_MA0600, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-2000_MA0-600_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP2000_MA0700, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-2000_MA0-700_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP2000_MA0800, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-2000_MA0-800_13TeV-madgraph/", FILE_NAME);
     
-    fileLoad(MZP2500_MA0300, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-2500_MA0-300_13TeV-madgraph-pythia8/", FILE_NAME);
-    fileLoad(MZP2500_MA0400, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-2500_MA0-400_13TeV-madgraph/", FILE_NAME);
-    fileLoad(MZP2500_MA0500, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-2500_MA0-500_13TeV-madgraph/", FILE_NAME);
-    fileLoad(MZP2500_MA0600, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-2500_MA0-600_13TeV-madgraph/", FILE_NAME);
-    fileLoad(MZP2500_MA0700, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-2500_MA0-700_13TeV-madgraph/", FILE_NAME);
-    fileLoad(MZP2500_MA0800, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-2500_MA0-800_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP2500_MA0300, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-2500_MA0-300_13TeV-madgraph-pythia8/", FILE_NAME);
+    fileLoad(MZP2500_MA0400, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-2500_MA0-400_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP2500_MA0500, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-2500_MA0-500_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP2500_MA0600, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-2500_MA0-600_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP2500_MA0700, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-2500_MA0-700_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP2500_MA0800, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/ZprimeToA0hToA0chichihtautau_2HDM_MZp-2500_MA0-800_13TeV-madgraph/", FILE_NAME);
+    
+    fileLoad(MZP10_MX1, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/MonoHtautau_ZpBaryonic_MZp-10_MChi-1_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP100_MX1, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/MonoHtautau_ZpBaryonic_MZp-100_MChi-1_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP500_MX1, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/MonoHtautau_ZpBaryonic_MZp-500_MChi-1_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP1000_MX1, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/MonoHtautau_ZpBaryonic_MZp-1000_MChi-1_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP10000_MX1, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/MonoHtautau_ZpBaryonic_MZp-10000_MChi-1_13TeV-madgraph/", FILE_NAME);
+    
+    fileLoad(MZP10_MX50, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/MonoHtautau_ZpBaryonic_MZp-10_MChi-50_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP100_MX50, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/MonoHtautau_ZpBaryonic_MZp-100_MChi-50_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP500_MX50, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/MonoHtautau_ZpBaryonic_MZp-500_MChi-50_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP1000_MX50, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/MonoHtautau_ZpBaryonic_MZp-1000_MChi-50_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP10000_MX50, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/MonoHtautau_ZpBaryonic_MZp-10000_MChi-50_13TeV-madgraph/", FILE_NAME);
+    
+    fileLoad(MZP10_MX150, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/MonoHtautau_ZpBaryonic_MZp-10_MChi-150_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP100_MX150, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/MonoHtautau_ZpBaryonic_MZp-100_MChi-150_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP500_MX150, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/MonoHtautau_ZpBaryonic_MZp-500_MChi-150_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP1000_MX150, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/MonoHtautau_ZpBaryonic_MZp-1000_MChi-150_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP10000_MX150, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/MonoHtautau_ZpBaryonic_MZp-10000_MChi-150_13TeV-madgraph/", FILE_NAME);
+    
+    fileLoad(MZP10_MX500, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/MonoHtautau_ZpBaryonic_MZp-10_MChi-500_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP100_MX500, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/MonoHtautau_ZpBaryonic_MZp-100_MChi-500_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP500_MX500, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/MonoHtautau_ZpBaryonic_MZp-500_MChi-500_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP1000_MX500, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/MonoHtautau_ZpBaryonic_MZp-1000_MChi-500_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP10000_MX500, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/MonoHtautau_ZpBaryonic_MZp-10000_MChi-500_13TeV-madgraph/", FILE_NAME);
+    
+    fileLoad(MZP10_MX1000, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/MonoHtautau_ZpBaryonic_MZp-10_MChi-1000_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP100_MX1000, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/MonoHtautau_ZpBaryonic_MZp-100_MChi-1000_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP500_MX1000, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/MonoHtautau_ZpBaryonic_MZp-500_MChi-1000_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP1000_MX1000, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/MonoHtautau_ZpBaryonic_MZp-1000_MChi-1000_13TeV-madgraph/", FILE_NAME);
+    fileLoad(MZP10000_MX1000, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/SIGNAL_MONO_HIGGS/MonoHtautau_ZpBaryonic_MZp-10000_MChi-1000_13TeV-madgraph/", FILE_NAME);
     
     //Consolidate TChains to main BKG categories
     
@@ -381,7 +443,8 @@ void setup_MC_files(std::string FILE_NAME)
     VV->Add(ST_tW_antitop_5f_inclusiveDecays);
     VV->Add(ST_tW_top_5f_inclusiveDecays);
     
-    VV->Add(VVTo2L2Nu);
+    VV->Add(WWTo2L2Nu);
+    VV->Add(ZZTo2L2Nu);
     VV->Add(WWTo1L1Nu2Q);
     VV->Add(WZTo1L1Nu2Q);
     VV->Add(WZTo1L3Nu);
@@ -420,30 +483,30 @@ void setup_MC_files(std::string FILE_NAME)
 void setup_files_eleTau()
 {
     std::cout<<" setup_files_eleTau TChains set up .... \n";
-    fileLoad(DATA, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/DATA/SingleElectron/", "davis_syncTree_BASELINE_EleTau.root");
+    fileLoad(DATA, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/DATA/SingleElectron/", "davis_syncTree_BASELINE_EleTau.root");
     setup_MC_files("davis_syncTree_BASELINE_EleTau.root");
 }
 
 void setup_files_muTau()
 {
     std::cout<<" setup_files_muTau TChains set up .... \n";
-    fileLoad(DATA, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/DATA/SingleMuon/", "davis_syncTree_BASELINE_MuTau.root");
+    fileLoad(DATA, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/DATA/SingleMuon/", "davis_syncTree_BASELINE_MuTau.root");
     setup_MC_files("davis_syncTree_BASELINE_MuTau.root");
 }
 
 void setup_files_TauTau()
 {
     std::cout<<" setup_files_TauTau TChains set up .... \n";
-    fileLoad(DATA, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/DATA/Tau/", "davis_syncTree_BASELINE_TauTau.root");
+    fileLoad(DATA, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/DATA/Tau/", "davis_syncTree_BASELINE_TauTau.root");
     setup_MC_files("davis_syncTree_BASELINE_TauTau.root");
 }
 
 void testComplete()
 {
 
-    fileLoad(DATA, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/DATA/Tau/", "davis_syncTree_BASELINE_TauTau.root");
-    fileLoad(DATA, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/DATA/SingleElectron/", "davis_syncTree_BASELINE_EleTau.root");
-    fileLoad(DATA, "/store/user/gfunk/MayProductionV1_8_0_26p1_V11/DATA/SingleMuon/", "davis_syncTree_BASELINE_MuTau.root");
+    fileLoad(DATA, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/DATA/Tau/", "davis_syncTree_BASELINE_TauTau.root");
+    fileLoad(DATA, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/DATA/SingleElectron/", "davis_syncTree_BASELINE_EleTau.root");
+    fileLoad(DATA, "/store/user/gfunk/MayProductionV1_8_0_26p1_V14/DATA/SingleMuon/", "davis_syncTree_BASELINE_MuTau.root");
 
     setup_MC_files("davis_syncTree_BASELINE_TauTau.root");
     setup_MC_files("davis_syncTree_BASELINE_EleTau.root");
@@ -513,7 +576,36 @@ void reset_files()
     MZP2500_MA0600->Reset();
     MZP2500_MA0700->Reset();
     MZP2500_MA0800->Reset();
-
+    
+    MZP10_MX1->Reset();
+    MZP100_MX1->Reset();
+    MZP500_MX1->Reset();
+    MZP1000_MX1->Reset();
+    MZP10000_MX1->Reset();
+    
+    MZP10_MX50->Reset();
+    MZP100_MX50->Reset();
+    MZP500_MX50->Reset();
+    MZP1000_MX50->Reset();
+    MZP10000_MX50->Reset();
+    
+    MZP10_MX150->Reset();
+    MZP100_MX150->Reset();
+    MZP500_MX150->Reset();
+    MZP1000_MX150->Reset();
+    MZP10000_MX150->Reset();
+    
+    MZP10_MX500->Reset();
+    MZP100_MX500->Reset();
+    MZP500_MX500->Reset();
+    MZP1000_MX500->Reset();
+    MZP10000_MX500->Reset();
+    
+    MZP10_MX1000->Reset();
+    MZP100_MX1000->Reset();
+    MZP500_MX1000->Reset();
+    MZP1000_MX1000->Reset();
+    MZP10000_MX1000->Reset();
 
     //BKG subgroups
     //W
@@ -588,7 +680,8 @@ void reset_files()
     ST_t_channel_antitop_4f_inclusiveDecays->Reset();
     ST_t_channel_top_4f_inclusiveDecays->Reset();
     
-    VVTo2L2Nu->Reset();
+    WWTo2L2Nu->Reset();
+    ZZTo2L2Nu->Reset();
     WWTo1L1Nu2Q->Reset();
     WZTo1L1Nu2Q->Reset();
     WZTo1L3Nu->Reset();
