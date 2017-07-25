@@ -27,7 +27,7 @@ def getDirList(inDir):
     return outDirList
 
 filesPerJob = 5
-topDirName = "/eos/uscms/store/user/gfunk/MayProductionV1_8_0_26p1_V11/"
+topDirName = "/eos/uscms/store/user/gfunk/MayProductionV1_8_0_26p1_V16/"
 
 subprocess.call('make clean', shell = True)
 subprocess.call('make', shell = True)
@@ -59,6 +59,9 @@ bkgDirLists = [
             ["GluGluHToTauTau_M125_13TeV_powheg_pythia8",getDirList("/eos/uscms/store/user/shalhout/GluGluHToTauTau_M125_13TeV_powheg_pythia8/Moriond17_BTAGFIXtry1/"),"SIGNAL_GluGluHTauTau"],
             ["VBFHToTauTau_M125_13TeV_powheg_pythia8",getDirList("/eos/uscms/store/user/shalhout/VBFHToTauTau_M125_13TeV_powheg_pythia8/Moriond17_BTAGFIXtry1/"),"SIGNAL_VBFHTauTau"],
             ["ZHToTauTau_M125_13TeV_powheg_pythia8",getDirList("/eos/uscms/store/user/shalhout/ZHToTauTau_M125_13TeV_powheg_pythia8/Moriond17_BTAGFIXtry1/"),"SIGNAL_ZHTauTau"],
+            ["WplusHToTauTau_M125_13TeV_powheg_pythia8",getDirList("/eos/uscms/store/user/gfunk/WplusHToTauTau_M125_13TeV_powheg_pythia8"),"SIGNAL_WHTauTau"],
+            ["WminusHToTauTau_M125_13TeV_powheg_pythia8",getDirList("/eos/uscms/store/user/gfunk/WminusHToTauTau_M125_13TeV_powheg_pythia8"),"SIGNAL_WHTauTau"],
+            ["ttHJetToNonbb_M125_13TeV_amcatnloFXFX_madspin_pythia8_mWCutfix",getDirList("/eos/uscms/store/user/gfunk/ttHJetToNonbb_M125_13TeV_amcatnloFXFX_madspin_pythia8_mWCutfix"),"SIGNAL_ttH"],
             ["VBFHToWWTo2L2Nu_M125_13TeV_powheg_JHUgen_pythia8",getDirList("/eos/uscms/store/user/shalhout/VBFHToWWTo2L2Nu_M125_13TeV_powheg_JHUgen_pythia8/Moriond17_BTAGFIXtry1/"),"SIGNAL_HWW2L2Nu"],
             ["GluGluHToWWTo2L2Nu_M125_13TeV_powheg_JHUgen_pythia8",getDirList("/eos/uscms/store/user/shalhout/GluGluHToWWTo2L2Nu_M125_13TeV_powheg_JHUgen_pythia8/Moriond17_GenBosonFixTry1/"),"SIGNAL_HWW2L2Nu"],
             ["SingleElectron",getDirList("/eos/uscms/store/user/shalhout/SingleElectron/Moriond17_BTAGFIXtry1Run2016B-03Feb2017_ver2-v2") + getDirList("/eos/uscms/store/user/shalhout/SingleElectron/Moriond17_BTAGFIXtry1Run2016C-03Feb2017-v1") + getDirList("/eos/uscms/store/user/shalhout/SingleElectron/Moriond17_BTAGFIXtry1Run2016D-03Feb2017-v1") + getDirList("/eos/uscms/store/user/shalhout/SingleElectron/Moriond17_BTAGFIXtry1Run2016E-03Feb2017-v1") + getDirList("/eos/uscms/store/user/shalhout/SingleElectron/Moriond17_BTAGFIXtry1Run2016F-03Feb2017-v1") + getDirList("/eos/uscms/store/user/shalhout/SingleElectron/Moriond17_BTAGFIXtry1Run2016G-03Feb2017-v1") + getDirList("/eos/uscms/store/user/shalhout/SingleElectron/Moriond17_BTAGFIXtry1Run2016G-03Feb2017-v1RECOVER") + getDirList("/eos/uscms/store/user/shalhout/SingleElectron/Moriond17_BTAGFIXtry1Run2016H-03Feb2017_ver2-v1") + getDirList("/eos/uscms/store/user/shalhout/SingleElectron/Moriond17_BTAGFIXtry1Run2016H-03Feb2017_ver3-v1"),"DATA"],
@@ -152,6 +155,8 @@ bkgDirLists = [
             ["DY4JetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",getDirList("/eos/uscms/store/user/gfunk/DY4JetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/Moriond17_BTAGFIXtry1/"),"DY"],
             ["DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",getDirList("/eos/uscms/store/user/gfunk/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/Moriond17_BTAGFIXtry2/"),"DY"],
             ["TT_TuneCUETP8M2T4_13TeV-powheg-pythia8",getDirList("/eos/uscms/store/user/gfunk/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/Moriond17_BTAGFIXtry1/"),"TT"],
+            ["TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8",getDirList("/eos/uscms/store/user/gfunk/TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8"),"TT"],
+            ["TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8",getDirList("/eos/uscms/store/user/gfunk/TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8"),"TT"],
             ["WWTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8",getDirList("/eos/uscms/store/user/gfunk/WWTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8/Moriond17_BTAGFIXtry1/"),"VV"],
             ["ZZTo2L2Q_13TeV_amcatnloFXFX_madspin_pythia8",getDirList("/eos/uscms/store/user/gfunk/ZZTo2L2Q_13TeV_amcatnloFXFX_madspin_pythia8/Moriond17_BTAGFIXtry1/"),"VV"],
             ["ZZTo2Q2Nu_13TeV_amcatnloFXFX_madspin_pythia8",getDirList("/eos/uscms/store/user/gfunk/ZZTo2Q2Nu_13TeV_amcatnloFXFX_madspin_pythia8/Moriond17_BTAGFIXtry1/"),"VV"],
@@ -159,7 +164,16 @@ bkgDirLists = [
             ["WZTo1L3Nu_13TeV_amcatnloFXFX_madspin_pythia8",getDirList("/eos/uscms/store/user/gfunk/WZTo1L3Nu_13TeV_amcatnloFXFX_madspin_pythia8/Moriond17_BTAGFIXtry1/"),"VV"],
             ["WZTo2L2Q_13TeV_amcatnloFXFX_madspin_pythia8",getDirList("/eos/uscms/store/user/gfunk/WZTo2L2Q_13TeV_amcatnloFXFX_madspin_pythia8/Moriond17_BTAGFIXtry1/"),"VV"],
             ["WZTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8",getDirList("/eos/uscms/store/user/gfunk/WZTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8/Moriond17_BTAGFIXtry1/"),"VV"],
-            ["VVTo2L2Nu_13TeV_amcatnloFXFX_madspin_pythia8",getDirList("/eos/uscms/store/user/gfunk/VVTo2L2Nu_13TeV_amcatnloFXFX_madspin_pythia8/Moriond17_BTAGFIXtry1/"),"VV"],
+            ["WZTo3LNu_TuneCUETP8M1_13TeV-powheg-pythia8",getDirList("/eos/uscms/store/user/gfunk/WZTo3LNu_TuneCUETP8M1_13TeV-powheg-pythia8"),"VV"],
+            ["WWToLNuQQ_13TeV-powheg",getDirList("/eos/uscms/store/user/gfunk/WWToLNuQQ_13TeV-powheg")+getDirList("/eos/uscms/store/user/gfunk/WWToLNuQQ_13TeV-powheg"),"VV"],
+            ["WWTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8",getDirList("/eos/uscms/store/user/gfunk/WWTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8"),"VV"],
+            ["GluGluWWTo2L2Nu_MCFM_13TeV",getDirList("/eos/uscms/store/user/gfunk/GluGluWWTo2L2Nu_MCFM_13TeV"),"VV"],
+            ["WWTo2L2Nu_DoubleScattering_13TeV-pythia8",getDirList("/eos/uscms/store/user/gfunk/WWTo2L2Nu_DoubleScattering_13TeV-pythia8"),"VV"],
+            ["WWJJToLNuLNu_EWK_noTop_13TeV-madgraph-pythia8",getDirList("/eos/uscms/store/user/gfunk/WWJJToLNuLNu_EWK_noTop_13TeV-madgraph-pythia8"),"VV"],
+            ["WpWpJJ_QCD_TuneCUETP8M1_13TeV-madgraph-pythia8",getDirList("/eos/uscms/store/user/gfunk/WpWpJJ_QCD_TuneCUETP8M1_13TeV-madgraph-pythia8"),"VV"],
+            ["WpWpJJ_EWK_TuneCUETP8M1_13TeV-madgraph-pythia8",getDirList("/eos/uscms/store/user/gfunk/WpWpJJ_EWK_TuneCUETP8M1_13TeV-madgraph-pythia8"),"VV"],
+            ["WWTo2L2Nu_13TeV-powheg",getDirList("/eos/uscms/store/user/gfunk/WWTo2L2Nu_13TeV-powheg/Moriond17_powhegVV/"),"VV"],
+            ["ZZTo2L2Nu_13TeV_powheg_pythia8",getDirList("/eos/uscms/store/user/gfunk/ZZTo2L2Nu_13TeV_powheg_pythia8/Moriond17_powhegVV/"),"VV"],
             ["WWW_4F_TuneCUETP8M1_13TeV-amcatnlo-pythia8",getDirList("/eos/uscms/store/user/gfunk/WWW_4F_TuneCUETP8M1_13TeV-amcatnlo-pythia8/Moriond17_BTAGFIXtry1/"),"VV"],
             ["WWZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8",getDirList("/eos/uscms/store/user/gfunk/WWZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8/Moriond17_BTAGFIXtry1/"),"VV"],
             ["WZZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8",getDirList("/eos/uscms/store/user/gfunk/WZZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8/Moriond17_BTAGFIXtry1/"),"VV"],

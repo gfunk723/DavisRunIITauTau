@@ -760,8 +760,9 @@ void generateH2TauSyncTree::handleEvent()
        R.getS("KeyName") == "WJetsToLNu_HT-1200To2500orig" ||\
        R.getS("KeyName") == "WJetsToLNu_HT-1200To2500" ||\
        R.getS("KeyName") == "WJetsToLNu_HT-2500ToInforig" ||\
-       R.getS("KeyName") == "WJetsToLNu_HT-2500ToInf")
-       
+       R.getS("KeyName") == "WJetsToLNu_HT-2500ToInf" ||\
+       R.getS("KeyName") == "ZZTo2L2Nu" ||\
+       R.getS("KeyName") == "WWTo2L2Nu")
     {
         genBosonTotal_Wpt = R.getD("MaxPtGenBoson_WisconinStyle_pt");
     }
@@ -3247,6 +3248,7 @@ void generateH2TauSyncTree::handleEvent()
     ZZReWeight_Weight = getZZFactor(0);
     ZZReWeight_WeightUp = getZZFactor(1);
     ZZReWeight_WeightDown = getZZFactor(-1);
+    WWReWeight_WeightUp = getWWFactor(0);
     JTF_WeightUp = getJetTauFakeFactor(0,1, l1, l2);
     JTF_WeightDown = getJetTauFakeFactor(0,-1, l1, l2);
     NLOReWeight_Weight = getNLOReWeight(0,10);
@@ -3282,16 +3284,27 @@ void generateH2TauSyncTree::handleEvent()
     //bool passMetFiltersData = (R.getB("isRealData")==1 && HBHENoiseFilter==1 && HBHENoiseIsoFilter==1 && EcalDeadCellTriggerPrimitiveFilter==1 && goodVerticesFilter==1 && eeBadScFilter==1 && chargedHadronTrackResolutionFilter==1 && globalTightHalo2016Filter==1 && BadChargedCandidateFilter==1 && BadPFMuonFilter==1);
     //bool passMetFiltersMC = (R.getB("isRealData")==0 && HBHENoiseFilter==1 && HBHENoiseIsoFilter==1 && EcalDeadCellTriggerPrimitiveFilter==1 && goodVerticesFilter==1 && chargedHadronTrackResolutionFilter==1 && globalTightHalo2016Filter==1 && BadChargedCandidateFilter==1 && BadPFMuonFilter==1);
     
-    bool passMetFiltersData = (R.getB("isRealData")==1 && HBHENoiseFilter==1 && HBHENoiseIsoFilter==1 && EcalDeadCellTriggerPrimitiveFilter==1 && goodVerticesFilter==1 && eeBadScFilter==1 && chargedHadronTrackResolutionFilter==1 && globalTightHalo2016Filter==1 && BadChargedCandidateFilter==1 && BadPFMuonFilter==1 && BadMuonTaggedMoriond17==0 && DuplicateMuonTaggedMoriond17==0);
+    //With Data Muon Filters
+    //bool passMetFiltersData = (R.getB("isRealData")==1 && HBHENoiseFilter==1 && HBHENoiseIsoFilter==1 && EcalDeadCellTriggerPrimitiveFilter==1 && goodVerticesFilter==1 && eeBadScFilter==1 && chargedHadronTrackResolutionFilter==1 && globalTightHalo2016Filter==1 && BadChargedCandidateFilter==1 && BadPFMuonFilter==1 && BadMuonTaggedMoriond17==0 && DuplicateMuonTaggedMoriond17==0);
+    
+    bool passMetFiltersData = (R.getB("isRealData")==1 && HBHENoiseFilter==1 && HBHENoiseIsoFilter==1 && EcalDeadCellTriggerPrimitiveFilter==1 && goodVerticesFilter==1 && eeBadScFilter==1 && chargedHadronTrackResolutionFilter==1 && globalTightHalo2016Filter==1 && BadChargedCandidateFilter==1 && BadPFMuonFilter==1);
+    
     bool passMetFiltersMC = (R.getB("isRealData")==0 && HBHENoiseFilter==1 && HBHENoiseIsoFilter==1 && EcalDeadCellTriggerPrimitiveFilter==1 && goodVerticesFilter==1 && chargedHadronTrackResolutionFilter==1 && globalTightHalo2016Filter==1 && BadChargedCandidateFilter==1 && BadPFMuonFilter==1);
     
     bool passFilters = ((passMetFiltersData || passMetFiltersMC) && isBoostedChannelPair==0);
 
+    //abrev cuts with lower edge TES cuts, should switch
+    //bool AbrevCutsTT = (passFilters && pt_1_TESDown > 40. && pt_2_TESDown > 40. && DeltaR_leg1_leg2 > 0.3 && DeltaR_leg1_leg2 < 2.0  && pairGoodForTrigger==1 && extramuon_veto==0  && extraelec_veto==0 && againstElectronVLooseMVA6_1 > 0.5 && againstMuonLoose3_1 > 0.5 && againstElectronVLooseMVA6_2 > 0.5 && againstMuonLoose3_2 > 0.5 && decayModeFinding_1 > 0.5 && decayModeFinding_2 > 0.5 && ((byLooseIsolationMVArun2v1DBdR03oldDMwLT_1 > 0.5 && byLooseIsolationMVArun2v1DBdR03oldDMwLT_2 > 0.5) || (byLooseIsolationMVArun2v1DBoldDMwLT_1 > 0.5 && byLooseIsolationMVArun2v1DBoldDMwLT_2 > 0.5)));
+    
+    //bool AbrevCutsET = (passFilters && pt_1 > 26. && pt_2_TESDown > 20. && DeltaR_leg1_leg2 > 0.3 && DeltaR_leg1_leg2 < 2.0 && pairGoodForTrigger==1 && extramuon_veto==0  && extraelec_veto==0 && iso_1 < 0.1 && againstElectronTightMVA6_2 > 0.5 && againstMuonLoose3_2 > 0.5 && (byLooseIsolationMVArun2v1DBdR03oldDMwLT_2 > 0.5 || byLooseIsolationMVArun2v1DBoldDMwLT_2 > 0.5) && decayModeFinding_2 > 0.5);
+    
+    //bool AbrevCutsMT = (passFilters && pt_1 > 26. && pt_2_TESDown > 20. && DeltaR_leg1_leg2 > 0.3 && DeltaR_leg1_leg2 < 2.0 && pairGoodForTrigger==1 && extramuon_veto==0  && extraelec_veto==0 && iso_1 < 0.15 && againstElectronVLooseMVA6_2 > 0.5 && againstMuonTight3_2 > 0.5 && (byLooseIsolationMVArun2v1DBdR03oldDMwLT_2 > 0.5 || byLooseIsolationMVArun2v1DBoldDMwLT_2 > 0.5) && decayModeFinding_2 > 0.5 );
+    
     bool AbrevCutsTT = (passFilters && pt_1 > 40. && pt_2 > 40. && DeltaR_leg1_leg2 > 0.3 && DeltaR_leg1_leg2 < 2.0  && pairGoodForTrigger==1 && extramuon_veto==0  && extraelec_veto==0 && againstElectronVLooseMVA6_1 > 0.5 && againstMuonLoose3_1 > 0.5 && againstElectronVLooseMVA6_2 > 0.5 && againstMuonLoose3_2 > 0.5 && decayModeFinding_1 > 0.5 && decayModeFinding_2 > 0.5 && ((byLooseIsolationMVArun2v1DBdR03oldDMwLT_1 > 0.5 && byLooseIsolationMVArun2v1DBdR03oldDMwLT_2 > 0.5) || (byLooseIsolationMVArun2v1DBoldDMwLT_1 > 0.5 && byLooseIsolationMVArun2v1DBoldDMwLT_2 > 0.5)));
     
-    bool AbrevCutsET = (passFilters && pt_1 > 26. && pt_2 > 20. && DeltaR_leg1_leg2 > 0.3 && DeltaR_leg1_leg2 < 2.0  && pairGoodForTrigger==1 && extramuon_veto==0  && extraelec_veto==0 && iso_1 < 0.1 && againstElectronTightMVA6_2 > 0.5 && againstMuonLoose3_2 > 0.5 && (byLooseIsolationMVArun2v1DBdR03oldDMwLT_2 > 0.5 || byLooseIsolationMVArun2v1DBoldDMwLT_2 > 0.5) && decayModeFinding_2 > 0.5);
+    bool AbrevCutsET = (passFilters && pt_1 > 26. && pt_2 > 20. && DeltaR_leg1_leg2 > 0.3 && DeltaR_leg1_leg2 < 2.0 && pairGoodForTrigger==1 && extramuon_veto==0  && extraelec_veto==0 && iso_1 < 0.3 && againstElectronTightMVA6_2 > 0.5 && againstMuonLoose3_2 > 0.5 && (byLooseIsolationMVArun2v1DBdR03oldDMwLT_2 > 0.5 || byLooseIsolationMVArun2v1DBoldDMwLT_2 > 0.5) && decayModeFinding_2 > 0.5);
     
-    bool AbrevCutsMT = (passFilters && pt_1 > 26. && pt_2 > 20. && DeltaR_leg1_leg2 > 0.3 && DeltaR_leg1_leg2 < 2.0   && pairGoodForTrigger==1 && extramuon_veto==0  && extraelec_veto==0 && iso_1 < 0.15 && againstElectronVLooseMVA6_2 > 0.5 && againstMuonTight3_2 > 0.5 && (byLooseIsolationMVArun2v1DBdR03oldDMwLT_2 > 0.5 || byLooseIsolationMVArun2v1DBoldDMwLT_2 > 0.5) && decayModeFinding_2 > 0.5 );
+    bool AbrevCutsMT = (passFilters && pt_1 > 26. && pt_2 > 20. && DeltaR_leg1_leg2 > 0.3 && DeltaR_leg1_leg2 < 2.0 && pairGoodForTrigger==1 && extramuon_veto==0  && extraelec_veto==0 && iso_1 < 0.25 && againstElectronVLooseMVA6_2 > 0.5 && againstMuonTight3_2 > 0.5 && (byLooseIsolationMVArun2v1DBdR03oldDMwLT_2 > 0.5 || byLooseIsolationMVArun2v1DBoldDMwLT_2 > 0.5) && decayModeFinding_2 > 0.5 );
 
 	if(AbrevCutsET && R.getI("CandidateEventType")==3) {num_et++; tree_EleTau->Fill();}
 	else if(R.getI("CandidateEventType")==2) {num_em++; tree_EleMu->Fill();}
@@ -3572,6 +3585,7 @@ void generateH2TauSyncTree::setupBranches(TTree * T)
     T->Branch("ZZReWeight_Weight", &ZZReWeight_Weight);
     T->Branch("ZZReWeight_WeightUp", &ZZReWeight_WeightUp);
     T->Branch("ZZReWeight_WeightDown", &ZZReWeight_WeightDown);
+    T->Branch("WWReWeight_WeightUp", &WWReWeight_WeightUp);
     T->Branch("JTF_WeightUp", &JTF_WeightUp);
     T->Branch("JTF_WeightDown", &JTF_WeightDown);
 	T->Branch("NLOReWeight_Weight", &NLOReWeight_Weight);
@@ -4646,6 +4660,7 @@ void generateH2TauSyncTree::reset()
     ZZReWeight_Weight = 1.0;           /* indluded in final_weight for ZZ*/
     ZZReWeight_WeightUp = 1.0;
     ZZReWeight_WeightDown = 1.0;
+    WWReWeight_WeightUp = 1.0;
     JTF_WeightUp = 1.0;
     JTF_WeightDown = 1.0;
 	NLOReWeight_Weight = 1.0;
@@ -6353,11 +6368,6 @@ double generateH2TauSyncTree::getNominalWeight(bool verbose_)
 
     /* Stitch with negative weight sums */
     
-    else if (R.getS("KeyName") == "VVTo2L2Nu")
-    {
-        stitch = 1.0;
-        returnWeight_ = (1000.0 * R.getD("CrossSection") * R.getD("generatorEventWeight")) / (63124438.72 * R.getD("FilterEff"));
-    }
     else if (R.getS("KeyName") == "WWTo1L1Nu2Q")
     {
         stitch = 1.0;
@@ -6863,6 +6873,23 @@ double generateH2TauSyncTree::getKFactorSyst(bool verbose, bool down)
     */
     return returnWeight_;
 }
+
+double generateH2TauSyncTree::getWWFactor(bool verbose_)
+{
+    double returnWeight_ = 1.0;
+    
+    if(R.getS("KeyName") == "WWTo2L2Nu")
+    {
+        double gen_met = R.getD("genMET");
+        double xval = WWcorr->GetXaxis()->FindBin(gen_met);
+        double k = WWcorr->GetBinContent(xval);
+        if (verbose_) {std::cout << "WW up weight factor: " << k << std::endl;}
+        returnWeight_ *= k;
+    }
+    
+    return returnWeight_;
+}
+
 double generateH2TauSyncTree::getZZFactor(int var)
 {
     double returnWeight_ = 1.0;
@@ -6870,23 +6897,24 @@ double generateH2TauSyncTree::getZZFactor(int var)
     if(R.getS("KeyName") == "ZZTo2L2Nu")
     {
         double genBosonTotal_Zpt = R.getD("MaxPtGenBoson_WisconinStyle_pt");
+        float xval = ZZcorr->GetXaxis()->FindBin(genBosonTotal_Zpt);
     
         if (var==-1)
         {
-            double j = ZZcorr->GetBinContent(genBosonTotal_Zpt,4);
-            double k = ZZcorr->GetBinContent(genBosonTotal_Zpt,2);
+            double j = ZZcorr->GetBinContent(xval,4);
+            double k = ZZcorr->GetBinContent(xval,2);
             returnWeight_ = j/k;
         }
         else if (var==0)
         {
-            double j = ZZcorr->GetBinContent(genBosonTotal_Zpt,1);
-            double k = ZZcorr->GetBinContent(genBosonTotal_Zpt,2);
-            returnWeight_ = k/j;
+            double j = ZZcorr->GetBinContent(xval,2);
+            double k = ZZcorr->GetBinContent(xval,1);
+            returnWeight_ = j/k;
         }
         else if (var==1)
         {
-            double j = ZZcorr->GetBinContent(genBosonTotal_Zpt,3);
-            double k = ZZcorr->GetBinContent(genBosonTotal_Zpt,2);
+            double j = ZZcorr->GetBinContent(xval,3);
+            double k = ZZcorr->GetBinContent(xval,2);
             returnWeight_ = j/k;
         }
     }
@@ -7033,15 +7061,25 @@ std::vector <double> generateH2TauSyncTree::getTauShift(int dm, int lt, int shif
     double returnShift0_ = 1.0;
     double returnShift1_ = 1.0;
     
+    /*
+    double ESdm0 = .995;
+    double ESdm1 = 1.011
+    double ESdm10 = 1.006
+    */
+    
+    double ESdm0 = 1.0;
+    double ESdm1 = 1.0;
+    double ESdm10 = 1.0;
+    
     if (lt == 3)
     {
         if (shift == 1) {returnShift0_ = 1.012; returnShift1_ = 1.012;}
         else if (shift == -1) {returnShift0_ = 0.988; returnShift1_ = 0.988;}
         else {returnShift0_ = 1.0; returnShift1_ = 1.0;}
         
-        if (dm==0) {returnShift1_ = 1.0; returnVal0_ = .995 * returnShift0_; returnVal1_ = 1.0;}
-        else if (dm==1) {returnVal0_ = 1.011 * returnShift0_; returnVal1_ = 1.011 * returnShift1_;}
-        else if (dm==10) {returnVal0_ = 1.006 * returnShift0_; returnVal1_ = 1.006 * returnShift1_;}
+        if (dm==0) {returnShift1_ = 1.0; returnVal0_ = ESdm0 * returnShift0_; returnVal1_ = 1.0;}
+        else if (dm==1) {returnVal0_ = ESdm1 * returnShift0_; returnVal1_ = ESdm1 * returnShift1_;}
+        else if (dm==10) {returnVal0_ = ESdm10 * returnShift0_; returnVal1_ = ESdm10 * returnShift1_;}
     }
     
     if (R.getB("isRealData")==0)

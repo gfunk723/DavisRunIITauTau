@@ -334,6 +334,10 @@ private:
     // monoZ ZZ factors
     TFile* ZZFactorsFile = new TFile("zzKfactorGenPt.root", "READ");
     TH1F* ZZcorr = (TH1F*) ZZFactorsFile->Get("zzKfactorGenPt");
+    
+    // NLO EWK WW factors
+    TFile* WWFactorsFile = new TFile("WWsigma.root", "READ");
+    TH1F* WWcorr = (TH1F*) WWFactorsFile->Get("NLOEW");
 
     //referenced for LPT
     TFile* inFile = new TFile("pDistPlots.root","READ");
@@ -1818,6 +1822,7 @@ private:
     double ZZReWeight_Weight;           /* indluded in final_weight for ZZ*/
     double ZZReWeight_WeightUp;
     double ZZReWeight_WeightDown;
+    double WWReWeight_WeightUp;
     double JTF_WeightUp;
     double JTF_WeightDown;
     double NLOReWeight_Weight;         /* indluded in final_weight */
@@ -1978,6 +1983,12 @@ private:
                 int = 1,0,-1 variants
 	*/
 	double getZZFactor(int);
+                
+    /* function getWWFactor :
+		return a k factor for reweighting WW:
+                bool = verbose option
+	*/
+	double getWWFactor(bool);
     
 	/* function getJetTauFakeFactor:
 		return a factor for reweighting W,ZJ:
